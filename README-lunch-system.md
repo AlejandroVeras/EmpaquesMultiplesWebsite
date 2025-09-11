@@ -2,6 +2,37 @@
 
 Este es un sistema moderno de registro de almuerzos desarrollado con React y Supabase, que reemplaza el sistema anterior con funcionalidades avanzadas.
 
+## 📁 Estructura del Proyecto
+
+El sistema está estructurado para separar completamente el sitio web público del sistema de almuerzos:
+
+```
+/                    # Sitio web público principal
+  index.html
+  css/
+  images/
+  ...otros archivos del sitio
+
+/almuerzo           # Sistema de registro de almuerzos (protegido)
+  index.html        # Punto de entrada al sistema (generado por build)
+  assets/           # Assets compilados (CSS, JS, imágenes)
+
+/lunch-system       # Código fuente del sistema (desarrollo)
+  src/
+    main.jsx
+    App.jsx
+    components/
+    pages/
+      AuthPage.jsx    # Login/Registro
+      Dashboard.jsx   # Panel principal
+      LunchRegistration.jsx  # Registro de almuerzo
+      AdminPanel.jsx  # Panel de administración
+```
+
+### Acceso al Sistema
+- **Sitio web principal**: `https://tu-dominio.com/`
+- **Sistema de almuerzos**: `https://tu-dominio.com/almuerzo`
+
 ## 🚀 Características
 
 ### Funcionalidades Principales
@@ -68,13 +99,13 @@ const supabaseKey = 'TU_SUPABASE_ANON_KEY'
 ```bash
 npm run dev
 ```
-El sistema estará disponible en `http://localhost:3000`
+El sistema estará disponible en `http://localhost:3000/almuerzo/`
 
 ### 4. Build para producción
 ```bash
 npm run build
 ```
-Los archivos se generarán en `../dist-lunch/`
+Los archivos se generarán en `../almuerzo/`
 
 ## 🚀 Despliegue
 

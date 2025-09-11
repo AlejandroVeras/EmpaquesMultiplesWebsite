@@ -3,13 +3,14 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/',
+  base: '/almuerzo/',
   server: {
     port: 3000,
     host: true
   },
   build: {
-    outDir: '../dist-lunch',
-    emptyOutDir: true
+    outDir: '../almuerzo',
+    emptyOutDir: true,
+    assetsDir: 'assets'
   }
 })

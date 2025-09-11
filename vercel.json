@@ -1,4 +1,14 @@
 {
+  "rewrites": [
+    {
+      "source": "/almuerzo",
+      "destination": "/almuerzo/index.html"
+    },
+    {
+      "source": "/almuerzo/(.*)",
+      "destination": "/almuerzo/index.html"
+    }
+  ],
   "routes": [
     { "handle": "filesystem" },
     { "src": "/.*", "dest": "/index.html" }
