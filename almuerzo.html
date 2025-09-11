@@ -195,26 +195,23 @@
   </style>
   <!-- Supabase JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
 </head>
 <body>
   <div class="header">
-    <span class="logo">
-      <img src="images/logo.png" alt="Logo Empaques Múltiples" />
-    </span>
+    <span class="logo"><img src="images/logo.png" alt="Logo Empaques Múltiples" /></span>
     <span class="titulo">Registro de Almuerzo</span>
   </div>
   <div class="container">
     <button class="logout hidden">Cerrar sesión</button>
-
-    <div id="auth" class="">
+    <div id="auth">
       <h3>Ingreso de empleado</h3>
-      <input type="email" id="email" placeholder="Correo" autocomplete="username">
-      <input type="password" id="password" placeholder="Contraseña" autocomplete="current-password">
+      <input type="text" id="usuario" placeholder="Usuario">
+      <input type="password" id="password" placeholder="Contraseña">
       <button id="login">Ingresar</button>
       <button id="register">Registrarse</button>
       <div id="auth-error" class="error"></div>
     </div>
-
     <div id="main" class="hidden">
       <div id="bienvenida" class="bienvenida"></div>
       <form id="almuerzo-form">
@@ -228,12 +225,14 @@
       <ul id="hist-list"></ul>
     </div>
   </div>
-
   <script>
     // Configuración Supabase
     const SUPABASE_URL = 'https://hvhroguawvsztdhvkxpv.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2aHJvZ3Vhd3ZzenRkaHZreHB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1OTgyNTcsImV4cCI6MjA3MzE3NDI1N30.D_UdP-7b43JUweoYuzfT2OOKy2g2VvigKuJeeeUgVgg';
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Estado de sesión
+    let empleadoActual = null;
 
     // Elementos
     const authDiv = document.getElementById('auth');
@@ -241,7 +240,7 @@
     const loginBtn = document.getElementById('login');
     const registerBtn = document.getElementById('register');
     const logoutBtn = document.querySelector('.logout');
-    const emailInput = document.getElementById('email');
+    const usuarioInput = document.getElementById('usuario');
     const passInput = document.getElementById('password');
     const authError = document.getElementById('auth-error');
     const bienvenidaDiv = document.getElementById('bienvenida');
@@ -261,54 +260,76 @@
       return d.toISOString().slice(0, 10);
     }
 
-    // Estado de sesión
-    async function chequearSesion() {
-      const { data: { session } } = await client.auth.getSession();
-      if (session && session.user) {
-        mostrarPrincipal(session.user);
-      } else {
-        authDiv.classList.remove('hidden');
-        mainDiv.classList.add('hidden');
-        logoutBtn.classList.add('hidden');
-      }
-    }
-    chequearSesion();
-
-    // Login
+    // Login personalizado
     loginBtn.onclick = async () => {
       authError.textContent = '';
-      const { data, error } = await client.auth.signInWithPassword({
-        email: emailInput.value,
-        password: passInput.value
-      });
-      if (error) authError.textContent = error.message;
-      else if (data.user) mostrarPrincipal(data.user);
+      const usuario = usuarioInput.value.trim();
+      const password = passInput.value;
+      if (!usuario || !password) {
+        authError.textContent = "Ingresa usuario y contraseña.";
+        return;
+      }
+      // Buscar usuario en la tabla empleados
+      const { data, error } = await client
+        .from('empleados')
+        .select('*')
+        .eq('usuario', usuario);
+      if (error || data.length === 0) {
+        authError.textContent = "Usuario o contraseña incorrectos.";
+        return;
+      }
+      const empleado = data[0];
+      // Verificar hash
+      const match = bcrypt.compareSync(password, empleado.password_hash);
+      if (!match) {
+        authError.textContent = "Usuario o contraseña incorrectos.";
+        return;
+      }
+      empleadoActual = empleado;
+      mostrarPrincipal(empleado);
     };
 
-    // Registro
+    // Registro personalizado
     registerBtn.onclick = async () => {
       authError.textContent = '';
-      const { data, error } = await client.auth.signUp({
-        email: emailInput.value,
-        password: passInput.value
-      });
+      const usuario = usuarioInput.value.trim();
+      const password = passInput.value;
+      const nombre = nombreInput.value.trim();
+      if (!usuario || !password || !nombre) {
+        authError.textContent = "Completa usuario, nombre y contraseña.";
+        return;
+      }
+      // Verifica si existe usuario
+      const { data: existe } = await client
+        .from('empleados')
+        .select('*')
+        .eq('usuario', usuario);
+      if (existe.length > 0) {
+        authError.textContent = "Usuario ya existe.";
+        return;
+      }
+      // Genera hash
+      const hash = bcrypt.hashSync(password, 10);
+      const { error } = await client
+        .from('empleados')
+        .insert([{ usuario, password_hash: hash, nombre }]);
       if (error) authError.textContent = error.message;
-      else authError.textContent = "¡Registro exitoso! Verifica tu correo y luego ingresa.";
+      else authError.textContent = "¡Registro exitoso! Ingresa tu usuario y contraseña.";
     };
 
     // Logout
-    logoutBtn.onclick = async () => {
-      await client.auth.signOut();
+    logoutBtn.onclick = () => {
+      empleadoActual = null;
       location.reload();
     };
 
     // Mostrar principal solo empleado
-    async function mostrarPrincipal(usuario) {
+    async function mostrarPrincipal(empleado) {
       authDiv.classList.add('hidden');
       mainDiv.classList.remove('hidden');
       logoutBtn.classList.remove('hidden');
-      bienvenidaDiv.textContent = `¡Bienvenido, ${usuario.email}!`;
-      await cargarListaPersonal(usuario);
+      bienvenidaDiv.textContent = `¡Bienvenido, ${empleado.nombre}!`;
+      await cargarListaPersonal(empleado);
     }
 
     // Guardar almuerzo
@@ -316,37 +337,36 @@
       e.preventDefault();
       formError.textContent = '';
       formSuccess.classList.add('hidden');
-      const { data: { session } } = await client.auth.getSession();
-      if (!session?.user) return formError.textContent = "Debes iniciar sesión.";
+      if (!empleadoActual) return formError.textContent = "Debes iniciar sesión.";
       const nombre = nombreInput.value.trim();
       if (!nombre) return formError.textContent = "Ingresa tu nombre.";
       // Evita duplicados por día y usuario
       const { data: yaAnotado, error: errorDup } = await client
         .from('almuerzos')
         .select('*')
-        .eq('user_id', session.user.id)
+        .eq('empleado_id', empleadoActual.id)
         .eq('fecha', hoyISO());
       if (errorDup) return formError.textContent = errorDup.message;
       if (yaAnotado.length > 0) return formError.textContent = "Ya registraste el almuerzo hoy.";
       // Inserta registro
       const { error } = await client
         .from('almuerzos')
-        .insert([{ user_id: session.user.id, nombre, fecha: hoyISO() }]);
+        .insert([{ empleado_id: empleadoActual.id, nombre, fecha: hoyISO() }]);
       if (error) formError.textContent = error.message;
       else {
         nombreInput.value = "";
         formSuccess.textContent = "¡Registro exitoso!";
         formSuccess.classList.remove('hidden');
-        await cargarListaPersonal(session.user);
+        await cargarListaPersonal(empleadoActual);
       }
     };
 
-    // Mostrar lista de almuerzos personales
-    async function cargarListaPersonal(usuario) {
+    // Mostrar lista personal
+    async function cargarListaPersonal(empleado) {
       const { data: hist, error } = await client
         .from('almuerzos')
         .select('nombre, fecha')
-        .eq('user_id', usuario.id)
+        .eq('empleado_id', empleado.id)
         .gte('fecha', fechaNDiasAtras(60))
         .order('fecha', { ascending: false });
       histList.innerHTML = hist?.map(x =>
