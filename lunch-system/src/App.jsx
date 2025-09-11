@@ -20,7 +20,7 @@ function App() {
 
   return (
     <div className="app">
-      <Router>
+      <Router basename="/almuerzo">
         {user && (
           <>
             <Header />
