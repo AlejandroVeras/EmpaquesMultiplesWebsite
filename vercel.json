@@ -1,6 +1,16 @@
 {
-  "routes": [
-    { "handle": "filesystem" },
-    { "src": "/.*", "dest": "/index.html" }
-  ]
+  "rewrites": [
+    {
+      "source": "/lunch-system/:path*",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/((?!static|css|js|images|fonts|videos|.*\\.).*)$",
+      "destination": "/index.html"
+    }
+  ],
+  "env": {
+    "VITE_SUPABASE_URL": "@supabase_url",
+    "VITE_SUPABASE_ANON_KEY": "@supabase_key"
+  }
 }
