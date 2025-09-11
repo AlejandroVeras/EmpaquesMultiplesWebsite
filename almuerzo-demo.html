@@ -2,15 +2,12 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Registro de Almuerzo | Empaques Múltiples</title>
+  <title>Registro de Almuerzo | Empaques Múltiples - Demo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Fuente Google usada en el sitio -->
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
   <!-- CSS personalizado -->
   <link rel="stylesheet" href="css/almuerzo.css">
-  <!-- External Dependencies -->
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="https://unpkg.com/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
 </head>
 <body>
   <!-- Loading overlay -->
@@ -20,7 +17,7 @@
 
   <div class="header">
     <span class="logo"><img src="images/logo.png" alt="Logo Empaques Múltiples" /></span>
-    <span class="titulo">Registro de Almuerzo</span>
+    <span class="titulo">Registro de Almuerzo - Demo</span>
   </div>
   
   <div class="container">
@@ -29,6 +26,10 @@
     <!-- Sección de autenticación -->
     <div id="auth">
       <h3>Ingreso de empleado</h3>
+      <div class="info" style="margin-bottom: 15px;">
+        <strong>Demo:</strong> Usuario: <code>test</code> / Contraseña: <code>test123</code><br>
+        O usuario: <code>admin</code> / Contraseña: <code>admin123</code>
+      </div>
       <input type="text" id="usuario" placeholder="Usuario" autocomplete="username">
       <input type="password" id="password" placeholder="Contraseña" autocomplete="current-password">
       <button id="login">Ingresar</button>
@@ -132,7 +133,7 @@
             </thead>
             <tbody id="records-table-body">
               <tr>
-                <td colspan="6" class="no-records">Cargando registros...</td>
+                <td colspan="6" class="no-records">Inicia sesión para ver tus registros</td>
               </tr>
             </tbody>
           </table>
@@ -146,7 +147,7 @@
     </div>
   </div>
   
-  <!-- JavaScript personalizado -->
-  <script src="js/almuerzo.js"></script>
+  <!-- JavaScript personalizado para demo -->
+  <script src="js/almuerzo-demo.js"></script>
 </body>
 </html>
