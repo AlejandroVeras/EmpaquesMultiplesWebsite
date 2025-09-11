@@ -400,3 +400,34 @@ body {
     padding: 0.5rem;
   }
 }
+
+/* NotFound component styles */
+.not-found {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  text-align: center;
+  padding: 2rem;
+}
+
+.not-found-container {
+  max-width: 500px;
+}
+
+.not-found h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #116835;
+}
+
+.not-found p {
+  font-size: 1.2rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.back-link:hover {
+  background-color: #116835 !important;
+  color: white !important;
+}
