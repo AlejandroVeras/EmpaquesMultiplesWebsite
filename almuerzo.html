@@ -2,376 +2,213 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Registro de Almuerzo | Empaques Múltiples</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Fuente Google usada en el sitio -->
-  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Registro de Almuerzos | Empaques Múltiples</title>
+  <link rel="icon" href="images/logo.png" type="image/x-icon">
   <style>
-    :root {
-      --verde: #116835;
-      --verde-oscuro: #0c4725;
-      --verde-claro: #e9f4ef;
-      --borde-verde: #cfe6da;
-      --gris-claro: #f7f7f7;
-      --gris-medio: #e0e0e0;
-      --negro: #252525;
-      --blanco: #fff;
-      --error-bg: #ffe9e9;
-      --error-color: #8b3030;
-    }
-    html, body {
-      height: 100%;
+    body {
       margin: 0;
-      padding: 0;
-      background: var(--gris-claro);
-      font-family: 'Roboto', Arial, sans-serif;
-      color: var(--negro);
+      font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f7f7f7 0%, #e9f4ef 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #252525;
     }
-    .header {
-      background: var(--blanco);
-      padding: 22px 0 14px 0;
+    
+    .container {
       text-align: center;
-      box-shadow: 0 2px 8px #d6e9df;
-      margin-bottom: 10px;
+      background: white;
+      padding: 3rem 2rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(17, 104, 53, 0.15);
+      border: 2px solid #cfe6da;
+      max-width: 600px;
+      width: 90%;
     }
-    .header .logo {
-      display: inline-block;
-      vertical-align: middle;
-      margin-right: 16px;
+    
+    .logo {
+      height: 80px;
+      margin-bottom: 1.5rem;
     }
-    .header img {
-      height: 56px;
-      max-width: 140px;
-      vertical-align: middle;
-    }
-    .header .titulo {
-      display: inline-block;
-      vertical-align: middle;
-      color: var(--verde);
-      font-size: 1.5em;
+    
+    h1 {
+      color: #116835;
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
       font-weight: 700;
       letter-spacing: 1px;
-      text-shadow: 0px 2px 6px #e9f4ef;
     }
-    .container {
-      max-width: 410px;
-      margin: 28px auto 0 auto;
-      background: var(--blanco);
-      padding: 32px 24px 24px 24px;
+    
+    p {
+      color: #666;
+      font-size: 1.2rem;
+      margin-bottom: 2rem;
+      line-height: 1.6;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 2rem;
+      background: linear-gradient(135deg, #116835 0%, #0c4725 100%);
+      color: white;
+      text-decoration: none;
       border-radius: 12px;
-      box-shadow: 0 4px 24px #11683522;
-    }
-    h3, h4 {
-      color: var(--verde);
-      margin-top: 0;
-      margin-bottom: 18px;
-      font-weight: 700;
-      letter-spacing: .5px;
-    }
-    input, button {
-      width: 100%;
-      margin-bottom: 14px;
-      padding: 12px 10px;
-      border: 1.5px solid var(--borde-verde);
-      border-radius: 6px;
-      font-size: 1em;
-      font-family: inherit;
-      box-sizing: border-box;
-      background: var(--gris-claro);
-      transition: border-color .18s;
-    }
-    input:focus {
-      outline: 2px solid var(--verde);
-      border-color: var(--verde);
-      background: var(--blanco);
-    }
-    button {
-      background: var(--verde);
-      color: var(--blanco);
-      font-weight: 700;
-      border: none;
-      cursor: pointer;
-      transition: background 0.18s;
-      box-shadow: 0 2px 6px #11683518;
-      border-radius: 26px;
-      font-size: 1.09em;
-    }
-    button:hover {
-      background: var(--verde-oscuro);
-    }
-    .logout {
-      background: var(--gris-claro);
-      color: var(--verde);
-      border: 1.5px solid var(--verde);
-      float: right;
-      margin-top: -40px;
-      font-size: 0.95em;
-      width: auto;
-      padding: 7px 16px;
-      border-radius: 5px;
-      margin-right: -10px;
-      transition: background 0.2s, color 0.2s;
-    }
-    .logout:hover {
-      background: var(--verde);
-      color: var(--blanco);
-    }
-    .error {
-      color: var(--error-color);
-      background: var(--error-bg);
-      font-size: 0.96em;
-      border-left: 4px solid var(--error-color);
-      padding: 7px 12px;
-      border-radius: 4px;
-      margin-bottom: 12px;
-    }
-    .hidden {
-      display: none;
-    }
-    ul {
-      background: var(--gris-claro);
-      border-radius: 4px;
-      padding: 10px 13px;
-      list-style-type: disc;
-      margin: 0 0 10px 0;
-      border: 1px solid var(--borde-verde);
-    }
-    li {
-      margin-bottom: 6px;
-      font-size: 1em;
-      color: var(--negro);
-    }
-    .fecha {
-      color: var(--verde);
-      font-weight: bold;
-      padding-right: 6px;
-      font-size: 0.99em;
-    }
-    #almuerzo-form input[type="text"] {
-      background: var(--verde-claro);
-      border-color: var(--verde);
-    }
-    #almuerzo-form button[type="submit"] {
-      margin-top: 4px;
-      background: linear-gradient(90deg, #116835 80%, #159e53 100%);
-      box-shadow: 0 2px 8px #11683529;
-    }
-    #register {
-      background:var(--gris-claro);
-      color:var(--verde);
-      border:1.5px solid var(--verde);
-      margin-bottom:5px;
-    }
-    #register:hover {
-      background: var(--verde);
-      color: var(--blanco);
-    }
-    .bienvenida {
-      background: var(--verde-claro);
-      color: var(--verde-oscuro);
+      font-size: 1.2rem;
       font-weight: 600;
-      padding: 9px 12px;
-      border-radius: 7px;
-      margin-bottom: 10px;
-      font-size: 1.02em;
-      text-align: center;
-      border: 1px solid var(--borde-verde);
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(17, 104, 53, 0.3);
+      margin: 0.5rem;
     }
-    .success {
-      background: #e9f4ef;
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(17, 104, 53, 0.4);
+      color: white;
+    }
+    
+    .btn-secondary {
+      background: linear-gradient(135deg, #f7f7f7 0%, #e0e0e0 100%);
       color: #116835;
-      font-size: 0.98em;
-      border-left: 4px solid #116835;
-      padding: 7px 12px;
-      border-radius: 4px;
-      margin-bottom: 12px;
+      border: 2px solid #116835;
+    }
+    
+    .btn-secondary:hover {
+      background: #116835;
+      color: white;
+    }
+    
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+      text-align: left;
+    }
+    
+    .feature {
+      background: #e9f4ef;
+      padding: 1.5rem;
+      border-radius: 12px;
+      border: 1px solid #cfe6da;
+    }
+    
+    .feature h3 {
+      color: #116835;
+      margin: 0 0 0.5rem 0;
+      font-size: 1.1rem;
       font-weight: 600;
     }
-    @media (max-width: 600px) {
-      .container { max-width: 98vw; padding: 18px 6vw; }
-      .header img { height: 34px; max-width: 100px; }
-      .header .titulo { font-size: 1.12em; }
+    
+    .feature p {
+      margin: 0;
+      font-size: 0.95rem;
+      color: #666;
+    }
+    
+    .icon {
+      width: 24px;
+      height: 24px;
+      fill: currentColor;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        padding: 2rem 1rem;
+        margin: 1rem;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      .features {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .btn {
+        width: 100%;
+        justify-content: center;
+        margin: 0.5rem 0;
+      }
     }
   </style>
-  <!-- Supabase JS CDN -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
 </head>
 <body>
-  <div class="header">
-    <span class="logo"><img src="images/logo.png" alt="Logo Empaques Múltiples" /></span>
-    <span class="titulo">Registro de Almuerzo</span>
-  </div>
   <div class="container">
-    <button class="logout hidden">Cerrar sesión</button>
-    <div id="auth">
-      <h3>Ingreso de empleado</h3>
-      <input type="text" id="usuario" placeholder="Usuario">
-      <input type="password" id="password" placeholder="Contraseña">
-      <button id="login">Ingresar</button>
-      <button id="register">Registrarse</button>
-      <div id="auth-error" class="error"></div>
+    <img src="images/logo.png" alt="Empaques Múltiples" class="logo">
+    <h1>Sistema de Registro de Almuerzos</h1>
+    <p>Nuevo sistema moderno con funcionalidades avanzadas de gestión y reportes</p>
+    
+    <div class="features">
+      <div class="feature">
+        <h3>
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          Dashboard Avanzado
+        </h3>
+        <p>Estadísticas en tiempo real y gráficos de tendencias</p>
+      </div>
+      
+      <div class="feature">
+        <h3>
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
+          </svg>
+          Exportación Excel
+        </h3>
+        <p>Genera reportes detallados y exporta a Excel</p>
+      </div>
+      
+      <div class="feature">
+        <h3>
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+          </svg>
+          Funciona Offline
+        </h3>
+        <p>Registra almuerzos sin conexión y sincroniza automáticamente</p>
+      </div>
+      
+      <div class="feature">
+        <h3>
+          <svg class="icon" viewBox="0 0 24 24">
+            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+          </svg>
+          Control de Roles
+        </h3>
+        <p>Diferentes niveles de acceso: Usuario, RRHH, Recepción, Admin</p>
+      </div>
     </div>
-    <div id="main" class="hidden">
-      <div id="bienvenida" class="bienvenida"></div>
-      <form id="almuerzo-form">
-        <input type="text" id="nombre" placeholder="Tu nombre completo" required>
-        <button type="submit">¡Anotarme para almuerzo hoy!</button>
-      </form>
-      <div id="form-success" class="success hidden"></div>
-      <div id="form-error" class="error"></div>
-      <hr>
-      <h4>Mis almuerzos últimos 60 días:</h4>
-      <ul id="hist-list"></ul>
+    
+    <div style="margin-top: 2rem;">
+      <a href="dist-lunch/index.html" class="btn">
+        <svg class="icon" viewBox="0 0 24 24">
+          <path d="M5 12l5 5L20 7"/>
+        </svg>
+        Acceder al Sistema Nuevo
+      </a>
+      
+      <a href="almuerzo-backup.html" class="btn btn-secondary">
+        <svg class="icon" viewBox="0 0 24 24">
+          <path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/>
+        </svg>
+        Usar Sistema Anterior
+      </a>
+    </div>
+    
+    <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e9f4ef;">
+      <p style="font-size: 1rem; color: #116835; margin: 0;">
+        <strong>Características del nuevo sistema:</strong><br>
+        Autenticación segura • Tiempo real • Reportes automáticos • Gestión de usuarios • Soporte offline
+      </p>
     </div>
   </div>
-  <script>
-    // Configuración Supabase
-    const SUPABASE_URL = 'https://hvhroguawvsztdhvkxpv.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2aHJvZ3Vhd3ZzenRkaHZreHB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1OTgyNTcsImV4cCI6MjA3MzE3NDI1N30.D_UdP-7b43JUweoYuzfT2OOKy2g2VvigKuJeeeUgVgg';
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // Estado de sesión
-    let empleadoActual = null;
-
-    // Elementos
-    const authDiv = document.getElementById('auth');
-    const mainDiv = document.getElementById('main');
-    const loginBtn = document.getElementById('login');
-    const registerBtn = document.getElementById('register');
-    const logoutBtn = document.querySelector('.logout');
-    const usuarioInput = document.getElementById('usuario');
-    const passInput = document.getElementById('password');
-    const authError = document.getElementById('auth-error');
-    const bienvenidaDiv = document.getElementById('bienvenida');
-    const form = document.getElementById('almuerzo-form');
-    const nombreInput = document.getElementById('nombre');
-    const formError = document.getElementById('form-error');
-    const formSuccess = document.getElementById('form-success');
-    const histList = document.getElementById('hist-list');
-
-    function hoyISO() {
-      const d = new Date();
-      return d.toISOString().slice(0, 10);
-    }
-    function fechaNDiasAtras(n) {
-      const d = new Date();
-      d.setDate(d.getDate() - n);
-      return d.toISOString().slice(0, 10);
-    }
-
-    // Login personalizado
-    loginBtn.onclick = async () => {
-      authError.textContent = '';
-      const usuario = usuarioInput.value.trim();
-      const password = passInput.value;
-      if (!usuario || !password) {
-        authError.textContent = "Ingresa usuario y contraseña.";
-        return;
-      }
-      // Buscar usuario en la tabla empleados
-      const { data, error } = await client
-        .from('empleados')
-        .select('*')
-        .eq('usuario', usuario);
-      if (error || data.length === 0) {
-        authError.textContent = "Usuario o contraseña incorrectos.";
-        return;
-      }
-      const empleado = data[0];
-      // Verificar hash
-      const match = bcrypt.compareSync(password, empleado.password_hash);
-      if (!match) {
-        authError.textContent = "Usuario o contraseña incorrectos.";
-        return;
-      }
-      empleadoActual = empleado;
-      mostrarPrincipal(empleado);
-    };
-
-    // Registro personalizado
-    registerBtn.onclick = async () => {
-      authError.textContent = '';
-      const usuario = usuarioInput.value.trim();
-      const password = passInput.value;
-      const nombre = nombreInput.value.trim();
-      if (!usuario || !password || !nombre) {
-        authError.textContent = "Completa usuario, nombre y contraseña.";
-        return;
-      }
-      // Verifica si existe usuario
-      const { data: existe } = await client
-        .from('empleados')
-        .select('*')
-        .eq('usuario', usuario);
-      if (existe.length > 0) {
-        authError.textContent = "Usuario ya existe.";
-        return;
-      }
-      // Genera hash
-      const hash = bcrypt.hashSync(password, 10);
-      const { error } = await client
-        .from('empleados')
-        .insert([{ usuario, password_hash: hash, nombre }]);
-      if (error) authError.textContent = error.message;
-      else authError.textContent = "¡Registro exitoso! Ingresa tu usuario y contraseña.";
-    };
-
-    // Logout
-    logoutBtn.onclick = () => {
-      empleadoActual = null;
-      location.reload();
-    };
-
-    // Mostrar principal solo empleado
-    async function mostrarPrincipal(empleado) {
-      authDiv.classList.add('hidden');
-      mainDiv.classList.remove('hidden');
-      logoutBtn.classList.remove('hidden');
-      bienvenidaDiv.textContent = `¡Bienvenido, ${empleado.nombre}!`;
-      await cargarListaPersonal(empleado);
-    }
-
-    // Guardar almuerzo
-    form.onsubmit = async (e) => {
-      e.preventDefault();
-      formError.textContent = '';
-      formSuccess.classList.add('hidden');
-      if (!empleadoActual) return formError.textContent = "Debes iniciar sesión.";
-      const nombre = nombreInput.value.trim();
-      if (!nombre) return formError.textContent = "Ingresa tu nombre.";
-      // Evita duplicados por día y usuario
-      const { data: yaAnotado, error: errorDup } = await client
-        .from('almuerzos')
-        .select('*')
-        .eq('empleado_id', empleadoActual.id)
-        .eq('fecha', hoyISO());
-      if (errorDup) return formError.textContent = errorDup.message;
-      if (yaAnotado.length > 0) return formError.textContent = "Ya registraste el almuerzo hoy.";
-      // Inserta registro
-      const { error } = await client
-        .from('almuerzos')
-        .insert([{ empleado_id: empleadoActual.id, nombre, fecha: hoyISO() }]);
-      if (error) formError.textContent = error.message;
-      else {
-        nombreInput.value = "";
-        formSuccess.textContent = "¡Registro exitoso!";
-        formSuccess.classList.remove('hidden');
-        await cargarListaPersonal(empleadoActual);
-      }
-    };
-
-    // Mostrar lista personal
-    async function cargarListaPersonal(empleado) {
-      const { data: hist, error } = await client
-        .from('almuerzos')
-        .select('nombre, fecha')
-        .eq('empleado_id', empleado.id)
-        .gte('fecha', fechaNDiasAtras(60))
-        .order('fecha', { ascending: false });
-      histList.innerHTML = hist?.map(x =>
-        `<li><span class="fecha">${x.fecha}</span> ${x.nombre}</li>`).join('') || '';
-    }
-  </script>
 </body>
 </html>
