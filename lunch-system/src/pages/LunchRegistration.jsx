@@ -4,7 +4,7 @@ import { useAuth } from '../hooks/useAuth'
 import { db, addToSyncQueue, syncOfflineData } from '../lib/offline'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Plus, Wifi, WifiOff, Search, User, Clock, MessageCircle, Calendar } from 'lucide-react'
+import { Plus, Wifi, WifiOff, Search, User, Clock, MessageCircle, Calendar, Utensils, Edit2, Trash2 } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
 
 function LunchRegistration() {
@@ -15,15 +15,18 @@ function LunchRegistration() {
   const [error, setError] = useState('')
   const [formData, setFormData] = useState({
     user_id: '',
+    menu: '',
     comments: '',
     date: format(new Date(), 'yyyy-MM-dd'),
     time: format(new Date(), 'HH:mm')
   })
   const [searchTerm, setSearchTerm] = useState('')
   const [users, setUsers] = useState([])
+  const [menuTypes, setMenuTypes] = useState([])
   const [filteredUsers, setFilteredUsers] = useState([])
   const [showUserSearch, setShowUserSearch] = useState(false)
   const [todayRecords, setTodayRecords] = useState([])
+  const [editingRecord, setEditingRecord] = useState(null)
 
   useEffect(() => {
     const handleOnline = () => {
@@ -48,6 +51,7 @@ function LunchRegistration() {
       // For regular users, set their own ID
       setFormData(prev => ({ ...prev, user_id: user.id }))
     }
+    fetchMenuTypes()
     fetchTodayRecords()
   }, [canViewAllRecords, user])
 
@@ -82,6 +86,21 @@ function LunchRegistration() {
       setFilteredUsers(data || [])
     } catch (error) {
       console.error('Error fetching users:', error)
+    }
+  }
+
+  const fetchMenuTypes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('menu_types')
+        .select('*')
+        .eq('active', true)
+        .order('name')
+
+      if (error) throw error
+      setMenuTypes(data || [])
+    } catch (error) {
+      console.error('Error fetching menu types:', error)
     }
   }
 
@@ -142,39 +161,68 @@ function LunchRegistration() {
         user_id: formData.user_id,
         date: formData.date,
         time: formData.time,
+        menu: formData.menu || null,
         comments: formData.comments || null,
         created_by: user.id
       }
 
-      if (isOnline) {
-        // Online: save directly to Supabase
-        const { error } = await supabase
-          .from('lunch_records')
-          .insert([recordData])
+      if (editingRecord) {
+        // Update existing record
+        if (isOnline) {
+          const { error } = await supabase
+            .from('lunch_records')
+            .update({
+              date: formData.date,
+              time: formData.time,
+              menu: formData.menu || null,
+              comments: formData.comments || null,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', editingRecord.id)
 
-        if (error) throw error
-        
-        setSuccess('¡Registro de almuerzo guardado exitosamente!')
-      } else {
-        // Offline: save to IndexedDB
-        const offlineRecord = {
-          ...recordData,
-          id: crypto.randomUUID(),
-          synced: false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
+          if (error) throw error
+          setSuccess('¡Registro de almuerzo actualizado exitosamente!')
+        } else {
+          // Offline update - add to sync queue
+          await addToSyncQueue('update', 'lunch_records', {
+            ...recordData,
+            id: editingRecord.id
+          })
+          setSuccess('¡Registro actualizado offline! Se sincronizará cuando tengas conexión.')
         }
+      } else {
+        // Create new record
+        if (isOnline) {
+          // Online: save directly to Supabase
+          const { error } = await supabase
+            .from('lunch_records')
+            .insert([recordData])
 
-        await db.lunch_records.add(offlineRecord)
-        await addToSyncQueue('insert', 'lunch_records', recordData)
-        
-        setSuccess('¡Registro guardado offline! Se sincronizará cuando tengas conexión.')
+          if (error) throw error
+          
+          setSuccess('¡Registro de almuerzo guardado exitosamente!')
+        } else {
+          // Offline: save to IndexedDB
+          const offlineRecord = {
+            ...recordData,
+            id: crypto.randomUUID(),
+            synced: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+
+          await db.lunch_records.add(offlineRecord)
+          await addToSyncQueue('insert', 'lunch_records', recordData)
+          
+          setSuccess('¡Registro guardado offline! Se sincronizará cuando tengas conexión.')
+        }
       }
 
       // Reset form for next entry
       if (canViewAllRecords) {
         setFormData({
           user_id: '',
+          menu: '',
           comments: '',
           date: format(new Date(), 'yyyy-MM-dd'),
           time: format(new Date(), 'HH:mm')
@@ -184,11 +232,13 @@ function LunchRegistration() {
       } else {
         setFormData(prev => ({
           ...prev,
+          menu: '',
           comments: '',
           time: format(new Date(), 'HH:mm')
         }))
       }
 
+      setEditingRecord(null)
       fetchTodayRecords()
       
     } catch (error) {
@@ -202,6 +252,73 @@ function LunchRegistration() {
     setFormData(prev => ({ ...prev, user_id: user.id }))
     setSearchTerm(user.full_name || '')
     setShowUserSearch(false)
+  }
+
+  const editRecord = (record) => {
+    setEditingRecord(record)
+    setFormData({
+      user_id: record.user_id,
+      menu: record.menu || '',
+      comments: record.comments || '',
+      date: record.date,
+      time: record.time
+    })
+    
+    if (canViewAllRecords) {
+      const user = users.find(u => u.id === record.user_id)
+      if (user) {
+        setSearchTerm(user.full_name || '')
+      }
+    }
+  }
+
+  const cancelEdit = () => {
+    setEditingRecord(null)
+    setFormData({
+      user_id: canViewAllRecords ? '' : user.id,
+      menu: '',
+      comments: '',
+      date: format(new Date(), 'yyyy-MM-dd'),
+      time: format(new Date(), 'HH:mm')
+    })
+    setSearchTerm('')
+    setShowUserSearch(false)
+  }
+
+  const cancelRecord = async (recordId) => {
+    if (!confirm('¿Estás seguro de que quieres cancelar este registro?')) {
+      return
+    }
+
+    try {
+      setLoading(true)
+      setError('')
+
+      if (isOnline) {
+        const { error } = await supabase
+          .from('lunch_records')
+          .update({ 
+            status: 'cancelled',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', recordId)
+
+        if (error) throw error
+        setSuccess('Registro cancelado exitosamente')
+      } else {
+        await addToSyncQueue('update', 'lunch_records', {
+          id: recordId,
+          status: 'cancelled'
+        })
+        setSuccess('Registro cancelado offline! Se sincronizará cuando tengas conexión.')
+      }
+
+      fetchTodayRecords()
+    } catch (error) {
+      setError(error.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const selectedUser = users.find(u => u.id === formData.user_id)
@@ -231,9 +348,18 @@ function LunchRegistration() {
       <div className="card">
         <div className="card-header">
           <h2 className="card-title">
-            <Plus size={24} />
-            Registrar Almuerzo
+            {editingRecord ? <Edit2 size={24} /> : <Plus size={24} />}
+            {editingRecord ? 'Editar Registro de Almuerzo' : 'Registrar Almuerzo'}
           </h2>
+          {editingRecord && (
+            <button 
+              type="button" 
+              className="btn btn-secondary"
+              onClick={cancelEdit}
+            >
+              Cancelar Edición
+            </button>
+          )}
         </div>
         <div className="card-content">
           <form onSubmit={handleSubmit}>
@@ -395,6 +521,26 @@ function LunchRegistration() {
 
             <div className="form-group">
               <label className="form-label">
+                <Utensils size={16} />
+                Tipo de Menú
+              </label>
+              <select
+                className="form-select"
+                value={formData.menu}
+                onChange={(e) => setFormData(prev => ({ ...prev, menu: e.target.value }))}
+                required
+              >
+                <option value="">Seleccionar tipo de menú...</option>
+                {menuTypes.map(menu => (
+                  <option key={menu.id} value={menu.name}>
+                    {menu.name} {menu.description && `- ${menu.description}`}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">
                 <MessageCircle size={16} />
                 Comentarios (opcional)
               </label>
@@ -422,9 +568,9 @@ function LunchRegistration() {
             <button 
               type="submit" 
               className="btn btn-primary"
-              disabled={loading || (!canViewAllRecords ? false : !formData.user_id)}
+              disabled={loading || (!canViewAllRecords ? false : !formData.user_id) || !formData.menu}
             >
-              {loading ? 'Guardando...' : 'Registrar Almuerzo'}
+              {loading ? 'Guardando...' : editingRecord ? 'Actualizar Registro' : 'Registrar Almuerzo'}
             </button>
           </form>
         </div>
@@ -448,16 +594,58 @@ function LunchRegistration() {
                     <th>Hora</th>
                     {canViewAllRecords && <th>Usuario</th>}
                     {canViewAllRecords && <th>Departamento</th>}
+                    <th>Menú</th>
                     <th>Comentarios</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
                   {todayRecords.map((record) => (
-                    <tr key={record.id}>
+                    <tr key={record.id} style={{ 
+                      opacity: record.status === 'cancelled' ? 0.6 : 1 
+                    }}>
                       <td>{record.time}</td>
                       {canViewAllRecords && <td>{record.profiles?.full_name || 'N/A'}</td>}
                       {canViewAllRecords && <td>{record.profiles?.departments?.name || 'N/A'}</td>}
+                      <td>{record.menu || '-'}</td>
                       <td>{record.comments || '-'}</td>
+                      <td>
+                        <span style={{
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '12px',
+                          fontSize: '0.75rem',
+                          fontWeight: '600',
+                          background: record.status === 'cancelled' ? '#fee' : '#efe',
+                          color: record.status === 'cancelled' ? '#c33' : '#393'
+                        }}>
+                          {record.status === 'cancelled' ? 'Cancelado' : 'Activo'}
+                        </span>
+                      </td>
+                      <td>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          {record.status !== 'cancelled' && (
+                            canViewAllRecords || record.user_id === user.id
+                          ) && (
+                            <>
+                              <button
+                                className="btn btn-small btn-secondary"
+                                onClick={() => editRecord(record)}
+                                title="Editar registro"
+                              >
+                                <Edit2 size={14} />
+                              </button>
+                              <button
+                                className="btn btn-small btn-danger"
+                                onClick={() => cancelRecord(record.id)}
+                                title="Cancelar registro"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

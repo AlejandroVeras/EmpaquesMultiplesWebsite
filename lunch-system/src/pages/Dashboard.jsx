@@ -178,7 +178,9 @@ function Dashboard() {
       'Hora': record.time,
       'Usuario': record.profiles?.full_name || 'N/A',
       'Departamento': record.profiles?.departments?.name || 'N/A',
+      'Menú': record.menu || '',
       'Comentarios': record.comments || '',
+      'Estado': record.status === 'cancelled' ? 'Cancelado' : 'Activo',
       'Registrado por': record.created_by_profile?.full_name || 'N/A',
       'Fecha de registro': format(new Date(record.created_at), 'dd/MM/yyyy HH:mm')
     }))
@@ -374,25 +376,42 @@ function Dashboard() {
                   <th>Hora</th>
                   {canViewAllRecords && <th>Usuario</th>}
                   {canViewAllRecords && <th>Departamento</th>}
+                  <th>Menú</th>
                   <th>Comentarios</th>
+                  <th>Estado</th>
                   <th>Registrado por</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredRecords.length === 0 ? (
                   <tr>
-                    <td colSpan={canViewAllRecords ? 6 : 4} style={{ textAlign: 'center', padding: '2rem' }}>
+                    <td colSpan={canViewAllRecords ? 8 : 6} style={{ textAlign: 'center', padding: '2rem' }}>
                       No hay registros para mostrar
                     </td>
                   </tr>
                 ) : (
                   filteredRecords.map((record) => (
-                    <tr key={record.id}>
+                    <tr key={record.id} style={{ 
+                      opacity: record.status === 'cancelled' ? 0.6 : 1 
+                    }}>
                       <td>{format(new Date(record.date), 'dd/MM/yyyy', { locale: es })}</td>
                       <td>{record.time}</td>
                       {canViewAllRecords && <td>{record.profiles?.full_name || 'N/A'}</td>}
                       {canViewAllRecords && <td>{record.profiles?.departments?.name || 'N/A'}</td>}
+                      <td>{record.menu || '-'}</td>
                       <td>{record.comments || '-'}</td>
+                      <td>
+                        <span style={{
+                          padding: '0.25rem 0.5rem',
+                          borderRadius: '12px',
+                          fontSize: '0.75rem',
+                          fontWeight: '600',
+                          background: record.status === 'cancelled' ? '#fee' : '#efe',
+                          color: record.status === 'cancelled' ? '#c33' : '#393'
+                        }}>
+                          {record.status === 'cancelled' ? 'Cancelado' : 'Activo'}
+                        </span>
+                      </td>
                       <td>{record.created_by_profile?.full_name || 'N/A'}</td>
                     </tr>
                   ))
