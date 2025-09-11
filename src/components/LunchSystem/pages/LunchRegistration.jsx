@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
-import { useAuth } from '../hooks/useAuth'
-import { db, addToSyncQueue, syncOfflineData } from '../lib/offline'
+import { supabase } from '../../../lib/supabase'
+import { useAuth } from '../../../hooks/useAuth'
+import { db, addToSyncQueue, syncOfflineData } from '../../../lib/offline'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { Plus, Wifi, WifiOff, Search, User, Clock, MessageCircle, Calendar } from 'lucide-react'
-import LoadingSpinner from '../components/LoadingSpinner'
+import LoadingSpinner from '../LoadingSpinner'
 
 function LunchRegistration() {
   const { user, profile, canViewAllRecords } = useAuth()

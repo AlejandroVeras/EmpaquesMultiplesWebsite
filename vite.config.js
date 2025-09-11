@@ -9,7 +9,7 @@ export default defineConfig({
     host: true
   },
   build: {
-    outDir: '../dist-lunch',
+    outDir: 'dist',
     emptyOutDir: true
   }
 })

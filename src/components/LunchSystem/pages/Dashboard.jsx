@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
-import { useAuth } from '../hooks/useAuth'
+import { supabase } from '../../../lib/supabase'
+import { useAuth } from '../../../hooks/useAuth'
 import { format, subDays, startOfDay, endOfDay } from 'date-fns'
 import { es } from 'date-fns/locale'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts'
 import { Download, Calendar, Users, TrendingUp, Filter } from 'lucide-react'
 import { saveAs } from 'file-saver'
 import * as XLSX from 'xlsx'
-import LoadingSpinner from '../components/LoadingSpinner'
+import LoadingSpinner from '../LoadingSpinner'
 
 function Dashboard() {
   const { profile, canViewAllRecords } = useAuth()

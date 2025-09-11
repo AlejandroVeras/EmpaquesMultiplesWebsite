@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../../../lib/supabase'
 import { Users, Building, UserPlus, Plus, Edit, Trash2, Save, X } from 'lucide-react'
-import LoadingSpinner from '../components/LoadingSpinner'
+import LoadingSpinner from '../LoadingSpinner'
 
 function AdminPanel() {
   const [activeTab, setActiveTab] = useState('users')
