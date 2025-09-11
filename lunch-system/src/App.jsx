@@ -8,6 +8,7 @@ import AdminPanel from './pages/AdminPanel'
 import Header from './components/Header'
 import Navigation from './components/Navigation'
 import LoadingSpinner from './components/LoadingSpinner'
+import NotFound from './components/NotFound'
 import './styles.css'
 
 function App() {
@@ -17,23 +18,26 @@ function App() {
     return <LoadingSpinner />
   }
 
-  if (!user) {
-    return <AuthPage />
-  }
-
   return (
     <div className="app">
       <Router>
-        <Header />
-        <Navigation />
+        {user && (
+          <>
+            <Header />
+            <Navigation />
+          </>
+        )}
         <main className="main-content">
           <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/registro" element={<LunchRegistration />} />
-            {profile?.role === 'admin' && (
+            <Route path="/" element={user ? <Dashboard /> : <AuthPage />} />
+            <Route path="/login" element={user ? <Navigate to="/" replace /> : <AuthPage />} />
+            <Route path="/dashboard" element={user ? <Dashboard /> : <Navigate to="/" replace />} />
+            <Route path="/register" element={user ? <LunchRegistration /> : <Navigate to="/" replace />} />
+            <Route path="/registro" element={user ? <LunchRegistration /> : <Navigate to="/" replace />} />
+            {user && profile?.role === 'admin' && (
               <Route path="/admin" element={<AdminPanel />} />
             )}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </main>
       </Router>
