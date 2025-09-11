@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Sistema de Almuerzos | Empaques Múltiples</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --verde: #116835;
+            --verde-oscuro: #0c4725;
+            --verde-claro: #e9f4ef;
+            --borde-verde: #cfe6da;
+            --gris-claro: #f7f7f7;
+            --gris-medio: #e0e0e0;
+            --negro: #252525;
+            --blanco: #fff;
+            --error-bg: #ffe9e9;
+            --error-color: #8b3030;
+            --success-bg: #e9f4ef;
+            --success-color: #116835;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: var(--gris-claro);
+            color: var(--negro);
+        }
+
+        .header {
+            background: var(--blanco);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 8px rgba(17, 104, 53, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .header img {
+            height: 50px;
+            max-width: 140px;
+        }
+
+        .header .title {
+            color: var(--verde);
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .header .nav-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-link {
+            padding: 0.5rem 1rem;
+            color: var(--verde);
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s;
+        }
+
+        .nav-link:hover {
+            background: var(--verde-claro);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--blanco);
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 2px 10px rgba(17, 104, 53, 0.1);
+            overflow: hidden;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            background: var(--gris-claro);
+            border: none;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: var(--verde);
+            color: var(--blanco);
+        }
+
+        .tab:hover:not(.active) {
+            background: var(--verde-claro);
+        }
+
+        .tab-content {
+            background: var(--blanco);
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 2px 10px rgba(17, 104, 53, 0.1);
+            padding: 2rem;
+            min-height: 500px;
+        }
+
+        .tab-panel {
+            display: none;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--verde-claro);
+        }
+
+        .section-header h2 {
+            color: var(--verde-oscuro);
+            font-size: 1.5em;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 500;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--verde);
+            color: var(--blanco);
+        }
+
+        .btn-primary:hover {
+            background: var(--verde-oscuro);
+        }
+
+        .btn-secondary {
+            background: var(--gris-claro);
+            color: var(--verde);
+            border: 1px solid var(--borde-verde);
+        }
+
+        .btn-secondary:hover {
+            background: var(--verde-claro);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: var(--blanco);
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--verde-oscuro);
+        }
+
+        .form-control {
+            padding: 0.75rem;
+            border: 1px solid var(--borde-verde);
+            border-radius: 5px;
+            font-size: 1em;
+            background: var(--gris-claro);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--verde);
+            background: var(--blanco);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--gris-medio);
+        }
+
+        th {
+            background: var(--verde-claro);
+            color: var(--verde-oscuro);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: var(--gris-claro);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal h3 {
+            color: var(--verde-oscuro);
+            margin-bottom: 1rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            justify-content: end;
+        }
+
+        .error, .success {
+            padding: 1rem;
+            border-radius: 5px;
+            margin: 1rem 0;
+        }
+
+        .error {
+            background: var(--error-bg);
+            color: var(--error-color);
+        }
+
+        .success {
+            background: var(--success-bg);
+            color: var(--success-color);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--verde);
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .header .nav-links {
+                flex-wrap: wrap;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo-section">
+            <img src="images/logo.png" alt="Logo Empaques Múltiples">
+            <div class="title">Panel de Administración</div>
+        </div>
+        <div class="nav-links">
+            <a href="dashboard.html" class="nav-link">
+                <i class="fas fa-chart-bar"></i> Dashboard
+            </a>
+            <a href="almuerzo.html" class="nav-link">
+                <i class="fas fa-utensils"></i> Sistema Básico
+            </a>
+            <button class="btn btn-danger" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Salir
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('users')">
+                <i class="fas fa-users"></i> Usuarios
+            </button>
+            <button class="tab" onclick="showTab('departments')">
+                <i class="fas fa-building"></i> Departamentos
+            </button>
+            <button class="tab" onclick="showTab('config')">
+                <i class="fas fa-cog"></i> Configuración
+            </button>
+            <button class="tab" onclick="showTab('logs')">
+                <i class="fas fa-list"></i> Logs
+            </button>
+        </div>
+
+        <div class="tab-content">
+            <!-- Users Tab -->
+            <div id="users-tab" class="tab-panel active">
+                <div class="section-header">
+                    <h2>Gestión de Usuarios</h2>
+                    <button class="btn btn-primary" onclick="showUserModal()">
+                        <i class="fas fa-plus"></i> Nuevo Usuario
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <table id="users-table">
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Nombre Completo</th>
+                                <th>Email</th>
+                                <th>Departamento</th>
+                                <th>Rol</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody">
+                            <tr>
+                                <td colspan="7" class="loading">Cargando usuarios...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Departments Tab -->
+            <div id="departments-tab" class="tab-panel">
+                <div class="section-header">
+                    <h2>Gestión de Departamentos</h2>
+                    <button class="btn btn-primary" onclick="showDepartmentModal()">
+                        <i class="fas fa-plus"></i> Nuevo Departamento
+                    </button>
+                </div>
+                
+                <div class="table-container">
+                    <table id="departments-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Estado</th>
+                                <th>Fecha de Creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="departments-tbody">
+                            <tr>
+                                <td colspan="4" class="loading">Cargando departamentos...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Configuration Tab -->
+            <div id="config-tab" class="tab-panel">
+                <div class="section-header">
+                    <h2>Configuración del Sistema</h2>
+                </div>
+                
+                <form id="config-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Nombre de la Empresa:</label>
+                            <input type="text" class="form-control" id="company-name" value="Empaques Múltiples SRL">
+                        </div>
+                        <div class="form-group">
+                            <label>Email de Contacto:</label>
+                            <input type="email" class="form-control" id="company-email" value="contacto@empaquesmultiples.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Hora de Inicio de Almuerzo:</label>
+                            <input type="time" class="form-control" id="lunch-start" value="12:00">
+                        </div>
+                        <div class="form-group">
+                            <label>Hora de Fin de Almuerzo:</label>
+                            <input type="time" class="form-control" id="lunch-end" value="14:00">
+                        </div>
+                        <div class="form-group">
+                            <label>Hora Límite para Registro:</label>
+                            <input type="time" class="form-control" id="lunch-cutoff" value="11:30">
+                        </div>
+                        <div class="form-group">
+                            <label>Email para Notificaciones:</label>
+                            <input type="email" class="form-control" id="notification-email" value="rrhh@empaquesmultiples.com">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Guardar Configuración
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Logs Tab -->
+            <div id="logs-tab" class="tab-panel">
+                <div class="section-header">
+                    <h2>Registro de Actividades</h2>
+                </div>
+                
+                <div class="table-container">
+                    <table id="logs-table">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Usuario</th>
+                                <th>Acción</th>
+                                <th>Recurso</th>
+                                <th>IP</th>
+                                <th>Detalles</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logs-tbody">
+                            <tr>
+                                <td colspan="6" class="loading">Cargando logs...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div id="user-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="user-modal-title">Nuevo Usuario</h3>
+            <form id="user-form">
+                <div class="form-group">
+                    <label>Usuario:</label>
+                    <input type="text" class="form-control" id="user-username" required>
+                </div>
+                <div class="form-group">
+                    <label>Nombre Completo:</label>
+                    <input type="text" class="form-control" id="user-fullname" required>
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="email" class="form-control" id="user-email">
+                </div>
+                <div class="form-group">
+                    <label>Contraseña:</label>
+                    <input type="password" class="form-control" id="user-password">
+                </div>
+                <div class="form-group">
+                    <label>Departamento:</label>
+                    <select class="form-control" id="user-department">
+                        <option value="">Sin departamento</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Rol:</label>
+                    <select class="form-control" id="user-role" required>
+                        <option value="">Seleccionar rol</option>
+                        <option value="4">Usuario</option>
+                        <option value="3">Recepción</option>
+                        <option value="2">RRHH</option>
+                        <option value="1">Administrador</option>
+                    </select>
+                </div>
+                <div id="user-modal-error" class="error hidden"></div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideUserModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Department Modal -->
+    <div id="department-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3 id="department-modal-title">Nuevo Departamento</h3>
+            <form id="department-form">
+                <div class="form-group">
+                    <label>Nombre del Departamento:</label>
+                    <input type="text" class="form-control" id="department-name" required>
+                </div>
+                <div id="department-modal-error" class="error hidden"></div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideDepartmentModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>
