@@ -13,6 +13,10 @@ Este es un sistema moderno de registro de almuerzos desarrollado con React y Sup
 - ✅ **Gestión de usuarios y departamentos**
 - ✅ **Reportes en tiempo real** con Supabase Realtime
 - ✅ **Diseño responsive** con colores corporativos
+- ✅ **Selección de tipo de menú** con opciones predefinidas
+- ✅ **Edición de registros existentes** para correcciones
+- ✅ **Cancelación de registros** con control de estado
+- ✅ **Validaciones robustas** para evitar duplicados
 
 ### Roles y Permisos
 - **Admin**: Acceso completo al sistema, gestión de usuarios y departamentos
@@ -42,6 +46,9 @@ Ejecuta los siguientes scripts en el editor SQL de Supabase:
 
 -- 2. Luego ejecutar: database/02_rls_policies.sql  
 -- Esto configurará las políticas de seguridad Row Level Security
+
+-- 3. Finalmente ejecutar: database/03_lunch_enhancements.sql
+-- Esto añadirá las funcionalidades de menú y gestión de registros
 ```
 
 ### 3. Configurar Authentication
