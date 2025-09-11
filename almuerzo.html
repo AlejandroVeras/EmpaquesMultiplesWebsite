@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Almuerzo | Empaques Múltiples</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Fuente Google usada en el sitio -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --verde: #116835;
+      --verde-oscuro: #0c4725;
+      --verde-claro: #e9f4ef;
+      --borde-verde: #cfe6da;
+      --gris-claro: #f7f7f7;
+      --gris-medio: #e0e0e0;
+      --negro: #252525;
+      --blanco: #fff;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: var(--gris-claro);
+      font-family: 'Roboto', Arial, sans-serif;
+      color: var(--negro);
+    }
+    .header {
+      background: var(--blanco);
+      padding: 22px 0 14px 0;
+      text-align: center;
+      box-shadow: 0 2px 8px #d6e9df;
+      margin-bottom: 10px;
+    }
+    .header .logo {
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 16px;
+    }
+    .header img {
+      height: 56px;
+      max-width: 140px;
+      vertical-align: middle;
+    }
+    .header .titulo {
+      display: inline-block;
+      vertical-align: middle;
+      color: var(--verde);
+      font-size: 1.5em;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-shadow: 0px 2px 6px #e9f4ef;
+    }
+    .container {
+      max-width: 410px;
+      margin: 28px auto 0 auto;
+      background: var(--blanco);
+      padding: 32px 24px 24px 24px;
+      border-radius: 12px;
+      box-shadow: 0 4px 24px #11683522;
+    }
+    h3, h4 {
+      color: var(--verde);
+      margin-top: 0;
+      margin-bottom: 18px;
+      font-weight: 700;
+      letter-spacing: .5px;
+    }
+    input, button {
+      width: 100%;
+      margin-bottom: 14px;
+      padding: 12px 10px;
+      border: 1.5px solid var(--borde-verde);
+      border-radius: 6px;
+      font-size: 1em;
+      font-family: inherit;
+      box-sizing: border-box;
+      background: var(--gris-claro);
+      transition: border-color .18s;
+    }
+    input:focus {
+      outline: 2px solid var(--verde);
+      border-color: var(--verde);
+      background: var(--blanco);
+    }
+    button {
+      background: var(--verde);
+      color: var(--blanco);
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: background 0.18s;
+      box-shadow: 0 2px 6px #11683518;
+      border-radius: 26px;
+      font-size: 1.09em;
+    }
+    button:hover {
+      background: var(--verde-oscuro);
+    }
+    .logout {
+      background: var(--gris-claro);
+      color: var(--verde);
+      border: 1.5px solid var(--verde);
+      float: right;
+      margin-top: -40px;
+      font-size: 0.95em;
+      width: auto;
+      padding: 7px 16px;
+      border-radius: 5px;
+      margin-right: -10px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .logout:hover {
+      background: var(--verde);
+      color: var(--blanco);
+    }
+    .error {
+      color: var(--verde-oscuro);
+      background: #e9f4ef;
+      font-size: 0.96em;
+      border-left: 4px solid var(--verde);
+      padding: 7px 12px;
+      border-radius: 4px;
+      margin-bottom: 12px;
+    }
+    .hidden {
+      display: none;
+    }
+    ul {
+      background: var(--gris-claro);
+      border-radius: 4px;
+      padding: 10px 13px;
+      list-style-type: disc;
+      margin: 0 0 10px 0;
+      border: 1px solid var(--borde-verde);
+    }
+    li {
+      margin-bottom: 6px;
+      font-size: 1em;
+      color: var(--negro);
+    }
+    .fecha {
+      color: var(--verde);
+      font-weight: bold;
+      padding-right: 6px;
+      font-size: 0.99em;
+    }
+    #almuerzo-form input[type="text"] {
+      background: var(--verde-claro);
+      border-color: var(--verde);
+    }
+    #almuerzo-form button[type="submit"] {
+      margin-top: 4px;
+      background: linear-gradient(90deg, #116835 80%, #159e53 100%);
+      box-shadow: 0 2px 8px #11683529;
+    }
+    #register {
+      background:var(--gris-claro);
+      color:var(--verde);
+      border:1.5px solid var(--verde);
+      margin-bottom:5px;
+    }
+    #register:hover {
+      background: var(--verde);
+      color: var(--blanco);
+    }
+    @media (max-width: 600px) {
+      .container { max-width: 98vw; padding: 18px 6vw; }
+      .header img { height: 34px; max-width: 100px; }
+      .header .titulo { font-size: 1.12em; }
+    }
+  </style>
+  <!-- Supabase JS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+  <div class="header">
+    <span class="logo">
+      <img src="images/logo.png" alt="Logo Empaques Múltiples" />
+    </span>
+    <span class="titulo">Registro de Almuerzo</span>
+  </div>
+  <div class="container">
+    <button class="logout hidden">Cerrar sesión</button>
+
+    <div id="auth" class="">
+      <h3>Ingreso de empleado</h3>
+      <input type="email" id="email" placeholder="Correo" autocomplete="username">
+      <input type="password" id="password" placeholder="Contraseña" autocomplete="current-password">
+      <button id="login">Ingresar</button>
+      <button id="register">Registrarse</button>
+      <div id="auth-error" class="error"></div>
+    </div>
+
+    <div id="main" class="hidden">
+      <div id="welcome"></div>
+      <form id="almuerzo-form">
+        <input type="text" id="nombre" placeholder="Nombre completo" required>
+        <button type="submit">¡Anotarme para almuerzo hoy!</button>
+      </form>
+      <div id="form-error" class="error"></div>
+      <hr>
+      <h4>Empleados anotados hoy:</h4>
+      <ul id="hoy-list"></ul>
+      <hr>
+      <h4>Registro últimos 60 días:</h4>
+      <ul id="hist-list"></ul>
+    </div>
+  </div>
+
+  <script>
+    // REEMPLAZA estos valores por los de tu proyecto Supabase:
+    const SUPABASE_URL = 'https://hvhroguawvsztdhvkxpv.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2aHJvZ3Vhd3ZzenRkaHZreHB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1OTgyNTcsImV4cCI6MjA3MzE3NDI1N30.D_UdP-7b43JUweoYuzfT2OOKy2g2VvigKuJeeeUgVgg';
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // Elementos
+    const authDiv = document.getElementById('auth');
+    const mainDiv = document.getElementById('main');
+    const loginBtn = document.getElementById('login');
+    const registerBtn = document.getElementById('register');
+    const logoutBtn = document.querySelector('.logout');
+    const emailInput = document.getElementById('email');
+    const passInput = document.getElementById('password');
+    const authError = document.getElementById('auth-error');
+    const welcomeDiv = document.getElementById('welcome');
+    const form = document.getElementById('almuerzo-form');
+    const nombreInput = document.getElementById('nombre');
+    const formError = document.getElementById('form-error');
+    const hoyList = document.getElementById('hoy-list');
+    const histList = document.getElementById('hist-list');
+
+    // Utilidades fecha
+    function hoyISO() {
+      const d = new Date();
+      return d.toISOString().slice(0, 10);
+    }
+    function fechaNDiasAtras(n) {
+      const d = new Date();
+      d.setDate(d.getDate() - n);
+      return d.toISOString().slice(0, 10);
+    }
+
+    // Manejo login
+    async function mostrarPrincipal(usuario) {
+      authDiv.classList.add('hidden');
+      mainDiv.classList.remove('hidden');
+      logoutBtn.classList.remove('hidden');
+      welcomeDiv.innerHTML = `¡Bienvenido, <b>${usuario.email}</b>!`;
+      await cargarListas();
+    }
+
+    async function chequearSesion() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session && session.user) {
+        mostrarPrincipal(session.user);
+      } else {
+        authDiv.classList.remove('hidden');
+        mainDiv.classList.add('hidden');
+        logoutBtn.classList.add('hidden');
+      }
+    }
+    chequearSesion();
+
+    loginBtn.onclick = async () => {
+      authError.textContent = '';
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: emailInput.value,
+        password: passInput.value
+      });
+      if (error) authError.textContent = error.message;
+      else mostrarPrincipal(data.user);
+    };
+
+    registerBtn.onclick = async () => {
+      authError.textContent = '';
+      const { data, error } = await supabase.auth.signUp({
+        email: emailInput.value,
+        password: passInput.value
+      });
+      if (error) authError.textContent = error.message;
+      else authError.textContent = "¡Registro exitoso! Verifica tu correo y luego ingresa.";
+    };
+
+    logoutBtn.onclick = async () => {
+      await supabase.auth.signOut();
+      location.reload();
+    };
+
+    // Guardar almuerzo
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      formError.textContent = '';
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) return formError.textContent = "Debes iniciar sesión.";
+      const nombre = nombreInput.value.trim();
+      if (!nombre) return formError.textContent = "Ingresa tu nombre.";
+      // Evita duplicados por día y usuario
+      const { data: yaAnotado } = await supabase
+        .from('almuerzos')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .eq('fecha', hoyISO());
+      if (yaAnotado.length > 0) return formError.textContent = "Ya estás anotado hoy.";
+      // Inserta registro
+      const { error } = await supabase
+        .from('almuerzos')
+        .insert([{ user_id: session.user.id, nombre, fecha: hoyISO() }]);
+      if (error) formError.textContent = error.message;
+      else {
+        nombreInput.value = "";
+        await cargarListas();
+      }
+    };
+
+    // Mostrar listas
+    async function cargarListas() {
+      // Hoy
+      const { data: hoy, error } = await supabase
+        .from('almuerzos')
+        .select('nombre')
+        .eq('fecha', hoyISO());
+      hoyList.innerHTML = hoy?.map(x => `<li>${x.nombre}</li>`).join('') || '';
+      // Últimos 60 días
+      const { data: hist } = await supabase
+        .from('almuerzos')
+        .select('nombre, fecha')
+        .gte('fecha', fechaNDiasAtras(60))
+        .order('fecha', { ascending: false });
+      histList.innerHTML = hist?.map(x =>
+        `<li><span class="fecha">${x.fecha}</span> ${x.nombre}</li>`).join('') || '';
+    }
+  </script>
+</body>
+</html>
