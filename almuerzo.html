@@ -210,9 +210,10 @@
 
   <script>
     // REEMPLAZA estos valores por los de tu proyecto Supabase:
-    const SUPABASE_URL = 'https://hvhroguawvsztdhvkxpv.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2aHJvZ3Vhd3ZzenRkaHZreHB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1OTgyNTcsImV4cCI6MjA3MzE3NDI1N30.D_UdP-7b43JUweoYuzfT2OOKy2g2VvigKuJeeeUgVgg';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+   const SUPABASE_URL = 'https://hvhroguawvsztdhvkxpv.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2aHJvZ3Vhd3ZzenRkaHZreHB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1OTgyNTcsImV4cCI6MjA3MzE3NDI1N30.D_UdP-7b43JUweoYuzfT2OOKy2g2VvigKuJeeeUgVgg';
+
+const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // Elementos
     const authDiv = document.getElementById('auth');
@@ -262,15 +263,16 @@
     }
     chequearSesion();
 
-    loginBtn.onclick = async () => {
-      authError.textContent = '';
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: emailInput.value,
-        password: passInput.value
-      });
-      if (error) authError.textContent = error.message;
-      else mostrarPrincipal(data.user);
-    };
+// Ejemplo de login
+loginBtn.onclick = async () => {
+  authError.textContent = '';
+  const { data, error } = await client.auth.signInWithPassword({
+    email: emailInput.value,
+    password: passInput.value
+  });
+  if (error) authError.textContent = error.message;
+  else mostrarPrincipal(data.user);
+};
 
     registerBtn.onclick = async () => {
       authError.textContent = '';
