@@ -33,22 +33,42 @@ const TodayRecordsTable = memo(({ records, canViewAllRecords }) => {
     <>
       {/* Desktop/Tablet Table */}
       <div className="table-container">
-        <table className="table">
+        <table className="table" role="table" aria-label="Registros de almuerzo de hoy">
           <thead>
             <tr>
-              <th>Hora</th>
-              {canViewAllRecords && <th>Usuario</th>}
-              {canViewAllRecords && <th>Departamento</th>}
-              <th>Comentarios</th>
+              <th scope="col">Hora</th>
+              {canViewAllRecords && <th scope="col">Usuario</th>}
+              {canViewAllRecords && <th scope="col">Departamento</th>}
+              <th scope="col">Comentarios</th>
             </tr>
           </thead>
           <tbody>
-            {records.map((record) => (
+            {records.map((record, index) => (
               <tr key={record.id}>
-                <td>{record.time}</td>
-                {canViewAllRecords && <td>{record.profiles?.full_name || 'N/A'}</td>}
-                {canViewAllRecords && <td>{record.profiles?.departments?.name || 'N/A'}</td>}
-                <td>{record.comments || '-'}</td>
+                <td>
+                  <time dateTime={`${record.date}T${record.time}`}>
+                    {record.time}
+                  </time>
+                </td>
+                {canViewAllRecords && (
+                  <td>
+                    <span aria-label={`Usuario: ${record.profiles?.full_name || 'N/A'}`}>
+                      {record.profiles?.full_name || 'N/A'}
+                    </span>
+                  </td>
+                )}
+                {canViewAllRecords && (
+                  <td>
+                    <span aria-label={`Departamento: ${record.profiles?.departments?.name || 'N/A'}`}>
+                      {record.profiles?.departments?.name || 'N/A'}
+                    </span>
+                  </td>
+                )}
+                <td>
+                  <span aria-label={`Comentarios: ${record.comments || 'Sin comentarios'}`}>
+                    {record.comments || '-'}
+                  </span>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -56,12 +76,21 @@ const TodayRecordsTable = memo(({ records, canViewAllRecords }) => {
       </div>
 
       {/* Mobile Card Layout */}
-      <div className="table-mobile">
-        {records.map((record) => (
-          <div key={record.id} className="table-mobile-item">
+      <div className="table-mobile" role="region" aria-label="Registros de almuerzo en formato de tarjetas">
+        {records.map((record, index) => (
+          <article 
+            key={record.id} 
+            className="table-mobile-item"
+            aria-label={`Registro ${index + 1} de ${records.length}`}
+          >
             <div className="table-mobile-row">
               <span className="table-mobile-label">Hora:</span>
-              <span className="table-mobile-value">{record.time}</span>
+              <time 
+                className="table-mobile-value" 
+                dateTime={`${record.date}T${record.time}`}
+              >
+                {record.time}
+              </time>
             </div>
             
             {canViewAllRecords && (
@@ -80,9 +109,9 @@ const TodayRecordsTable = memo(({ records, canViewAllRecords }) => {
             
             <div className="table-mobile-row">
               <span className="table-mobile-label">Comentarios:</span>
-              <span className="table-mobile-value">{record.comments || '-'}</span>
+              <span className="table-mobile-value">{record.comments || 'Sin comentarios'}</span>
             </div>
-          </div>
+          </article>
         ))}
       </div>
     </>
@@ -365,34 +394,44 @@ function LunchRegistration() {
           <form onSubmit={handleFormSubmit}>
             <div className="grid grid-2 gap-4">
               <div className="form-group">
-                <label className="form-label">
+                <label className="form-label" htmlFor="date-input">
                   <Calendar size={16} />
                   Fecha <span style={{ color: 'var(--rojo)' }}>*</span>
                 </label>
                 <input
+                  id="date-input"
                   type="date"
                   className={`form-input ${errors.date ? 'error' : ''}`}
                   {...getFieldProps('date')}
                   required
+                  aria-describedby={errors.date ? 'date-error' : undefined}
+                  aria-invalid={!!errors.date}
                 />
                 {errors.date && (
-                  <div className="form-error">{errors.date}</div>
+                  <div id="date-error" className="form-error" role="alert" aria-live="polite">
+                    {errors.date}
+                  </div>
                 )}
               </div>
 
               <div className="form-group">
-                <label className="form-label">
+                <label className="form-label" htmlFor="time-input">
                   <Clock size={16} />
                   Hora <span style={{ color: 'var(--rojo)' }}>*</span>
                 </label>
                 <input
+                  id="time-input"
                   type="time"
                   className={`form-input ${errors.time ? 'error' : ''}`}
                   {...getFieldProps('time')}
                   required
+                  aria-describedby={errors.time ? 'time-error' : undefined}
+                  aria-invalid={!!errors.time}
                 />
                 {errors.time && (
-                  <div className="form-error">{errors.time}</div>
+                  <div id="time-error" className="form-error" role="alert" aria-live="polite">
+                    {errors.time}
+                  </div>
                 )}
               </div>
             </div>
@@ -442,27 +481,36 @@ function LunchRegistration() {
             )}
 
             <div className="form-group">
-              <label className="form-label">
+              <label className="form-label" htmlFor="comments-input">
                 <MessageCircle size={16} />
                 Comentarios (opcional)
               </label>
               <textarea
+                id="comments-input"
                 className={`form-textarea ${errors.comments ? 'error' : ''}`}
                 placeholder="Comentarios adicionales..."
                 {...getFieldProps('comments')}
                 rows={3}
                 maxLength={500}
+                aria-describedby="comments-counter comments-error"
+                aria-invalid={!!errors.comments}
               />
               {errors.comments && (
-                <div className="form-error">{errors.comments}</div>
+                <div id="comments-error" className="form-error" role="alert" aria-live="polite">
+                  {errors.comments}
+                </div>
               )}
-              <div style={{ fontSize: '0.75rem', color: 'var(--gris-medio)', marginTop: '0.25rem' }}>
+              <div 
+                id="comments-counter" 
+                style={{ fontSize: '0.75rem', color: 'var(--gris-medio)', marginTop: '0.25rem' }}
+                aria-live="polite"
+              >
                 {formData.comments?.length || 0}/500 caracteres
               </div>
             </div>
 
             {errors.general && (
-              <div className="alert alert-error">
+              <div className="alert alert-error" role="alert" aria-live="assertive">
                 {errors.general}
               </div>
             )}
