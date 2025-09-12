@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Registro de Almuerzos | Empaques Múltiples</title>
+  <meta http-equiv="refresh" content="0; url=dist-lunch/index.html">
+  <title>Redirigiendo al Sistema de Registro de Almuerzos | Empaques Múltiples</title>
   <link rel="icon" href="images/logo.png" type="image/x-icon">
   <style>
     body {
@@ -25,7 +26,7 @@
       border-radius: 20px;
       box-shadow: 0 10px 40px rgba(17, 104, 53, 0.15);
       border: 2px solid #cfe6da;
-      max-width: 600px;
+      max-width: 500px;
       width: 90%;
     }
     
@@ -36,7 +37,7 @@
     
     h1 {
       color: #116835;
-      font-size: 2.5rem;
+      font-size: 2.2rem;
       margin-bottom: 1rem;
       font-weight: 700;
       letter-spacing: 1px;
@@ -44,76 +45,39 @@
     
     p {
       color: #666;
-      font-size: 1.2rem;
-      margin-bottom: 2rem;
+      font-size: 1.1rem;
+      margin-bottom: 1.5rem;
       line-height: 1.6;
     }
     
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 1rem 2rem;
-      background: linear-gradient(135deg, #116835 0%, #0c4725 100%);
-      color: white;
+    .spinner {
+      border: 3px solid #e9f4ef;
+      border-top: 3px solid #116835;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 1rem auto;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .redirect-link {
+      color: #116835;
       text-decoration: none;
-      border-radius: 12px;
-      font-size: 1.2rem;
       font-weight: 600;
+      border-bottom: 2px solid #116835;
       transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(17, 104, 53, 0.3);
-      margin: 0.5rem;
     }
     
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(17, 104, 53, 0.4);
+    .redirect-link:hover {
+      background-color: #116835;
       color: white;
-    }
-    
-    .btn-secondary {
-      background: linear-gradient(135deg, #f7f7f7 0%, #e0e0e0 100%);
-      color: #116835;
-      border: 2px solid #116835;
-    }
-    
-    .btn-secondary:hover {
-      background: #116835;
-      color: white;
-    }
-    
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
-      margin: 2rem 0;
-      text-align: left;
-    }
-    
-    .feature {
-      background: #e9f4ef;
-      padding: 1.5rem;
-      border-radius: 12px;
-      border: 1px solid #cfe6da;
-    }
-    
-    .feature h3 {
-      color: #116835;
-      margin: 0 0 0.5rem 0;
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-    
-    .feature p {
-      margin: 0;
-      font-size: 0.95rem;
-      color: #666;
-    }
-    
-    .icon {
-      width: 24px;
-      height: 24px;
-      fill: currentColor;
+      padding: 2px 4px;
+      border-radius: 4px;
     }
     
     @media (max-width: 768px) {
@@ -125,90 +89,23 @@
       h1 {
         font-size: 2rem;
       }
-      
-      .features {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-      }
-      
-      .btn {
-        width: 100%;
-        justify-content: center;
-        margin: 0.5rem 0;
-      }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <img src="images/logo.png" alt="Empaques Múltiples" class="logo">
-    <h1>Sistema de Registro de Almuerzos</h1>
-    <p>Nuevo sistema moderno con funcionalidades avanzadas de gestión y reportes</p>
-    
-    <div class="features">
-      <div class="feature">
-        <h3>
-          <svg class="icon" viewBox="0 0 24 24">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-          </svg>
-          Dashboard Avanzado
-        </h3>
-        <p>Estadísticas en tiempo real y gráficos de tendencias</p>
-      </div>
-      
-      <div class="feature">
-        <h3>
-          <svg class="icon" viewBox="0 0 24 24">
-            <path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/>
-          </svg>
-          Exportación Excel
-        </h3>
-        <p>Genera reportes detallados y exporta a Excel</p>
-      </div>
-      
-      <div class="feature">
-        <h3>
-          <svg class="icon" viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-          </svg>
-          Funciona Offline
-        </h3>
-        <p>Registra almuerzos sin conexión y sincroniza automáticamente</p>
-      </div>
-      
-      <div class="feature">
-        <h3>
-          <svg class="icon" viewBox="0 0 24 24">
-            <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
-          </svg>
-          Control de Roles
-        </h3>
-        <p>Diferentes niveles de acceso: Usuario, RRHH, Recepción, Admin</p>
-      </div>
-    </div>
-    
-    <div style="margin-top: 2rem;">
-      <a href="dist-lunch/index.html" class="btn">
-        <svg class="icon" viewBox="0 0 24 24">
-          <path d="M5 12l5 5L20 7"/>
-        </svg>
-        Acceder al Sistema Nuevo
-      </a>
-      
-      <a href="almuerzo-backup.html" class="btn btn-secondary">
-        <svg class="icon" viewBox="0 0 24 24">
-          <path d="M13 3h-2v10h2V3zm4.83 2.17l-1.42 1.42C17.99 7.86 19 9.81 19 12c0 3.87-3.13 7-7 7s-7-3.13-7-7c0-2.19 1.01-4.14 2.58-5.42L6.17 5.17C4.23 6.82 3 9.26 3 12c0 4.97 4.03 9 9 9s9-4.03 9-9c0-2.74-1.23-5.18-3.17-6.83z"/>
-        </svg>
-        Usar Sistema Anterior
-      </a>
-    </div>
-    
-    <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e9f4ef;">
-      <p style="font-size: 1rem; color: #116835; margin: 0;">
-        <strong>Características del nuevo sistema:</strong><br>
-        Autenticación segura • Tiempo real • Reportes automáticos • Gestión de usuarios • Soporte offline
-      </p>
-    </div>
+    <h1>Redirigiendo...</h1>
+    <div class="spinner"></div>
+    <p>Serás redirigido automáticamente al nuevo sistema de registro de almuerzos.</p>
+    <p>Si no eres redirigido automáticamente, <a href="dist-lunch/index.html" class="redirect-link">haz clic aquí</a>.</p>
   </div>
+  
+  <script>
+    // Fallback redirection in case meta refresh doesn't work
+    setTimeout(function() {
+      window.location.href = 'dist-lunch/index.html';
+    }, 100);
+  </script>
 </body>
 </html>
