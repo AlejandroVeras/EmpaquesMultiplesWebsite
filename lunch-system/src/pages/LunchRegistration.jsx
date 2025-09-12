@@ -1,36 +1,135 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, memo, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../hooks/useAuth'
-import { db, addToSyncQueue, syncOfflineData } from '../lib/offline'
+import { useFormValidation } from '../hooks/useFormValidation'
+import { 
+  db, 
+  syncOfflineData, 
+  saveLunchRecordOffline, 
+  getCachedUserData, 
+  cacheUserData 
+} from '../lib/offline'
+import { lunchRegistrationSchema } from '../lib/validation'
+import { checkFormSubmissionRate, recordFormSubmission, getRateLimitMessage } from '../lib/rateLimiter'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { Plus, Wifi, WifiOff, Search, User, Clock, MessageCircle, Calendar } from 'lucide-react'
+import { Plus, Clock, MessageCircle, Calendar, CheckCircle } from 'lucide-react'
 import LoadingSpinner from '../components/LoadingSpinner'
+import UserSearch from '../components/UserSearch'
+import SyncStatus from '../components/SyncStatus'
+import ConfirmDialog from '../components/ConfirmDialog'
+import toast from 'react-hot-toast'
+
+const TodayRecordsTable = memo(({ records, canViewAllRecords }) => {
+  if (records.length === 0) {
+    return (
+      <p style={{ textAlign: 'center', color: 'var(--gris-medio)', padding: '2rem' }}>
+        No hay registros para hoy
+      </p>
+    )
+  }
+
+  return (
+    <>
+      {/* Desktop/Tablet Table */}
+      <div className="table-container">
+        <table className="table">
+          <thead>
+            <tr>
+              <th>Hora</th>
+              {canViewAllRecords && <th>Usuario</th>}
+              {canViewAllRecords && <th>Departamento</th>}
+              <th>Comentarios</th>
+            </tr>
+          </thead>
+          <tbody>
+            {records.map((record) => (
+              <tr key={record.id}>
+                <td>{record.time}</td>
+                {canViewAllRecords && <td>{record.profiles?.full_name || 'N/A'}</td>}
+                {canViewAllRecords && <td>{record.profiles?.departments?.name || 'N/A'}</td>}
+                <td>{record.comments || '-'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile Card Layout */}
+      <div className="table-mobile">
+        {records.map((record) => (
+          <div key={record.id} className="table-mobile-item">
+            <div className="table-mobile-row">
+              <span className="table-mobile-label">Hora:</span>
+              <span className="table-mobile-value">{record.time}</span>
+            </div>
+            
+            {canViewAllRecords && (
+              <>
+                <div className="table-mobile-row">
+                  <span className="table-mobile-label">Usuario:</span>
+                  <span className="table-mobile-value">{record.profiles?.full_name || 'N/A'}</span>
+                </div>
+                
+                <div className="table-mobile-row">
+                  <span className="table-mobile-label">Departamento:</span>
+                  <span className="table-mobile-value">{record.profiles?.departments?.name || 'N/A'}</span>
+                </div>
+              </>
+            )}
+            
+            <div className="table-mobile-row">
+              <span className="table-mobile-label">Comentarios:</span>
+              <span className="table-mobile-value">{record.comments || '-'}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  )
+})
+
+TodayRecordsTable.displayName = 'TodayRecordsTable'
 
 function LunchRegistration() {
   const { user, profile, canViewAllRecords } = useAuth()
   const [isOnline, setIsOnline] = useState(navigator.onLine)
   const [loading, setLoading] = useState(false)
-  const [success, setSuccess] = useState('')
-  const [error, setError] = useState('')
-  const [formData, setFormData] = useState({
-    user_id: '',
+  const [users, setUsers] = useState([])
+  const [todayRecords, setTodayRecords] = useState([])
+  const [selectedUser, setSelectedUser] = useState(null)
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [submissionData, setSubmissionData] = useState(null)
+
+  // Form validation with initial data
+  const initialFormData = {
+    user_id: canViewAllRecords ? '' : (user?.id || ''),
     comments: '',
     date: format(new Date(), 'yyyy-MM-dd'),
     time: format(new Date(), 'HH:mm')
-  })
-  const [searchTerm, setSearchTerm] = useState('')
-  const [users, setUsers] = useState([])
-  const [filteredUsers, setFilteredUsers] = useState([])
-  const [showUserSearch, setShowUserSearch] = useState(false)
-  const [todayRecords, setTodayRecords] = useState([])
+  }
 
+  const {
+    data: formData,
+    errors,
+    isSubmitting,
+    handleSubmit,
+    updateField,
+    reset,
+    getFieldProps
+  } = useFormValidation(lunchRegistrationSchema, initialFormData)
+
+  // Network status handlers
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true)
-      syncOfflineData(supabase)
+      toast.success('Conexión restaurada. Sincronizando datos...')
     }
-    const handleOffline = () => setIsOnline(false)
+    
+    const handleOffline = () => {
+      setIsOnline(false)
+      toast.warning('Sin conexión. Los datos se guardarán localmente.')
+    }
 
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOffline)
@@ -41,51 +140,65 @@ function LunchRegistration() {
     }
   }, [])
 
+  // Load initial data
   useEffect(() => {
     if (canViewAllRecords) {
       fetchUsers()
     } else {
       // For regular users, set their own ID
-      setFormData(prev => ({ ...prev, user_id: user.id }))
+      updateField('user_id', user?.id || '')
+      setSelectedUser({ 
+        id: user?.id, 
+        full_name: profile?.full_name, 
+        departments: profile?.departments 
+      })
     }
     fetchTodayRecords()
-  }, [canViewAllRecords, user])
+  }, [canViewAllRecords, user, profile])
 
-  useEffect(() => {
-    if (searchTerm) {
-      const filtered = users.filter(u => 
-        u.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.departments?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-      setFilteredUsers(filtered)
-    } else {
-      setFilteredUsers(users)
-    }
-  }, [searchTerm, users])
-
-  const fetchUsers = async () => {
+  // Cached user fetching with optimization
+  const fetchUsers = useCallback(async () => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select(`
-          id,
-          full_name,
-          departments (
-            name
-          )
-        `)
-        .eq('active', true)
-        .order('full_name')
+      // Try to get cached data first
+      const cachedUsers = await getCachedUserData(30) // 30 minutes cache
+      
+      if (cachedUsers && isOnline) {
+        setUsers(cachedUsers)
+      }
 
-      if (error) throw error
-      setUsers(data || [])
-      setFilteredUsers(data || [])
+      // Always fetch fresh data if online
+      if (isOnline) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select(`
+            id,
+            full_name,
+            email,
+            departments (
+              name
+            )
+          `)
+          .eq('active', true)
+          .order('full_name')
+
+        if (error) throw error
+        
+        const userData = data || []
+        setUsers(userData)
+        
+        // Cache the fresh data
+        await cacheUserData(userData)
+      } else if (cachedUsers) {
+        // Use cached data when offline
+        setUsers(cachedUsers)
+      }
     } catch (error) {
       console.error('Error fetching users:', error)
+      toast.error('Error al cargar usuarios: ' + error.message)
     }
-  }
+  }, [isOnline])
 
-  const fetchTodayRecords = async () => {
+  const fetchTodayRecords = useCallback(async () => {
     try {
       const today = format(new Date(), 'yyyy-MM-dd')
       
@@ -104,7 +217,7 @@ function LunchRegistration() {
         .order('time', { ascending: false })
 
       if (!canViewAllRecords) {
-        query = query.eq('user_id', user.id)
+        query = query.eq('user_id', user?.id)
       }
 
       const { data, error } = await query
@@ -113,36 +226,38 @@ function LunchRegistration() {
       setTodayRecords(data || [])
     } catch (error) {
       console.error('Error fetching today records:', error)
+      if (isOnline) {
+        toast.error('Error al cargar registros: ' + error.message)
+      }
     }
-  }
+  }, [canViewAllRecords, user?.id, isOnline])
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    setSuccess('')
+  const checkForDuplicates = useCallback((userId, date) => {
+    return todayRecords.find(r => 
+      r.user_id === userId && r.date === date
+    )
+  }, [todayRecords])
 
+  const onSubmit = async (validatedData) => {
     try {
-      // Validate form data
-      if (!formData.user_id) {
-        throw new Error('Debes seleccionar un usuario')
+      // Check rate limiting
+      const rateCheck = checkFormSubmissionRate(user.id)
+      if (rateCheck.limited) {
+        throw new Error(getRateLimitMessage(rateCheck.retryAfter))
       }
 
-      // Check for duplicates today
-      const today = format(new Date(), 'yyyy-MM-dd')
-      const existingRecord = todayRecords.find(r => 
-        r.user_id === formData.user_id && r.date === today
-      )
+      // Record the submission attempt
+      recordFormSubmission(user.id)
 
+      // Check for duplicates
+      const existingRecord = checkForDuplicates(validatedData.user_id, validatedData.date)
+      
       if (existingRecord) {
-        throw new Error('Este usuario ya tiene un registro de almuerzo para hoy')
+        throw new Error('Este usuario ya tiene un registro de almuerzo para esta fecha')
       }
 
       const recordData = {
-        user_id: formData.user_id,
-        date: formData.date,
-        time: formData.time,
-        comments: formData.comments || null,
+        ...validatedData,
         created_by: user.id
       }
 
@@ -154,57 +269,76 @@ function LunchRegistration() {
 
         if (error) throw error
         
-        setSuccess('¡Registro de almuerzo guardado exitosamente!')
+        toast.success('¡Registro de almuerzo guardado exitosamente!')
       } else {
         // Offline: save to IndexedDB
-        const offlineRecord = {
-          ...recordData,
-          id: crypto.randomUUID(),
-          synced: false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-
-        await db.lunch_records.add(offlineRecord)
-        await addToSyncQueue('insert', 'lunch_records', recordData)
-        
-        setSuccess('¡Registro guardado offline! Se sincronizará cuando tengas conexión.')
+        await saveLunchRecordOffline(recordData)
+        toast.success('¡Registro guardado offline! Se sincronizará cuando tengas conexión.')
       }
 
       // Reset form for next entry
       if (canViewAllRecords) {
-        setFormData({
+        reset({
           user_id: '',
           comments: '',
           date: format(new Date(), 'yyyy-MM-dd'),
           time: format(new Date(), 'HH:mm')
         })
-        setSearchTerm('')
-        setShowUserSearch(false)
+        setSelectedUser(null)
       } else {
-        setFormData(prev => ({
-          ...prev,
+        reset({
+          ...formData,
           comments: '',
           time: format(new Date(), 'HH:mm')
-        }))
+        })
       }
 
-      fetchTodayRecords()
+      await fetchTodayRecords()
       
     } catch (error) {
-      setError(error.message)
-    } finally {
-      setLoading(false)
+      toast.error(error.message)
+      throw error
     }
   }
 
-  const selectUser = (user) => {
-    setFormData(prev => ({ ...prev, user_id: user.id }))
-    setSearchTerm(user.full_name || '')
-    setShowUserSearch(false)
+  const handleFormSubmit = async (e) => {
+    e.preventDefault()
+    
+    // Show confirmation dialog for important submission
+    setSubmissionData(formData)
+    setShowConfirmDialog(true)
   }
 
-  const selectedUser = users.find(u => u.id === formData.user_id)
+  const handleConfirmSubmission = async () => {
+    setShowConfirmDialog(false)
+    
+    try {
+      await handleSubmit(onSubmit)
+    } catch (error) {
+      // Error already handled in onSubmit
+    }
+  }
+
+  const handleUserSelect = useCallback((user) => {
+    setSelectedUser(user)
+    updateField('user_id', user.id)
+  }, [updateField])
+
+  const handleUserClear = useCallback(() => {
+    setSelectedUser(null)
+    updateField('user_id', '')
+  }, [updateField])
+
+  const handleSyncComplete = useCallback((results) => {
+    if (results.success > 0) {
+      toast.success(`${results.success} elementos sincronizados correctamente`)
+      fetchTodayRecords()
+    }
+    
+    if (results.failed > 0) {
+      toast.error(`${results.failed} elementos fallaron al sincronizar`)
+    }
+  }, [fetchTodayRecords])
 
   if (loading && !formData.user_id) {
     return <LoadingSpinner message="Cargando formulario..." />
@@ -212,20 +346,12 @@ function LunchRegistration() {
 
   return (
     <div className="grid gap-6">
-      {/* Connection Status */}
-      <div className={`alert ${isOnline ? 'alert-success' : 'alert-warning'}`}>
-        {isOnline ? (
-          <>
-            <Wifi size={20} />
-            Conectado - Los registros se guardan inmediatamente
-          </>
-        ) : (
-          <>
-            <WifiOff size={20} />
-            Sin conexión - Los registros se guardarán localmente y se sincronizarán cuando tengas conexión
-          </>
-        )}
-      </div>
+      {/* Connection and Sync Status */}
+      <SyncStatus 
+        isOnline={isOnline}
+        supabase={supabase}
+        onSyncComplete={handleSyncComplete}
+      />
 
       {/* Registration Form */}
       <div className="card">
@@ -236,136 +362,58 @@ function LunchRegistration() {
           </h2>
         </div>
         <div className="card-content">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleFormSubmit}>
             <div className="grid grid-2 gap-4">
               <div className="form-group">
                 <label className="form-label">
                   <Calendar size={16} />
-                  Fecha
+                  Fecha <span style={{ color: 'var(--rojo)' }}>*</span>
                 </label>
                 <input
                   type="date"
-                  className="form-input"
-                  value={formData.date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, date: e.target.value }))}
+                  className={`form-input ${errors.date ? 'error' : ''}`}
+                  {...getFieldProps('date')}
                   required
                 />
+                {errors.date && (
+                  <div className="form-error">{errors.date}</div>
+                )}
               </div>
 
               <div className="form-group">
                 <label className="form-label">
                   <Clock size={16} />
-                  Hora
+                  Hora <span style={{ color: 'var(--rojo)' }}>*</span>
                 </label>
                 <input
                   type="time"
-                  className="form-input"
-                  value={formData.time}
-                  onChange={(e) => setFormData(prev => ({ ...prev, time: e.target.value }))}
+                  className={`form-input ${errors.time ? 'error' : ''}`}
+                  {...getFieldProps('time')}
                   required
                 />
+                {errors.time && (
+                  <div className="form-error">{errors.time}</div>
+                )}
               </div>
             </div>
 
             {/* User Selection */}
             {canViewAllRecords ? (
-              <div className="form-group">
-                <label className="form-label">
-                  <User size={16} />
-                  Usuario
-                </label>
-                <div style={{ position: 'relative' }}>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <input
-                      type="text"
-                      className="form-input"
-                      placeholder="Buscar usuario..."
-                      value={searchTerm}
-                      onChange={(e) => {
-                        setSearchTerm(e.target.value)
-                        setShowUserSearch(true)
-                      }}
-                      onFocus={() => setShowUserSearch(true)}
-                    />
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      style={{ minWidth: 'auto', padding: '0.75rem' }}
-                      onClick={() => setShowUserSearch(!showUserSearch)}
-                    >
-                      <Search size={16} />
-                    </button>
-                  </div>
-                  
-                  {selectedUser && (
-                    <div style={{ 
-                      marginTop: '0.5rem', 
-                      padding: '0.75rem', 
-                      background: 'var(--verde-claro)', 
-                      borderRadius: '8px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem'
-                    }}>
-                      <User size={16} style={{ color: 'var(--verde)' }} />
-                      <span style={{ fontWeight: '600', color: 'var(--verde-oscuro)' }}>
-                        {selectedUser.full_name}
-                      </span>
-                      {selectedUser.departments?.name && (
-                        <span style={{ 
-                          background: 'var(--verde)', 
-                          color: 'var(--blanco)', 
-                          padding: '0.25rem 0.5rem', 
-                          borderRadius: '12px',
-                          fontSize: '0.75rem'
-                        }}>
-                          {selectedUser.departments.name}
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  {showUserSearch && filteredUsers.length > 0 && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '100%',
-                      left: 0,
-                      right: 0,
-                      background: 'var(--blanco)',
-                      border: '2px solid var(--borde-verde)',
-                      borderRadius: '8px',
-                      maxHeight: '200px',
-                      overflowY: 'auto',
-                      zIndex: 10,
-                      marginTop: '0.25rem'
-                    }}>
-                      {filteredUsers.map(user => (
-                        <div
-                          key={user.id}
-                          style={{
-                            padding: '0.75rem',
-                            cursor: 'pointer',
-                            borderBottom: '1px solid var(--borde-verde)',
-                            transition: 'background 0.2s'
-                          }}
-                          onClick={() => selectUser(user)}
-                          onMouseEnter={(e) => e.target.style.background = 'var(--verde-claro)'}
-                          onMouseLeave={(e) => e.target.style.background = 'transparent'}
-                        >
-                          <div style={{ fontWeight: '600' }}>{user.full_name}</div>
-                          {user.departments?.name && (
-                            <div style={{ fontSize: '0.875rem', color: 'var(--gris-medio)' }}>
-                              {user.departments.name}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
+              <UserSearch
+                users={users}
+                selectedUser={selectedUser}
+                onSelectUser={handleUserSelect}
+                onClear={handleUserClear}
+                error={errors.user_id}
+                required={true}
+                disabled={isSubmitting}
+              />
             ) : (
               <div className="form-group">
+                <label className="form-label">
+                  <Calendar size={16} />
+                  Usuario
+                </label>
                 <div style={{ 
                   padding: '0.75rem', 
                   background: 'var(--verde-claro)', 
@@ -374,7 +422,7 @@ function LunchRegistration() {
                   alignItems: 'center',
                   gap: '0.5rem'
                 }}>
-                  <User size={16} style={{ color: 'var(--verde)' }} />
+                  <CheckCircle size={16} style={{ color: 'var(--verde)' }} />
                   <span style={{ fontWeight: '600', color: 'var(--verde-oscuro)' }}>
                     {profile?.full_name || user?.email}
                   </span>
@@ -399,32 +447,32 @@ function LunchRegistration() {
                 Comentarios (opcional)
               </label>
               <textarea
-                className="form-textarea"
+                className={`form-textarea ${errors.comments ? 'error' : ''}`}
                 placeholder="Comentarios adicionales..."
-                value={formData.comments}
-                onChange={(e) => setFormData(prev => ({ ...prev, comments: e.target.value }))}
+                {...getFieldProps('comments')}
                 rows={3}
+                maxLength={500}
               />
+              {errors.comments && (
+                <div className="form-error">{errors.comments}</div>
+              )}
+              <div style={{ fontSize: '0.75rem', color: 'var(--gris-medio)', marginTop: '0.25rem' }}>
+                {formData.comments?.length || 0}/500 caracteres
+              </div>
             </div>
 
-            {error && (
+            {errors.general && (
               <div className="alert alert-error">
-                {error}
-              </div>
-            )}
-
-            {success && (
-              <div className="alert alert-success">
-                {success}
+                {errors.general}
               </div>
             )}
 
             <button 
               type="submit" 
               className="btn btn-primary"
-              disabled={loading || (!canViewAllRecords ? false : !formData.user_id)}
+              disabled={isSubmitting || (!canViewAllRecords ? false : !formData.user_id)}
             >
-              {loading ? 'Guardando...' : 'Registrar Almuerzo'}
+              {isSubmitting ? 'Guardando...' : 'Registrar Almuerzo'}
             </button>
           </form>
         </div>
@@ -436,38 +484,27 @@ function LunchRegistration() {
           <h3 className="card-title">Registros de Hoy ({todayRecords.length})</h3>
         </div>
         <div className="card-content">
-          {todayRecords.length === 0 ? (
-            <p style={{ textAlign: 'center', color: 'var(--gris-medio)', padding: '2rem' }}>
-              No hay registros para hoy
-            </p>
-          ) : (
-            <div className="table-container">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>Hora</th>
-                    {canViewAllRecords && <th>Usuario</th>}
-                    {canViewAllRecords && <th>Departamento</th>}
-                    <th>Comentarios</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {todayRecords.map((record) => (
-                    <tr key={record.id}>
-                      <td>{record.time}</td>
-                      {canViewAllRecords && <td>{record.profiles?.full_name || 'N/A'}</td>}
-                      {canViewAllRecords && <td>{record.profiles?.departments?.name || 'N/A'}</td>}
-                      <td>{record.comments || '-'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+          <TodayRecordsTable 
+            records={todayRecords}
+            canViewAllRecords={canViewAllRecords}
+          />
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showConfirmDialog}
+        onClose={() => setShowConfirmDialog(false)}
+        onConfirm={handleConfirmSubmission}
+        title="Confirmar registro de almuerzo"
+        message={`¿Confirmas el registro de almuerzo para ${selectedUser?.full_name || profile?.full_name || 'el usuario seleccionado'}?`}
+        type="info"
+        confirmText="Registrar"
+        cancelText="Cancelar"
+        loading={isSubmitting}
+      />
     </div>
   )
 }
 
-export default LunchRegistration
+export default memo(LunchRegistration)

@@ -5,8 +5,19 @@
   --borde-verde: #cfe6da;
   --gris-claro: #f7f7f7;
   --gris-medio: #e0e0e0;
+  --gris-oscuro: #333333;
   --negro: #252525;
   --blanco: #fff;
+  --rojo: #dc3545;
+  --rojo-oscuro: #c82333;
+  --rojo-claro: #f8d7da;
+  --azul: #007bff;
+  --azul-oscuro: #0056b3;
+  --azul-claro: #d1ecf1;
+  --amarillo: #ffc107;
+  --amarillo-oscuro: #e0a800;
+  --amarillo-claro: #fff3cd;
+  --naranja: #fd7e14;
   --error-bg: #ffe9e9;
   --error-color: #8b3030;
   --success-bg: #e9f4ef;
@@ -370,6 +381,8 @@ body {
   .nav-link {
     display: block;
     text-align: center;
+    padding: 0.75rem 1rem; /* Larger touch targets */
+    font-size: 1.1rem;
   }
   
   .main-content {
@@ -383,6 +396,91 @@ body {
   .btn {
     width: 100%;
     margin-bottom: 0.5rem;
+    padding: 1rem 1.5rem; /* Larger touch targets */
+    font-size: 1.1rem;
+  }
+  
+  /* Mobile-specific form improvements */
+  .form-input,
+  .form-select,
+  .form-textarea {
+    padding: 1rem 0.75rem; /* Larger touch targets */
+    font-size: 1.1rem;
+  }
+  
+  /* Grid adjustments for mobile */
+  .grid-2 {
+    grid-template-columns: 1fr;
+  }
+  
+  /* Table responsive improvements */
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 8px;
+  }
+  
+  .table {
+    min-width: 600px; /* Ensure readable on mobile */
+  }
+  
+  .table th,
+  .table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+  
+  /* Mobile table alternative layout */
+  .table-mobile {
+    display: none;
+  }
+  
+  /* Card-based table for very small screens */
+  @media (max-width: 480px) {
+    .table-container .table {
+      display: none;
+    }
+    
+    .table-mobile {
+      display: block;
+    }
+    
+    .table-mobile-item {
+      background: var(--blanco);
+      border: 1px solid var(--borde-verde);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .table-mobile-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .table-mobile-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.25rem 0;
+      border-bottom: 1px solid var(--borde-verde);
+    }
+    
+    .table-mobile-row:last-child {
+      border-bottom: none;
+    }
+    
+    .table-mobile-label {
+      font-weight: 600;
+      color: var(--verde-oscuro);
+      font-size: 0.875rem;
+    }
+    
+    .table-mobile-value {
+      color: var(--negro);
+      text-align: right;
+      font-size: 0.875rem;
+    }
   }
 }
 
@@ -391,13 +489,48 @@ body {
     font-size: 1.25rem;
   }
   
-  .table-container {
-    font-size: 0.875rem;
+  .card-header {
+    padding: 1rem;
   }
   
-  .table th,
-  .table td {
-    padding: 0.5rem;
+  .card-title {
+    font-size: 1.1rem;
+  }
+  
+  .table-container {
+    font-size: 0.875rem;
+    margin: -0.5rem; /* Extend to card edges */
+  }
+  
+  /* Improved touch targets for very small screens */
+  .btn {
+    padding: 1.25rem 1.5rem;
+    font-size: 1.2rem;
+    border-radius: 12px;
+  }
+  
+  .form-input,
+  .form-select,
+  .form-textarea {
+    padding: 1.25rem 1rem;
+    font-size: 1.2rem;
+    border-radius: 12px;
+  }
+  
+  /* UserSearch improvements for mobile */
+  .user-search-dropdown {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: 90vw !important;
+    max-width: 400px !important;
+    max-height: 70vh !important;
+    z-index: 9999 !important;
+    background: var(--blanco) !important;
+    border: 2px solid var(--verde) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
   }
 }
 
@@ -430,4 +563,136 @@ body {
 .back-link:hover {
   background-color: #116835 !important;
   color: white !important;
+}
+
+/* Form validation styles */
+.form-input.error,
+.form-select.error,
+.form-textarea.error {
+  border-color: var(--rojo);
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.form-error {
+  color: var(--rojo);
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.form-error::before {
+  content: "⚠";
+  font-size: 0.75rem;
+}
+
+/* Animation for form validation */
+.form-input.error,
+.form-select.error,
+.form-textarea.error {
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* Loading states for buttons */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.btn:disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Sync status animations */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Modal and dialog styles */
+.modal-backdrop {
+  backdrop-filter: blur(2px);
+  transition: opacity 0.2s ease-out;
+}
+
+/* UserSearch component specific styles */
+.user-search-dropdown {
+  max-height: 250px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--verde-claro) transparent;
+}
+
+.user-search-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.user-search-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.user-search-dropdown::-webkit-scrollbar-thumb {
+  background: var(--verde-claro);
+  border-radius: 3px;
+}
+
+.user-search-dropdown::-webkit-scrollbar-thumb:hover {
+  background: var(--borde-verde);
+}
+
+/* Improved focus styles for accessibility */
+.btn:focus-visible,
+.form-input:focus-visible,
+.form-select:focus-visible,
+.form-textarea:focus-visible {
+  outline: 2px solid var(--verde);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --verde: #0a5928;
+    --verde-oscuro: #073e1d;
+    --borde-verde: #a0a0a0;
+    --gris-medio: #808080;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .btn,
+  .nav,
+  .header {
+    display: none !important;
+  }
+  
+  .main-content {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .card {
+    border: 1px solid #000;
+    box-shadow: none;
+    page-break-inside: avoid;
+  }
 }
