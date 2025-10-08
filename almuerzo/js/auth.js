@@ -57,3 +57,16 @@ function getCurrentUser() {
 function isAdmin(user) {
     return user && user.email === ADMIN_EMAIL;
 }
+
+// Función a tu archivo auth.js
+function actualizarNombreUsuario(nuevoNombre) {
+    return auth.currentUser.updateProfile({
+        displayName: nuevoNombre
+    }).then(() => {
+        console.log("Nombre de usuario actualizado correctamente");
+        return nuevoNombre;
+    }).catch((error) => {
+        console.error("Error al actualizar el nombre:", error);
+        throw error;
+    });
+}

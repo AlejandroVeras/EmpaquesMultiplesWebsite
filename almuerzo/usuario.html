@@ -104,7 +104,28 @@
             </div>
         </div>
     </div>
-
+<!-- Actualizar perfil -->
+<div class="card fade-in mt-4">
+    <div class="card-header">
+        <i class="fas fa-user-edit"></i> Actualizar mi perfil
+    </div>
+    <div class="card-body">
+        <form id="actualizarPerfilForm" class="needs-validation">
+            <div class="mb-3">
+                <label for="nombreUsuario" class="form-label">Nombre completo</label>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                    <input type="text" class="form-control" id="nombreUsuario" 
+                           placeholder="Ingresa tu nombre completo" required>
+                </div>
+                <div class="form-text">Este nombre se mostrará en tu perfil</div>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save"></i> Guardar cambios
+            </button>
+        </form>
+    </div>
+</div>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -155,41 +176,42 @@
                 });
         }
 
-        // Registrar asistencia
-        function registrarMiAsistencia() {
-            const btnRegistrar = document.getElementById('btnRegistrar');
-            
-            // Deshabilitar botón
-            btnRegistrar.disabled = true;
-            btnRegistrar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
-            
-            // Registrar en la base de datos
-            registrarAsistencia(
-                currentUser.uid,
-                currentUser.displayName || 'Usuario',
-                currentUser.email
-            )
-            .then(() => {
-                // Éxito
-                btnRegistrar.innerHTML = '<i class="fas fa-check-double"></i> Ya registraste tu asistencia hoy';
-                btnRegistrar.classList.remove('btn-primary');
-                btnRegistrar.classList.add('btn-success');
-                
-                mostrarAlerta('¡Asistencia registrada exitosamente!', 'success');
-                
-                // Recargar historial
-                cargarHistorial();
-            })
-            .catch((error) => {
-                console.error('Error al registrar:', error);
-                mostrarAlerta('Error al registrar la asistencia. Por favor, intenta nuevamente.', 'danger');
-                
-                // Rehabilitar botón
-                btnRegistrar.disabled = false;
-                btnRegistrar.innerHTML = '<i class="fas fa-check-circle"></i> Registrar Asistencia';
-            });
-        }
-
+       function registrarMiAsistencia() {
+    const btnRegistrar = document.getElementById('btnRegistrar');
+    
+    // Obtener el nombre actual (displayName o 'Usuario sin nombre')
+    const nombreUsuario = currentUser.displayName || 'Usuario sin nombre';
+    
+    // Deshabilitar botón
+    btnRegistrar.disabled = true;
+    btnRegistrar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
+    
+    // Registrar en la base de datos
+    registrarAsistencia(
+        currentUser.uid,
+        nombreUsuario,
+        currentUser.email
+    )
+    .then(() => {
+        // Éxito
+        btnRegistrar.innerHTML = '<i class="fas fa-check-double"></i> Ya registraste tu asistencia hoy';
+        btnRegistrar.classList.remove('btn-primary');
+        btnRegistrar.classList.add('btn-success');
+        
+        mostrarAlerta('¡Asistencia registrada exitosamente!', 'success');
+        
+        // Recargar historial
+        cargarHistorial();
+    })
+    .catch((error) => {
+        console.error('Error al registrar:', error);
+        mostrarAlerta('Error al registrar la asistencia. Por favor, intenta nuevamente.', 'danger');
+        
+        // Rehabilitar botón
+        btnRegistrar.disabled = false;
+        btnRegistrar.innerHTML = '<i class="fas fa-check-circle"></i> Registrar Asistencia';
+    });
+}
         // Cargar historial de asistencias
         function cargarHistorial() {
             const loadingHistorial = document.getElementById('loadingHistorial');
@@ -256,6 +278,41 @@
                 alertContainer.innerHTML = '';
             }, 5000);
         }
+        // Manejar actualización del perfil
+document.getElementById('actualizarPerfilForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const nuevoNombre = document.getElementById('nombreUsuario').value.trim();
+    const btnSubmit = this.querySelector('button[type="submit"]');
+    const btnTextOriginal = btnSubmit.innerHTML;
+    
+    // Validar entrada
+    if (!nuevoNombre) {
+        mostrarAlerta('Por favor ingresa tu nombre completo', 'warning');
+        return;
+    }
+    
+    // Cambiar estado del botón
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
+    
+    // Actualizar perfil
+    actualizarNombreUsuario(nuevoNombre)
+        .then((nombre) => {
+            // Actualizar nombre en la UI
+            document.getElementById('userName').textContent = nombre;
+            mostrarAlerta('¡Perfil actualizado correctamente!', 'success');
+        })
+        .catch((error) => {
+            console.error('Error al actualizar perfil:', error);
+            mostrarAlerta('Error al actualizar el perfil. Intenta nuevamente.', 'danger');
+        })
+        .finally(() => {
+            // Restaurar botón
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = btnTextOriginal;
+        });
+});
     </script>
 </body>
 </html>
