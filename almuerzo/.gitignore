@@ -1,0 +1,15 @@
+# No incluir el archivo de configuración con credenciales reales
+# Mantener solo el archivo de ejemplo
+# firebase-config.js
+
+# Archivos temporales
+*.tmp
+*.log
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Backups
+*.backup
+*.bak
