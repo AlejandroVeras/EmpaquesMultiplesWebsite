@@ -70,3 +70,17 @@ function actualizarNombreUsuario(nuevoNombre) {
         throw error;
     });
 }
+
+
+// Función para actualizar el nombre del usuario
+function actualizarNombreUsuario(nuevoNombre) {
+    return auth.currentUser.updateProfile({
+        displayName: nuevoNombre
+    }).then(() => {
+        console.log("Nombre de usuario actualizado correctamente");
+        return nuevoNombre;
+    }).catch((error) => {
+        console.error("Error al actualizar el nombre:", error);
+        throw error;
+    });
+}
