@@ -1,38 +1,36 @@
-// database.js - Operaciones de base de datos
+// firestore.js - Operaciones de base de datos con usuarios y sin emails
 
 // Registrar asistencia al almuerzo
-function registrarAsistencia(userId, nombre, email) {
+function registrarAsistencia(userId, nombre, username) {
     const fecha = new Date();
     const fechaString = fecha.toISOString().split('T')[0]; // YYYY-MM-DD
     const horaString = fecha.toTimeString().split(' ')[0]; // HH:MM:SS
     
-    const asistenciaRef = database.ref('asistencias').push();
-    
-    return asistenciaRef.set({
+    return db.collection('asistencias').add({
         userId: userId,
         nombre: nombre,
-        email: email,
+        username: username,
         fecha: fechaString,
         hora: horaString,
-        timestamp: fecha.getTime()
+        timestamp: firebase.firestore.FieldValue.serverTimestamp()
     });
 }
 
 // Obtener asistencias del usuario actual
 function obtenerAsistenciasUsuario(userId) {
-    return database.ref('asistencias')
-        .orderByChild('userId')
-        .equalTo(userId)
-        .once('value')
-        .then((snapshot) => {
+    return db.collection('asistencias')
+        .where('userId', '==', userId)
+        .orderBy('timestamp', 'desc')
+        .get()
+        .then((querySnapshot) => {
             const asistencias = [];
-            snapshot.forEach((childSnapshot) => {
+            querySnapshot.forEach((doc) => {
                 asistencias.push({
-                    id: childSnapshot.key,
-                    ...childSnapshot.val()
+                    id: doc.id,
+                    ...doc.data()
                 });
             });
-            return asistencias.sort((a, b) => b.timestamp - a.timestamp);
+            return asistencias;
         });
 }
 
@@ -40,63 +38,77 @@ function obtenerAsistenciasUsuario(userId) {
 function verificarAsistenciaHoy(userId) {
     const hoy = new Date().toISOString().split('T')[0];
     
-    return database.ref('asistencias')
-        .orderByChild('userId')
-        .equalTo(userId)
-        .once('value')
-        .then((snapshot) => {
-            let yaRegistrado = false;
-            snapshot.forEach((childSnapshot) => {
-                const asistencia = childSnapshot.val();
-                if (asistencia.fecha === hoy) {
-                    yaRegistrado = true;
-                }
-            });
-            return yaRegistrado;
+    return db.collection('asistencias')
+        .where('userId', '==', userId)
+        .where('fecha', '==', hoy)
+        .get()
+        .then((querySnapshot) => {
+            return !querySnapshot.empty;
         });
 }
 
 // Obtener todas las asistencias (solo admin)
 function obtenerTodasAsistencias() {
-    return database.ref('asistencias')
-        .once('value')
-        .then((snapshot) => {
+    return db.collection('asistencias')
+        .orderBy('timestamp', 'desc')
+        .get()
+        .then((querySnapshot) => {
             const asistencias = [];
-            snapshot.forEach((childSnapshot) => {
+            querySnapshot.forEach((doc) => {
                 asistencias.push({
-                    id: childSnapshot.key,
-                    ...childSnapshot.val()
+                    id: doc.id,
+                    ...doc.data()
                 });
             });
-            return asistencias.sort((a, b) => b.timestamp - a.timestamp);
+            return asistencias;
         });
 }
 
 // Filtrar asistencias por fecha
 function filtrarAsistenciasPorFecha(fechaInicio, fechaFin) {
-    return obtenerTodasAsistencias()
-        .then((asistencias) => {
-            return asistencias.filter((asistencia) => {
-                return asistencia.fecha >= fechaInicio && asistencia.fecha <= fechaFin;
+    return db.collection('asistencias')
+        .where('fecha', '>=', fechaInicio)
+        .where('fecha', '<=', fechaFin)
+        .orderBy('fecha', 'desc')
+        .get()
+        .then((querySnapshot) => {
+            const asistencias = [];
+            querySnapshot.forEach((doc) => {
+                asistencias.push({
+                    id: doc.id,
+                    ...doc.data()
+                });
             });
+            return asistencias;
         });
 }
 
 // Obtener estadísticas de asistencias
 function obtenerEstadisticas() {
-    return obtenerTodasAsistencias()
-        .then((asistencias) => {
-            const hoy = new Date().toISOString().split('T')[0];
-            const esteMes = new Date().toISOString().slice(0, 7); // YYYY-MM
-            
-            const asistenciasHoy = asistencias.filter(a => a.fecha === hoy).length;
-            const asistenciasMes = asistencias.filter(a => a.fecha.startsWith(esteMes)).length;
-            const totalAsistencias = asistencias.length;
-            
-            return {
-                hoy: asistenciasHoy,
-                mes: asistenciasMes,
-                total: totalAsistencias
-            };
-        });
+    const hoy = new Date().toISOString().split('T')[0];
+    const inicioMes = new Date().toISOString().slice(0, 7) + '-01';
+    const finMes = new Date().toISOString().slice(0, 7) + '-31';
+    
+    return Promise.all([
+        // Asistencias hoy
+        db.collection('asistencias')
+            .where('fecha', '==', hoy)
+            .get(),
+        
+        // Asistencias del mes
+        db.collection('asistencias')
+            .where('fecha', '>=', inicioMes)
+            .where('fecha', '<=', finMes)
+            .get(),
+        
+        // Total asistencias
+        db.collection('asistencias').get()
+    ])
+    .then(([hoySnapshot, mesSnapshot, totalSnapshot]) => {
+        return {
+            hoy: hoySnapshot.size,
+            mes: mesSnapshot.size,
+            total: totalSnapshot.size
+        };
+    });
 }

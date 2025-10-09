@@ -17,6 +17,10 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/almuerzo.css">
+
+    <!-- Incluir bcrypt.js para hash de contraseñas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
+    
 </head>
 <body>
     <!-- Header -->
@@ -117,18 +121,17 @@
     <script src="js/firebase-config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/database.js"></script>
-    
-    <script>
-        let currentUser = null;
-    let nombreModal;
 
+    <!-- Incluir bcrypt.js para hash de contraseñas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
+    
+<script>
     // Verificar autenticación al cargar
     checkAuth(false)
         .then((user) => {
-            currentUser = user;
-            
             // Actualizar información del usuario
-            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('userName').textContent = user.displayName || 'Usuario';
+            document.getElementById('userEmail').textContent = user.username;
             
             // Verificar si el usuario tiene nombre configurado
             if (!user.displayName) {
@@ -140,7 +143,6 @@
                 document.getElementById('guardarNombreBtn').addEventListener('click', guardarNombreUsuario);
             } else {
                 // Usuario ya tiene nombre, mostrar normalmente
-                document.getElementById('userName').textContent = user.displayName;
                 inicializarPagina();
             }
         })

@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sistema de Asistencia al Almuerzo</title>
-    <link rel="icon" href="../images/logo.png" type="image/x-icon" />
+    <title>Iniciar Sesión - Sistema de Almuerzo</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -12,52 +11,56 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/almuerzo.css">
+
+    <!-- Incluir bcrypt.js para hash de contraseñas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
 </head>
-<body>
+<body class="login-bg">
     <div class="login-container">
-        <div class="login-card">
-            <div class="card">
-                <div class="card-body">
-                    <!-- Logo -->
-                    <img src="../images/logo.png" alt="Logo Empaques Múltiples" class="login-logo">
+        <div class="container">
+            <!-- Alerta para mensajes -->
+            <div id="alertContainer"></div>
+            
+            <!-- Tarjeta de login -->
+            <div class="card login-card">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <img src="../images/logo.png" alt="Logo" class="login-logo">
+                        <h2 class="fw-bold">Sistema de Almuerzo</h2>
+                        <p class="text-muted">Inicia sesión para registrar tu asistencia</p>
+                    </div>
                     
-                    <!-- Título -->
-                    <h2 class="text-center mb-4" style="color: #116835;">Sistema de Asistencia al Almuerzo</h2>
-                    
-                    <!-- Alerta de error -->
-                    <div id="alertContainer"></div>
-                    
-                    <!-- Formulario de Login -->
                     <form id="loginForm">
-                        <div class="mb-3">
-                            <label for="email" class="form-label">
-                                <i class="fas fa-envelope"></i> Correo Electrónico
-                            </label>
-                            <input 
-                                type="email" 
-                                class="form-control" 
-                                id="email" 
-                                placeholder="tu.email@ejemplo.com"
-                                required
-                            >
+                        <div class="mb-4">
+                            <label for="username" class="form-label">Usuario</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="username" 
+                                    placeholder="Nombre de usuario"
+                                    required
+                                    autocomplete="username"
+                                >
+                            </div>
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="password" class="form-label">
-                                <i class="fas fa-lock"></i> Contraseña
-                            </label>
-                            <input 
-                                type="password" 
-                                class="form-control" 
-                                id="password" 
-                                placeholder="••••••••"
-                                required
-                            >
+                        <div class="mb-4">
+                            <label for="password" class="form-label">Contraseña</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-lock"></i></span>
+                                <input 
+                                    type="password" 
+                                    class="form-control" 
+                                    id="password" 
+                                    placeholder="••••••••"
+                                    required
+                                    autocomplete="current-password"
+                                >
+                            </div>
                         </div>
                         
                         <button type="submit" class="btn btn-primary w-100" id="loginBtn">
@@ -86,8 +89,10 @@
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <!-- BCrypt para hash de contraseñas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -97,44 +102,70 @@
     <script src="js/auth.js"></script>
     
     <script>
+        // Verificar si ya hay una sesión activa
+        const userJson = localStorage.getItem('user');
+        if (userJson) {
+            try {
+                const user = JSON.parse(userJson);
+                // Verificar tiempo de expiración
+                const maxSessionTime = 8 * 60 * 60 * 1000; // 8 horas
+                if ((new Date().getTime() - user.timestamp) <= maxSessionTime) {
+                    // Sesión válida, redirigir
+                    if (user.role === 'admin') {
+                        window.location.href = 'admin.html';
+                    } else {
+                        window.location.href = 'usuario.html';
+                    }
+                }
+            } catch (e) {
+                // Error al parsear, eliminar la sesión
+                localStorage.removeItem('user');
+            }
+        }
+        
+        // Verificar si hay parámetros en la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('expired') === '1') {
+            mostrarAlerta('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'info');
+        } else if (urlParams.get('deleted') === '1') {
+            mostrarAlerta('Tu cuenta ha sido eliminada o desactivada.', 'warning');
+        } else if (urlParams.get('logout') === '1') {
+            mostrarAlerta('Has cerrado sesión correctamente.', 'success');
+        }
+        
         // Manejar el formulario de login
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const email = document.getElementById('email').value;
+            const username = document.getElementById('username').value.trim();
             const password = document.getElementById('password').value;
             const loginBtn = document.getElementById('loginBtn');
             const alertContainer = document.getElementById('alertContainer');
+            
+            // Validar campos
+            if (!username || !password) {
+                mostrarAlerta('Por favor, completa todos los campos', 'warning');
+                return;
+            }
             
             // Deshabilitar botón
             loginBtn.disabled = true;
             loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
             
-            // Limpiar alertas previas
-            alertContainer.innerHTML = '';
-            
             // Intentar login
-            login(email, password)
+            login(username, password)
                 .catch((error) => {
-                    // Mostrar error
-                    let errorMessage = 'Error al iniciar sesión. Por favor, verifica tus credenciales.';
+                    console.error('Error de login:', error);
+                    let mensaje = "Error al iniciar sesión";
                     
-                    if (error.code === 'auth/user-not-found') {
-                        errorMessage = 'Usuario no encontrado.';
-                    } else if (error.code === 'auth/wrong-password') {
-                        errorMessage = 'Contraseña incorrecta.';
-                    } else if (error.code === 'auth/invalid-email') {
-                        errorMessage = 'Correo electrónico inválido.';
-                    } else if (error.code === 'auth/user-disabled') {
-                        errorMessage = 'Usuario deshabilitado.';
+                    if (error.message === 'user-not-found') {
+                        mensaje = "Usuario no encontrado";
+                    } else if (error.message === 'wrong-password') {
+                        mensaje = "Contraseña incorrecta";
                     }
                     
-                    alertContainer.innerHTML = `
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="fas fa-exclamation-circle"></i> ${errorMessage}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    `;
+                    // Mostrar mensaje al usuario
+                    mostrarAlerta(mensaje, 'danger');
                     
                     // Rehabilitar botón
                     loginBtn.disabled = false;
@@ -142,17 +173,18 @@
                 });
         });
         
-        // Verificar si ya está autenticado
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                // Ya está autenticado, redirigir
-                if (user.email === ADMIN_EMAIL) {
-                    window.location.href = 'admin.html';
-                } else {
-                    window.location.href = 'usuario.html';
-                }
-            }
-        });
+        // Función para mostrar alertas
+        function mostrarAlerta(mensaje, tipo) {
+            const alertContainer = document.getElementById('alertContainer');
+            const icono = tipo === 'success' ? 'check-circle' : tipo === 'danger' ? 'exclamation-circle' : 'info-circle';
+            
+            alertContainer.innerHTML = `
+                <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-${icono}"></i> ${mensaje}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+        }
     </script>
 </body>
 </html>

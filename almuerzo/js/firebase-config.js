@@ -15,7 +15,7 @@ firebase.initializeApp(firebaseConfig);
 
 // Referencias a servicios de Firebase
 const auth = firebase.auth();
-const database = firebase.database();
+const db = firebase.firestore();
 
 // Email del administrador
 const ADMIN_EMAIL = "soporte.it.casaempaques@gmail.com";
