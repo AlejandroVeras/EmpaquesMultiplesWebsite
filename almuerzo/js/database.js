@@ -1,7 +1,7 @@
 // firestore.js - Operaciones de base de datos con usuarios y sin emails
 
 // Registrar asistencia al almuerzo
-function registrarAsistencia(userId, nombre, username) {
+function registrarAsistencia(userId, nombre, email) {
     const fecha = new Date();
     const fechaString = fecha.toISOString().split('T')[0]; // YYYY-MM-DD
     const horaString = fecha.toTimeString().split(' ')[0]; // HH:MM:SS
@@ -9,7 +9,7 @@ function registrarAsistencia(userId, nombre, username) {
     return db.collection('asistencias').add({
         userId: userId,
         nombre: nombre,
-        username: username,
+        email: email,
         fecha: fechaString,
         hora: horaString,
         timestamp: firebase.firestore.FieldValue.serverTimestamp()

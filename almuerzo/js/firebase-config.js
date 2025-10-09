@@ -2,7 +2,6 @@
 const firebaseConfig = {
   apiKey: "AIzaSyDcwkUmqaiguV2MoEPsz8HSWUD9uzTIS-w",
   authDomain: "empaques-multiples-almuerzo.firebaseapp.com",
-  databaseURL: "https://empaques-multiples-almuerzo-default-rtdb.firebaseio.com",
   projectId: "empaques-multiples-almuerzo",
   storageBucket: "empaques-multiples-almuerzo.firebasestorage.app",
   messagingSenderId: "687266639137",
@@ -11,11 +10,15 @@ const firebaseConfig = {
 };
 
 // Inicializar Firebase usando la API de compatibilidad
+console.log("Inicializando Firebase...");
 firebase.initializeApp(firebaseConfig);
 
 // Referencias a servicios de Firebase
+console.log("Configurando servicios de Firebase...");
 const auth = firebase.auth();
 const db = firebase.firestore();
+console.log("Firebase inicializado correctamente:", !!firebase);
+console.log("Firestore disponible:", !!db);
 
 // Email del administrador
 const ADMIN_EMAIL = "soporte.it.casaempaques@gmail.com";
