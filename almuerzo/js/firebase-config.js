@@ -1,11 +1,9 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+// firebase-config.js
+// ELIMINAR estas líneas que causan el error:
+// import { initializeApp } from "firebase/app";
+// import { getAnalytics } from "firebase/analytics";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+// Configuración de Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyDcwkUmqaiguV2MoEPsz8HSWUD9uzTIS-w",
   authDomain: "empaques-multiples-almuerzo.firebaseapp.com",
@@ -17,6 +15,14 @@ const firebaseConfig = {
   measurementId: "G-2NRREN25E3"
 };
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+// Inicializar Firebase usando la API de compatibilidad
+firebase.initializeApp(firebaseConfig);
+
+// Referencias a servicios de Firebase
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// Email del administrador
+const ADMIN_EMAIL = "soporte.it.casaempaques@gmail.com";
+
+console.log("Firebase configurado correctamente");
