@@ -13,10 +13,6 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/almuerzo.css">
-
-    <!-- Incluir bcrypt.js para hash de contraseñas -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
-
 </head>
 <body class="login-bg">
     <div class="login-container">
@@ -93,100 +89,100 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
-<!-- BCrypt para hash de contraseñas -->
+<!-- BCrypt para hash de contraseñas (UNA sola vez, antes de firebase-config.js porque se usa allí) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
 
-<!-- Bootstrap JS -->
+<!-- Bootstrap JS (puede cargarse antes o después de firebase-config, pero lo dejamos aquí) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Custom Scripts - después de todas las dependencias -->
 <script src="js/firebase-config.js"></script>
 <script src="js/auth.js"></script>
 
-    <script>
-        // Verificar si ya hay una sesión activa
-        const userJson = localStorage.getItem('user');
-        if (userJson) {
-            try {
-                const user = JSON.parse(userJson);
-                // Verificar tiempo de expiración
-                const maxSessionTime = 8 * 60 * 60 * 1000; // 8 horas
-                if ((new Date().getTime() - user.timestamp) <= maxSessionTime) {
-                    // Sesión válida, redirigir
-                    if (user.role === 'admin') {
-                        window.location.href = 'admin.html';
-                    } else {
-                        window.location.href = 'usuario.html';
-                    }
+<script>
+    // Verificar si ya hay una sesión activa
+    const userJson = localStorage.getItem('user');
+    if (userJson) {
+        try {
+            const user = JSON.parse(userJson);
+            // Verificar tiempo de expiración
+            const maxSessionTime = 8 * 60 * 60 * 1000; // 8 horas
+            if ((new Date().getTime() - user.timestamp) <= maxSessionTime) {
+                // Sesión válida, redirigir
+                if (user.role === 'admin') {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'usuario.html';
                 }
-            } catch (e) {
-                // Error al parsear, eliminar la sesión
-                localStorage.removeItem('user');
             }
+        } catch (e) {
+            // Error al parsear, eliminar la sesión
+            localStorage.removeItem('user');
+        }
+    }
+    
+    // Verificar si hay parámetros en la URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('expired') === '1') {
+        mostrarAlerta('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'info');
+    } else if (urlParams.get('deleted') === '1') {
+        mostrarAlerta('Tu cuenta ha sido eliminada o desactivada.', 'warning');
+    } else if (urlParams.get('logout') === '1') {
+        mostrarAlerta('Has cerrado sesión correctamente.', 'success');
+    }
+    
+    // Manejar el formulario de login
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const loginBtn = document.getElementById('loginBtn');
+        const alertContainer = document.getElementById('alertContainer');
+        
+        // Validar campos
+        if (!username || !password) {
+            mostrarAlerta('Por favor, completa todos los campos', 'warning');
+            return;
         }
         
-        // Verificar si hay parámetros en la URL
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('expired') === '1') {
-            mostrarAlerta('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'info');
-        } else if (urlParams.get('deleted') === '1') {
-            mostrarAlerta('Tu cuenta ha sido eliminada o desactivada.', 'warning');
-        } else if (urlParams.get('logout') === '1') {
-            mostrarAlerta('Has cerrado sesión correctamente.', 'success');
-        }
+        // Deshabilitar botón
+        loginBtn.disabled = true;
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
         
-        // Manejar el formulario de login
-        document.getElementById('loginForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
-            const loginBtn = document.getElementById('loginBtn');
-            const alertContainer = document.getElementById('alertContainer');
-            
-            // Validar campos
-            if (!username || !password) {
-                mostrarAlerta('Por favor, completa todos los campos', 'warning');
-                return;
-            }
-            
-            // Deshabilitar botón
-            loginBtn.disabled = true;
-            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando sesión...';
-            
-            // Intentar login
-            login(username, password)
-                .catch((error) => {
-                    console.error('Error de login:', error);
-                    let mensaje = "Error al iniciar sesión";
-                    
-                    if (error.message === 'user-not-found') {
-                        mensaje = "Usuario no encontrado";
-                    } else if (error.message === 'wrong-password') {
-                        mensaje = "Contraseña incorrecta";
-                    }
-                    
-                    // Mostrar mensaje al usuario
-                    mostrarAlerta(mensaje, 'danger');
-                    
-                    // Rehabilitar botón
-                    loginBtn.disabled = false;
-                    loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión';
-                });
-        });
+        // Intentar login
+        login(username, password)
+            .catch((error) => {
+                console.error('Error de login:', error);
+                let mensaje = "Error al iniciar sesión";
+                
+                if (error.message === 'user-not-found') {
+                    mensaje = "Usuario no encontrado";
+                } else if (error.message === 'wrong-password') {
+                    mensaje = "Contraseña incorrecta";
+                }
+                
+                // Mostrar mensaje al usuario
+                mostrarAlerta(mensaje, 'danger');
+                
+                // Rehabilitar botón
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Iniciar Sesión';
+            });
+    });
+    
+    // Función para mostrar alertas
+    function mostrarAlerta(mensaje, tipo) {
+        const alertContainer = document.getElementById('alertContainer');
+        const icono = tipo === 'success' ? 'check-circle' : tipo === 'danger' ? 'exclamation-circle' : 'info-circle';
         
-        // Función para mostrar alertas
-        function mostrarAlerta(mensaje, tipo) {
-            const alertContainer = document.getElementById('alertContainer');
-            const icono = tipo === 'success' ? 'check-circle' : tipo === 'danger' ? 'exclamation-circle' : 'info-circle';
-            
-            alertContainer.innerHTML = `
-                <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
-                    <i class="fas fa-${icono}"></i> ${mensaje}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            `;
-        }
-    </script>
+        alertContainer.innerHTML = `
+            <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+                <i class="fas fa-${icono}"></i> ${mensaje}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+    }
+</script>
 </body>
 </html>
