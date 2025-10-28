@@ -1,65 +1,86 @@
-// auth.js - Sistema personalizado de autenticación
-
-// Traer servicios expuestos por firebase-config.js
-if (!window.db || !window.auth) {
-    console.error('Firebase no está inicializado. Asegúrate de que js/firebase-config.js se cargue antes de js/auth.js');
-}
-const db = window.db;
-const auth = window.auth;
-
-// Variables globales
-let currentUser = null;
+// auth.js - Manejo de autenticación
 
 // Función para iniciar sesión
-function login(username, password) {
-    // Normalizar el nombre de usuario (convertir a minúsculas)
-    username = username.toLowerCase();
-    
-    // Buscar usuario en Firestore
-    return db.collection('usuarios')
-        .where('username', '==', username)
-        .limit(1)
-        .get()
-        .then((querySnapshot) => {
-            if (querySnapshot.empty) {
-                throw new Error('user-not-found');
-            }
-            
-            // Obtener documento del usuario
-            const userDoc = querySnapshot.docs[0];
-            const userData = userDoc.data();
-            
-            // Verificar contraseña
-            if (!bcrypt.compareSync(password, userData.passwordHash)) {
-                throw new Error('wrong-password');
-            }
-            
-            // Actualizar último login
-            db.collection('usuarios').doc(userDoc.id).update({
-                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            
-            // Guardar información del usuario en localStorage para mantener sesión
-            const sessionUser = {
-                id: userDoc.id,
-                username: userData.username,
-                displayName: userData.displayName,
-                role: userData.role,
-                timestamp: new Date().getTime()
-            };
-            
-            localStorage.setItem('user', JSON.stringify(sessionUser));
-            currentUser = sessionUser;
-            
-            // Redirigir según el rol
-            if (userData.role === 'admin') {
+function login(email, password) {
+    return auth.signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            // Verificar si es administrador
+            if (user.email === ADMIN_EMAIL) {
                 window.location.href = 'admin.html';
             } else {
                 window.location.href = 'usuario.html';
             }
-            
-            return sessionUser;
+        })
+        .catch((error) => {
+            console.error('Error en login:', error);
+            throw error;
         });
 }
 
-// ... resto del archivo sin cambios
+// Función para cerrar sesión
+function logout() {
+    return auth.signOut()
+        .then(() => {
+            window.location.href = 'login.html';
+        })
+        .catch((error) => {
+            console.error('Error en logout:', error);
+        });
+}
+
+// Verificar estado de autenticación
+function checkAuth(requireAdmin = false) {
+    return new Promise((resolve, reject) => {
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                if (requireAdmin && user.email !== ADMIN_EMAIL) {
+                    window.location.href = 'usuario.html';
+                    reject('No autorizado');
+                } else {
+                    resolve(user);
+                }
+            } else {
+                window.location.href = 'login.html';
+                reject('No autenticado');
+            }
+        });
+    });
+}
+
+// Función para obtener el usuario actual
+function getCurrentUser() {
+    return auth.currentUser;
+}
+
+// Función para verificar si el usuario es administrador
+function isAdmin(user) {
+    return user && user.email === ADMIN_EMAIL;
+}
+
+// Función a tu archivo auth.js
+function actualizarNombreUsuario(nuevoNombre) {
+    return auth.currentUser.updateProfile({
+        displayName: nuevoNombre
+    }).then(() => {
+        console.log("Nombre de usuario actualizado correctamente");
+        return nuevoNombre;
+    }).catch((error) => {
+        console.error("Error al actualizar el nombre:", error);
+        throw error;
+    });
+}
+
+
+// Función para actualizar el nombre del usuario
+function actualizarNombreUsuario(nuevoNombre) {
+    return auth.currentUser.updateProfile({
+        displayName: nuevoNombre
+    }).then(() => {
+        console.log("Nombre de usuario actualizado correctamente");
+        return nuevoNombre;
+    }).catch((error) => {
+        console.error("Error al actualizar el nombre:", error);
+        throw error;
+    });
+}
