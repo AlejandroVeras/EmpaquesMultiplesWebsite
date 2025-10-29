@@ -153,6 +153,44 @@
             </div>
         </div>
 
+        <!-- Gestión de Usuarios -->
+        <div class="card fade-in mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="fas fa-users-cog"></i> Gestión de Usuarios
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Usuario</label>
+                        <input type="text" id="nuevo_usuario" class="form-control" placeholder="Ej. jperez">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Nombre y Apellido</label>
+                        <input type="text" id="nuevo_nombre" class="form-control" placeholder="Ej. Juan Pérez">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" id="nuevo_password" class="form-control" placeholder="Mínimo 6 caracteres">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Rol</label>
+                        <select id="nuevo_rol" class="form-select">
+                            <option value="usuario" selected>Usuario</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-success" onclick="crearUsuarioDesdeAdmin()">
+                        <i class="fas fa-user-plus"></i> Crear Usuario
+                    </button>
+                    <div id="usuarioStatus" class="text-muted"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- Tabla de Asistencias -->
         <div class="card fade-in">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -236,6 +274,7 @@
                 cargarEstadisticas();
                 cargarAsistencias();
                 cargarMenu();
+                prepararAppSecundaria();
                 
                 // Establecer fecha de hoy en filtros
                 const hoy = new Date().toISOString().split('T')[0];
@@ -318,6 +357,102 @@
                 .finally(() => {
                     btns.forEach(b => b.disabled = false);
                     setTimeout(() => setMenuStatus(''), 2500);
+                });
+        }
+
+        // =====================
+        // Gestión de Usuarios (admin)
+        // =====================
+        let secondaryApp = null;
+        let secondaryAuth = null;
+
+        function prepararAppSecundaria() {
+            try {
+                if (!secondaryApp) {
+                    secondaryApp = firebase.initializeApp(firebase.app().options, 'secondary');
+                    secondaryAuth = secondaryApp.auth();
+                }
+            } catch (e) {
+                // Si ya existe, obtener referencias
+                secondaryApp = firebase.app('secondary');
+                secondaryAuth = secondaryApp.auth();
+            }
+        }
+
+        function setUsuarioStatus(message, type = 'muted') {
+            const el = document.getElementById('usuarioStatus');
+            el.className = type === 'success' ? 'text-success' : type === 'danger' ? 'text-danger' : 'text-muted';
+            el.textContent = message;
+        }
+
+        function construirEmail(username) {
+            const limpio = String(username || '').trim().toLowerCase();
+            return `${limpio}@empaques.local`;
+        }
+
+        function validarCamposUsuario(u, n, p) {
+            if (!u || u.length < 3) return 'Usuario inválido';
+            if (!n || n.length < 3) return 'Nombre inválido';
+            if (!p || p.length < 6) return 'La contraseña debe tener al menos 6 caracteres';
+            if (/\s/.test(u)) return 'El usuario no debe contener espacios';
+            return '';
+        }
+
+        function crearUsuarioDesdeAdmin() {
+            const u = document.getElementById('nuevo_usuario').value.trim().toLowerCase();
+            const n = document.getElementById('nuevo_nombre').value.trim();
+            const p = document.getElementById('nuevo_password').value;
+            const r = document.getElementById('nuevo_rol').value;
+
+            const err = validarCamposUsuario(u, n, p);
+            if (err) {
+                setUsuarioStatus(err, 'danger');
+                return;
+            }
+
+            setUsuarioStatus('Creando usuario...');
+
+            // Verificar que el username no exista
+            database.ref('usernames/' + u).once('value')
+                .then((snap) => {
+                    if (snap.exists()) {
+                        throw new Error('El usuario ya existe');
+                    }
+                    // Crear en Auth usando app secundaria
+                    const email = construirEmail(u);
+                    return secondaryAuth.createUserWithEmailAndPassword(email, p)
+                        .then((cred) => {
+                            const uid = cred.user.uid;
+                            // Asignar displayName en el usuario recién creado (app secundaria)
+                            return cred.user.updateProfile({ displayName: n })
+                                .then(() => ({ uid }));
+                        });
+                })
+                .then(({ uid }) => {
+                    // Guardar mapeos en DB: username -> uid, rol, perfil
+                    const updates = {};
+                    updates['usernames/' + u] = uid;
+                    updates['roles/' + uid] = r;
+                    updates['perfiles/' + uid] = { username: u, nombre: n };
+                    return database.ref().update(updates)
+                        .then(() => uid);
+                })
+                .then((uid) => {
+                    // Cerrar sesión del secundario para no dejarlo abierto
+                    return secondaryAuth.signOut().catch(() => {}).then(() => uid);
+                })
+                .then(() => {
+                    setUsuarioStatus('Usuario creado correctamente', 'success');
+                    // Limpiar campos
+                    document.getElementById('nuevo_usuario').value = '';
+                    document.getElementById('nuevo_nombre').value = '';
+                    document.getElementById('nuevo_password').value = '';
+                    document.getElementById('nuevo_rol').value = 'usuario';
+                    setTimeout(() => setUsuarioStatus(''), 2500);
+                })
+                .catch((e) => {
+                    console.error(e);
+                    setUsuarioStatus(e.message || 'Error al crear el usuario', 'danger');
                 });
         }
 
