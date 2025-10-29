@@ -35,14 +35,14 @@
                     <!-- Formulario de Login -->
                     <form id="loginForm">
                         <div class="mb-3">
-                            <label for="email" class="form-label">
-                                <i class="fas fa-envelope"></i> Correo Electrónico
+                            <label for="identifier" class="form-label">
+                                <i class="fas fa-user"></i> Usuario o Correo
                             </label>
                             <input 
-                                type="email" 
+                                type="text" 
                                 class="form-control" 
-                                id="email" 
-                                placeholder="tu.email@ejemplo.com"
+                                id="identifier" 
+                                placeholder="Ej. jperez o jperez@empresa.com"
                                 required
                             >
                         </div>
@@ -101,7 +101,7 @@
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const email = document.getElementById('email').value;
+            const identifier = document.getElementById('identifier').value;
             const password = document.getElementById('password').value;
             const loginBtn = document.getElementById('loginBtn');
             const alertContainer = document.getElementById('alertContainer');
@@ -114,7 +114,7 @@
             alertContainer.innerHTML = '';
             
             // Intentar login
-            login(email, password)
+            login(identifier, password)
                 .catch((error) => {
                     // Mostrar error
                     let errorMessage = 'Error al iniciar sesión. Por favor, verifica tus credenciales.';
@@ -124,7 +124,7 @@
                     } else if (error.code === 'auth/wrong-password') {
                         errorMessage = 'Contraseña incorrecta.';
                     } else if (error.code === 'auth/invalid-email') {
-                        errorMessage = 'Correo electrónico inválido.';
+                        errorMessage = 'Usuario o correo inválido.';
                     } else if (error.code === 'auth/user-disabled') {
                         errorMessage = 'Usuario deshabilitado.';
                     }
