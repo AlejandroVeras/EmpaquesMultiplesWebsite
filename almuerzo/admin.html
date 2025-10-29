@@ -103,6 +103,56 @@
             </div>
         </div>
 
+        <!-- Menú Semanal -->
+        <div class="card fade-in mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="fas fa-burger"></i> Menú Semanal del Almuerzo
+                </span>
+                <button class="btn btn-sm btn-outline-primary" onclick="cargarMenu()">
+                    <i class="fas fa-rotate"></i> Recargar
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Lunes</label>
+                        <textarea id="menu_lunes" class="form-control" rows="2" placeholder="Ej. Sopa, arroz, pollo, ensalada"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Martes</label>
+                        <textarea id="menu_martes" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Miércoles</label>
+                        <textarea id="menu_miercoles" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Jueves</label>
+                        <textarea id="menu_jueves" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Viernes</label>
+                        <textarea id="menu_viernes" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Sábado</label>
+                        <textarea id="menu_sabado" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Domingo</label>
+                        <textarea id="menu_domingo" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-primary" onclick="guardarMenu()">
+                        <i class="fas fa-save"></i> Guardar Menú
+                    </button>
+                    <div id="menuStatus" class="text-muted"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- Tabla de Asistencias -->
         <div class="card fade-in">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -185,6 +235,7 @@
                 // Cargar datos
                 cargarEstadisticas();
                 cargarAsistencias();
+                cargarMenu();
                 
                 // Establecer fecha de hoy en filtros
                 const hoy = new Date().toISOString().split('T')[0];
@@ -205,6 +256,68 @@
                 })
                 .catch((error) => {
                     console.error('Error al cargar estadísticas:', error);
+                });
+        }
+
+        // =====================
+        // Menú Semanal (admin)
+        // =====================
+        function uiGetMenuValues() {
+            return {
+                lunes: (document.getElementById('menu_lunes').value || '').trim(),
+                martes: (document.getElementById('menu_martes').value || '').trim(),
+                miercoles: (document.getElementById('menu_miercoles').value || '').trim(),
+                jueves: (document.getElementById('menu_jueves').value || '').trim(),
+                viernes: (document.getElementById('menu_viernes').value || '').trim(),
+                sabado: (document.getElementById('menu_sabado').value || '').trim(),
+                domingo: (document.getElementById('menu_domingo').value || '').trim(),
+            };
+        }
+
+        function uiSetMenuValues(menu) {
+            document.getElementById('menu_lunes').value = menu.lunes || '';
+            document.getElementById('menu_martes').value = menu.martes || '';
+            document.getElementById('menu_miercoles').value = menu.miercoles || '';
+            document.getElementById('menu_jueves').value = menu.jueves || '';
+            document.getElementById('menu_viernes').value = menu.viernes || '';
+            document.getElementById('menu_sabado').value = menu.sabado || '';
+            document.getElementById('menu_domingo').value = menu.domingo || '';
+        }
+
+        function setMenuStatus(message, type = 'muted') {
+            const el = document.getElementById('menuStatus');
+            el.className = type === 'success' ? 'text-success' : type === 'danger' ? 'text-danger' : 'text-muted';
+            el.textContent = message;
+        }
+
+        function cargarMenu() {
+            setMenuStatus('Cargando menú...');
+            obtenerMenuSemanal()
+                .then((menu) => {
+                    uiSetMenuValues(menu || {});
+                    setMenuStatus('Menú cargado', 'success');
+                    setTimeout(() => setMenuStatus(''), 2000);
+                })
+                .catch(() => {
+                    setMenuStatus('No se pudo cargar el menú', 'danger');
+                });
+        }
+
+        function guardarMenu() {
+            const btns = document.querySelectorAll('button[onclick="guardarMenu()"]');
+            btns.forEach(b => b.disabled = true);
+            setMenuStatus('Guardando...');
+            const menu = uiGetMenuValues();
+            guardarMenuSemanal(menu)
+                .then(() => {
+                    setMenuStatus('Menú guardado correctamente', 'success');
+                })
+                .catch(() => {
+                    setMenuStatus('Error al guardar el menú', 'danger');
+                })
+                .finally(() => {
+                    btns.forEach(b => b.disabled = false);
+                    setTimeout(() => setMenuStatus(''), 2500);
                 });
         }
 

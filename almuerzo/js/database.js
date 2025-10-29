@@ -100,3 +100,40 @@ function obtenerEstadisticas() {
             };
         });
 }
+
+// =====================
+// Menú semanal (admin/usuario)
+// =====================
+
+// Guardar menú semanal completo
+// Estructura esperada:
+// {
+//   lunes: "...",
+//   martes: "...",
+//   miercoles: "...",
+//   jueves: "...",
+//   viernes: "...",
+//   sabado: "...",
+//   domingo: "..."
+// }
+function guardarMenuSemanal(menuSemanal) {
+    return database.ref('menuSemanal').set(menuSemanal);
+}
+
+// Obtener menú semanal completo
+function obtenerMenuSemanal() {
+    return database.ref('menuSemanal')
+        .once('value')
+        .then((snapshot) => snapshot.val() || {});
+}
+
+// Obtener menú del día actual en español (según configuración local)
+function obtenerMenuDeHoy() {
+    const dias = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+    const hoyIndex = new Date().getDay(); // 0=domingo ... 6=sabado
+    const hoyNombre = dias[hoyIndex];
+    return obtenerMenuSemanal().then((menu) => ({
+        dia: hoyNombre,
+        descripcion: (menu && menu[hoyNombre]) ? menu[hoyNombre] : ''
+    }));
+}

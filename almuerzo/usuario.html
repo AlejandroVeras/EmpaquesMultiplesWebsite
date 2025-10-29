@@ -44,6 +44,16 @@
         <!-- Alerta de estado -->
         <div id="alertContainer"></div>
 
+        <!-- Menú de Hoy -->
+        <div class="card fade-in" id="menuHoyCard" style="display: none;">
+            <div class="card-header">
+                <i class="fas fa-utensils"></i> Menú de Hoy
+            </div>
+            <div class="card-body">
+                <div id="menuHoyContenido" class="text-muted"></div>
+            </div>
+        </div>
+
         <!-- Tarjeta de registro -->
         <div class="card fade-in">
             <div class="card-header">
@@ -203,6 +213,9 @@
         
         // Verificar si ya registró hoy
         verificarRegistroHoy();
+
+        // Cargar menú del día
+        cargarMenuDeHoy();
     }
 
     // Verificar si ya registró asistencia hoy
@@ -302,6 +315,25 @@
             const fecha = new Date(fechaString + 'T00:00:00');
             const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
             return fecha.toLocaleDateString('es-ES', opciones);
+        }
+
+        // Mostrar menú de hoy
+        function cargarMenuDeHoy() {
+            const card = document.getElementById('menuHoyCard');
+            const contenido = document.getElementById('menuHoyContenido');
+            contenido.innerHTML = '<span class="text-muted"><i class="fas fa-spinner fa-spin"></i> Cargando menú...</span>';
+            card.style.display = 'block';
+            obtenerMenuDeHoy()
+                .then(({ dia, descripcion }) => {
+                    if (descripcion && descripcion.trim().length > 0) {
+                        contenido.innerHTML = `<strong>${dia.charAt(0).toUpperCase() + dia.slice(1)}:</strong> ${descripcion}`;
+                    } else {
+                        contenido.innerHTML = '<span class="text-muted">No hay menú publicado para hoy.</span>';
+                    }
+                })
+                .catch(() => {
+                    contenido.innerHTML = '<span class="text-danger">No se pudo cargar el menú de hoy.</span>';
+                });
         }
 
         // Función para mostrar alertas
