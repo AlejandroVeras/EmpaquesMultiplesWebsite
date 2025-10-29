@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Sistema de Almuerzo</title>
+    <link rel="icon" href="../images/logo.png" type="image/x-icon" />
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/almuerzo.css">
+</head>
+<body>
+    <!-- Header -->
+    <div class="almuerzo-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <img src="../images/logo.png" alt="Logo Empaques Múltiples" class="logo">
+                </div>
+                <div class="col-md-6">
+                    <div class="user-info">
+                        <div class="user-name">
+                            <i class="fas fa-user-shield"></i> Administrador
+                        </div>
+                        <div class="user-email" id="userEmail"></div>
+                        <button class="btn btn-sm btn-outline-danger mt-2" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="almuerzo-container">
+        <!-- Estadísticas -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="stat-card fade-in">
+                    <div class="stat-number" id="statHoy">-</div>
+                    <div class="stat-label">Asistencias Hoy</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card fade-in">
+                    <div class="stat-number" id="statMes">-</div>
+                    <div class="stat-label">Este Mes</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card fade-in">
+                    <div class="stat-number" id="statTotal">-</div>
+                    <div class="stat-label">Total Histórico</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros y Exportación -->
+        <div class="filter-section fade-in">
+            <div class="row align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">
+                        <i class="fas fa-calendar-alt"></i> Fecha Inicio
+                    </label>
+                    <input type="date" class="form-control" id="fechaInicio">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">
+                        <i class="fas fa-calendar-alt"></i> Fecha Fin
+                    </label>
+                    <input type="date" class="form-control" id="fechaFin">
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-primary w-100" onclick="aplicarFiltro()">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-success w-100" onclick="exportarDatos()">
+                        <i class="fas fa-file-excel"></i> Exportar a Excel
+                    </button>
+                </div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-md-12">
+                    <button class="btn btn-secondary" onclick="limpiarFiltros()">
+                        <i class="fas fa-times"></i> Limpiar Filtros
+                    </button>
+                    <button class="btn btn-info" onclick="verHoy()">
+                        <i class="fas fa-calendar-day"></i> Ver Hoy
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menú Semanal -->
+        <div class="card fade-in mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="fas fa-burger"></i> Menú Semanal del Almuerzo
+                </span>
+                <button class="btn btn-sm btn-outline-primary" onclick="cargarMenu()">
+                    <i class="fas fa-rotate"></i> Recargar
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Lunes</label>
+                        <textarea id="menu_lunes" class="form-control" rows="2" placeholder="Ej. Sopa, arroz, pollo, ensalada"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Martes</label>
+                        <textarea id="menu_martes" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Miércoles</label>
+                        <textarea id="menu_miercoles" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Jueves</label>
+                        <textarea id="menu_jueves" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Viernes</label>
+                        <textarea id="menu_viernes" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Sábado</label>
+                        <textarea id="menu_sabado" class="form-control" rows="2"></textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Domingo</label>
+                        <textarea id="menu_domingo" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-primary" onclick="guardarMenu()">
+                        <i class="fas fa-save"></i> Guardar Menú
+                    </button>
+                    <div id="menuStatus" class="text-muted"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gestión de Usuarios -->
+        <div class="card fade-in mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="fas fa-users-cog"></i> Gestión de Usuarios
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">Usuario</label>
+                        <input type="text" id="nuevo_usuario" class="form-control" placeholder="Ej. jperez">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Nombre y Apellido</label>
+                        <input type="text" id="nuevo_nombre" class="form-control" placeholder="Ej. Juan Pérez">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Contraseña</label>
+                        <input type="password" id="nuevo_password" class="form-control" placeholder="Mínimo 6 caracteres">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Rol</label>
+                        <select id="nuevo_rol" class="form-select">
+                            <option value="usuario" selected>Usuario</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-success" onclick="crearUsuarioDesdeAdmin()">
+                        <i class="fas fa-user-plus"></i> Crear Usuario
+                    </button>
+                    <div id="usuarioStatus" class="text-muted"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Asistencias -->
+        <div class="card fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="fas fa-list"></i> Todas las Asistencias
+                </span>
+                <span class="badge bg-white text-primary" id="totalRegistros">0 registros</span>
+            </div>
+            <div class="card-body">
+                <div id="loadingAsistencias" class="text-center">
+                    <div class="loader"></div>
+                    <p class="text-muted">Cargando asistencias...</p>
+                </div>
+                
+                <div id="asistenciasContainer" style="display: none;">
+                    <!-- Buscador -->
+                    <div class="mb-3">
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="searchInput" 
+                            placeholder="Buscar por nombre o email..."
+                            onkeyup="filtrarTabla()"
+                        >
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="asistenciasTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Fecha</th>
+                                    <th>Hora</th>
+                                </tr>
+                            </thead>
+                            <tbody id="asistenciasBody">
+                                <!-- Se llenará dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div id="emptyAsistencias" class="empty-state" style="display: none;">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No hay registros</h3>
+                    <p>No se encontraron asistencias para los filtros seleccionados.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- SheetJS para exportación a Excel -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/database.js"></script>
+    <script src="js/excel-export.js"></script>
+    
+    <script>
+        let todasAsistencias = [];
+        let asistenciasFiltradas = [];
+
+        // Verificar autenticación al cargar (requiere admin)
+        checkAuth(true)
+            .then((user) => {
+                document.getElementById('userEmail').textContent = user.email;
+                
+                // Cargar datos
+                cargarEstadisticas();
+                cargarAsistencias();
+                cargarMenu();
+                prepararAppSecundaria();
+                configurarRolAdmin();
+                
+                // Establecer fecha de hoy en filtros
+                const hoy = new Date().toISOString().split('T')[0];
+                document.getElementById('fechaInicio').value = hoy;
+                document.getElementById('fechaFin').value = hoy;
+            })
+            .catch((error) => {
+                console.error('Error de autenticación:', error);
+            });
+
+        // Cargar estadísticas
+        function cargarEstadisticas() {
+            obtenerEstadisticas()
+                .then((stats) => {
+                    document.getElementById('statHoy').textContent = stats.hoy;
+                    document.getElementById('statMes').textContent = stats.mes;
+                    document.getElementById('statTotal').textContent = stats.total;
+                })
+                .catch((error) => {
+                    console.error('Error al cargar estadísticas:', error);
+                });
+        }
+
+        // =====================
+        // Menú Semanal (admin)
+        // =====================
+        function uiGetMenuValues() {
+            return {
+                lunes: (document.getElementById('menu_lunes').value || '').trim(),
+                martes: (document.getElementById('menu_martes').value || '').trim(),
+                miercoles: (document.getElementById('menu_miercoles').value || '').trim(),
+                jueves: (document.getElementById('menu_jueves').value || '').trim(),
+                viernes: (document.getElementById('menu_viernes').value || '').trim(),
+                sabado: (document.getElementById('menu_sabado').value || '').trim(),
+                domingo: (document.getElementById('menu_domingo').value || '').trim(),
+            };
+        }
+
+        function uiSetMenuValues(menu) {
+            document.getElementById('menu_lunes').value = menu.lunes || '';
+            document.getElementById('menu_martes').value = menu.martes || '';
+            document.getElementById('menu_miercoles').value = menu.miercoles || '';
+            document.getElementById('menu_jueves').value = menu.jueves || '';
+            document.getElementById('menu_viernes').value = menu.viernes || '';
+            document.getElementById('menu_sabado').value = menu.sabado || '';
+            document.getElementById('menu_domingo').value = menu.domingo || '';
+        }
+
+        function setMenuStatus(message, type = 'muted') {
+            const el = document.getElementById('menuStatus');
+            el.className = type === 'success' ? 'text-success' : type === 'danger' ? 'text-danger' : 'text-muted';
+            el.textContent = message;
+        }
+
+        function cargarMenu() {
+            setMenuStatus('Cargando menú...');
+            obtenerMenuSemanal()
+                .then((menu) => {
+                    uiSetMenuValues(menu || {});
+                    setMenuStatus('Menú cargado', 'success');
+                    setTimeout(() => setMenuStatus(''), 2000);
+                })
+                .catch(() => {
+                    setMenuStatus('No se pudo cargar el menú', 'danger');
+                });
+        }
+
+        function guardarMenu() {
+            const btns = document.querySelectorAll('button[onclick="guardarMenu()"]');
+            btns.forEach(b => b.disabled = true);
+            setMenuStatus('Guardando...');
+            const menu = uiGetMenuValues();
+            guardarMenuSemanal(menu)
+                .then(() => {
+                    setMenuStatus('Menú guardado correctamente', 'success');
+                })
+                .catch(() => {
+                    setMenuStatus('Error al guardar el menú', 'danger');
+                })
+                .finally(() => {
+                    btns.forEach(b => b.disabled = false);
+                    setTimeout(() => setMenuStatus(''), 2500);
+                });
+        }
+
+        // =====================
+        // Gestión de Usuarios (admin)
+        // =====================
+        let secondaryApp = null;
+        let secondaryAuth = null;
+
+        function prepararAppSecundaria() {
+            try {
+                if (!secondaryApp) {
+                    secondaryApp = firebase.initializeApp(firebase.app().options, 'secondary');
+                    secondaryAuth = secondaryApp.auth();
+                }
+            } catch (e) {
+                // Si ya existe, obtener referencias
+                secondaryApp = firebase.app('secondary');
+                secondaryAuth = secondaryApp.auth();
+            }
+        }
+
+        // Asegurar que el admin (por email) tenga rol 'admin' en DB
+        function configurarRolAdmin() {
+            const user = auth.currentUser;
+            if (!user) return;
+            const esAdminEmail = (user.email === ADMIN_EMAIL);
+            if (!esAdminEmail) return;
+            const rolRef = database.ref('roles/' + user.uid);
+            rolRef.once('value')
+                .then((snap) => {
+                    const rol = snap.val();
+                    if (rol !== 'admin') {
+                        return rolRef.set('admin');
+                    }
+                })
+                .catch(() => {
+                    // Ignorar; se reflejará al crear usuarios si falla
+                });
+        }
+
+        function setUsuarioStatus(message, type = 'muted') {
+            const el = document.getElementById('usuarioStatus');
+            el.className = type === 'success' ? 'text-success' : type === 'danger' ? 'text-danger' : 'text-muted';
+            el.textContent = message;
+        }
+
+        function construirEmail(username) {
+            const limpio = String(username || '').trim().toLowerCase();
+            return `${limpio}@empaques.local`;
+        }
+
+        function validarCamposUsuario(u, n, p) {
+            if (!u || u.length < 3) return 'Usuario inválido';
+            if (!n || n.length < 3) return 'Nombre inválido';
+            if (!p || p.length < 6) return 'La contraseña debe tener al menos 6 caracteres';
+            if (/\s/.test(u)) return 'El usuario no debe contener espacios';
+            return '';
+        }
+
+        function crearUsuarioDesdeAdmin() {
+            const u = document.getElementById('nuevo_usuario').value.trim().toLowerCase();
+            const n = document.getElementById('nuevo_nombre').value.trim();
+            const p = document.getElementById('nuevo_password').value;
+            const r = document.getElementById('nuevo_rol').value;
+
+            const err = validarCamposUsuario(u, n, p);
+            if (err) {
+                setUsuarioStatus(err, 'danger');
+                return;
+            }
+
+            setUsuarioStatus('Creando usuario...');
+
+            // Verificar que el username no exista
+            database.ref('usernames/' + u).once('value')
+                .then((snap) => {
+                    if (snap.exists()) {
+                        throw new Error('El usuario ya existe');
+                    }
+                    // Crear en Auth usando app secundaria
+                    const email = construirEmail(u);
+                    return secondaryAuth.createUserWithEmailAndPassword(email, p)
+                        .then((cred) => {
+                            const uid = cred.user.uid;
+                            // Asignar displayName en el usuario recién creado (app secundaria)
+                            return cred.user.updateProfile({ displayName: n })
+                                .then(() => ({ uid }));
+                        });
+                })
+                .then(({ uid }) => {
+                    // Guardar mapeos en DB: username -> uid, rol, perfil
+                    const updates = {};
+                    updates['usernames/' + u] = uid;
+                    updates['roles/' + uid] = r;
+                    updates['perfiles/' + uid] = { username: u, nombre: n };
+                    return database.ref().update(updates)
+                        .then(() => uid)
+                        .catch((err) => {
+                            // Si falla la DB, mostrar error concreto y mantener la cuenta de Auth creada
+                            throw new Error('Se creó el usuario en Auth pero falló guardar en la base de datos: ' + (err && err.message ? err.message : 'permiso denegado'));
+                        });
+                })
+                .then((uid) => {
+                    // Cerrar sesión del secundario para no dejarlo abierto
+                    return secondaryAuth.signOut().catch(() => {}).then(() => uid);
+                })
+                .then(() => {
+                    setUsuarioStatus('Usuario creado correctamente', 'success');
+                    // Limpiar campos
+                    document.getElementById('nuevo_usuario').value = '';
+                    document.getElementById('nuevo_nombre').value = '';
+                    document.getElementById('nuevo_password').value = '';
+                    document.getElementById('nuevo_rol').value = 'usuario';
+                    setTimeout(() => setUsuarioStatus(''), 2500);
+                })
+                .catch((e) => {
+                    console.error(e);
+                    setUsuarioStatus(e.message || 'Error al crear el usuario', 'danger');
+                });
+        }
+
+        // Cargar todas las asistencias
+        function cargarAsistencias() {
+            const loadingAsistencias = document.getElementById('loadingAsistencias');
+            const asistenciasContainer = document.getElementById('asistenciasContainer');
+            const emptyAsistencias = document.getElementById('emptyAsistencias');
+            
+            loadingAsistencias.style.display = 'block';
+            asistenciasContainer.style.display = 'none';
+            emptyAsistencias.style.display = 'none';
+            
+            obtenerTodasAsistencias()
+                .then((asistencias) => {
+                    todasAsistencias = asistencias;
+                    asistenciasFiltradas = asistencias;
+                    mostrarAsistencias(asistencias);
+                })
+                .catch((error) => {
+                    console.error('Error al cargar asistencias:', error);
+                    loadingAsistencias.style.display = 'none';
+                    emptyAsistencias.style.display = 'block';
+                });
+        }
+
+        // Mostrar asistencias en la tabla
+        function mostrarAsistencias(asistencias) {
+            const loadingAsistencias = document.getElementById('loadingAsistencias');
+            const asistenciasContainer = document.getElementById('asistenciasContainer');
+            const emptyAsistencias = document.getElementById('emptyAsistencias');
+            const asistenciasBody = document.getElementById('asistenciasBody');
+            const totalRegistros = document.getElementById('totalRegistros');
+            
+            loadingAsistencias.style.display = 'none';
+            
+            if (asistencias.length === 0) {
+                emptyAsistencias.style.display = 'block';
+                asistenciasContainer.style.display = 'none';
+            } else {
+                asistenciasContainer.style.display = 'block';
+                emptyAsistencias.style.display = 'none';
+                
+                // Actualizar contador
+                totalRegistros.textContent = `${asistencias.length} registro${asistencias.length !== 1 ? 's' : ''}`;
+                
+                // Llenar tabla
+                asistenciasBody.innerHTML = '';
+                asistencias.forEach((asistencia, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${asistencia.nombre}</td>
+                        <td>${asistencia.email}</td>
+                        <td>${formatearFecha(asistencia.fecha)}</td>
+                        <td>${asistencia.hora}</td>
+                    `;
+                    asistenciasBody.appendChild(row);
+                });
+            }
+        }
+
+        // Aplicar filtro de fechas
+        function aplicarFiltro() {
+            const fechaInicio = document.getElementById('fechaInicio').value;
+            const fechaFin = document.getElementById('fechaFin').value;
+            
+            if (!fechaInicio || !fechaFin) {
+                alert('Por favor, selecciona ambas fechas.');
+                return;
+            }
+            
+            if (fechaInicio > fechaFin) {
+                alert('La fecha de inicio no puede ser mayor a la fecha fin.');
+                return;
+            }
+            
+            filtrarAsistenciasPorFecha(fechaInicio, fechaFin)
+                .then((asistencias) => {
+                    asistenciasFiltradas = asistencias;
+                    mostrarAsistencias(asistencias);
+                })
+                .catch((error) => {
+                    console.error('Error al filtrar:', error);
+                });
+        }
+
+        // Limpiar filtros
+        function limpiarFiltros() {
+            document.getElementById('fechaInicio').value = '';
+            document.getElementById('fechaFin').value = '';
+            document.getElementById('searchInput').value = '';
+            asistenciasFiltradas = todasAsistencias;
+            mostrarAsistencias(todasAsistencias);
+        }
+
+        // Ver asistencias de hoy
+        function verHoy() {
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('fechaInicio').value = hoy;
+            document.getElementById('fechaFin').value = hoy;
+            aplicarFiltro();
+        }
+
+        // Filtrar tabla por búsqueda
+        function filtrarTabla() {
+            const searchValue = document.getElementById('searchInput').value.toLowerCase();
+            const filtradas = asistenciasFiltradas.filter((asistencia) => {
+                return asistencia.nombre.toLowerCase().includes(searchValue) ||
+                       asistencia.email.toLowerCase().includes(searchValue);
+            });
+            mostrarAsistencias(filtradas);
+        }
+
+        // Exportar datos a Excel
+        function exportarDatos() {
+            const fechaInicio = document.getElementById('fechaInicio').value;
+            const fechaFin = document.getElementById('fechaFin').value;
+            
+            if (fechaInicio && fechaFin) {
+                exportarPorFecha(fechaInicio, fechaFin);
+            } else {
+                exportarTodas();
+            }
+        }
+
+        // Función para formatear fecha
+        function formatearFecha(fechaString) {
+            const fecha = new Date(fechaString + 'T00:00:00');
+            const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
+            return fecha.toLocaleDateString('es-ES', opciones);
+        }
+    </script>
+</body>
+</html>

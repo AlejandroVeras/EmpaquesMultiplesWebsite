@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Asistencia - Sistema de Almuerzo</title>
+    <link rel="icon" href="../images/logo.png" type="image/x-icon" />
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/almuerzo.css">
+</head>
+<body>
+    <!-- Header -->
+    <div class="almuerzo-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <img src="../images/logo.png" alt="Logo Empaques Múltiples" class="logo">
+                </div>
+                <div class="col-md-6">
+                    <div class="user-info">
+                        <div class="user-name" id="userName">Cargando...</div>
+                        <button class="btn btn-sm btn-outline-danger mt-2" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="almuerzo-container">
+        <!-- Alerta de estado -->
+        <div id="alertContainer"></div>
+
+        <!-- Menú de Hoy -->
+        <div class="card fade-in" id="menuHoyCard" style="display: none;">
+            <div class="card-header">
+                <i class="fas fa-utensils"></i> Menú de Hoy
+            </div>
+            <div class="card-body">
+                <div id="menuHoyContenido" class="text-muted"></div>
+            </div>
+        </div>
+
+        <!-- Tarjeta de registro -->
+        <div class="card fade-in">
+            <div class="card-header">
+                <i class="fas fa-utensils"></i> Registro de Asistencia al Almuerzo
+            </div>
+            <div class="card-body text-center">
+                <h5 class="mb-4">¿Vas a almorzar hoy en la empresa?</h5>
+                <p class="text-muted mb-4">Registra tu asistencia presionando el botón de abajo.</p>
+                
+                <button 
+                    id="btnRegistrar" 
+                    class="btn btn-primary btn-lg btn-registrar"
+                    onclick="registrarMiAsistencia()"
+                >
+                    <i class="fas fa-check-circle"></i> Registrar Asistencia
+                </button>
+                
+                <p class="text-muted small mt-3">
+                    <i class="fas fa-info-circle"></i> Solo puedes registrarte una vez por día
+                </p>
+            </div>
+        </div>
+
+        <!-- Historial de asistencias -->
+        <div class="card fade-in">
+            <div class="card-header">
+                <i class="fas fa-history"></i> Mi Historial de Asistencias
+            </div>
+            <div class="card-body">
+                <div id="loadingHistorial" class="text-center">
+                    <div class="loader"></div>
+                    <p class="text-muted">Cargando historial...</p>
+                </div>
+                
+                <div id="historialContainer" style="display: none;">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Fecha</th>
+                                    <th>Hora</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historialBody">
+                                <!-- Se llenará dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div id="emptyHistorial" class="empty-state" style="display: none;">
+                    <i class="fas fa-clipboard-list"></i>
+                    <h3>No hay registros</h3>
+                    <p>Aún no has registrado ninguna asistencia al almuerzo.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom Scripts -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/database.js"></script>
+    
+    <script>
+        let currentUser = null;
+    let nombreModal;
+
+    // Verificar autenticación al cargar
+    checkAuth(false)
+        .then((user) => {
+            currentUser = user;
+            
+            // Actualizar información del usuario
+            document.getElementById('userEmail').textContent = user.email;
+            
+            // Verificar si el usuario tiene nombre configurado
+            if (!user.displayName) {
+                // Mostrar modal para pedir nombre
+                nombreModal = new bootstrap.Modal(document.getElementById('nombreModal'));
+                nombreModal.show();
+                
+                // Configurar evento para guardar nombre
+                document.getElementById('guardarNombreBtn').addEventListener('click', guardarNombreUsuario);
+            } else {
+                // Usuario ya tiene nombre, mostrar normalmente
+                document.getElementById('userName').textContent = user.displayName;
+                inicializarPagina();
+            }
+        })
+        .catch((error) => {
+            console.error('Error de autenticación:', error);
+        });
+
+    // Función para guardar nombre de usuario
+    function guardarNombreUsuario() {
+        const nuevoNombre = document.getElementById('modalNombreUsuario').value.trim();
+        const guardarBtn = document.getElementById('guardarNombreBtn');
+        
+        // Validar entrada
+        if (!nuevoNombre) {
+            // Mostrar mensaje de error en el modal
+            const formControl = document.getElementById('modalNombreUsuario');
+            formControl.classList.add('is-invalid');
+            return;
+        }
+        
+        // Cambiar estado del botón
+        guardarBtn.disabled = true;
+        guardarBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+        
+        // Actualizar perfil
+        actualizarNombreUsuario(nuevoNombre)
+            .then((nombre) => {
+                // Actualizar nombre en la UI
+                document.getElementById('userName').textContent = nombre;
+                
+                // Cerrar modal
+                nombreModal.hide();
+                
+                // Mostrar mensaje de éxito
+                mostrarAlerta('¡Bienvenido(a), ' + nombre + '! Tu perfil ha sido configurado.', 'success');
+                
+                // Inicializar la página
+                inicializarPagina();
+            })
+            .catch((error) => {
+                console.error('Error al actualizar perfil:', error);
+                mostrarAlerta('Error al guardar el nombre. Por favor intenta nuevamente.', 'danger');
+                
+                // Restaurar botón
+                guardarBtn.disabled = false;
+                guardarBtn.innerHTML = '<i class="fas fa-save"></i> Guardar y continuar';
+            });
+    }
+    
+    // Configurar validación de formulario modal
+    document.getElementById('nombreForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        guardarNombreUsuario();
+    });
+
+    // Función para inicializar la página una vez configurado el nombre
+    function inicializarPagina() {
+        // Cargar historial
+        cargarHistorial();
+        
+        // Verificar si ya registró hoy
+        verificarRegistroHoy();
+
+        // Cargar menú del día
+        cargarMenuDeHoy();
+    }
+
+    // Verificar si ya registró asistencia hoy
+    function verificarRegistroHoy() {
+        verificarAsistenciaHoy(currentUser.uid)
+            .then((yaRegistrado) => {
+                const btnRegistrar = document.getElementById('btnRegistrar');
+                if (yaRegistrado) {
+                    btnRegistrar.disabled = true;
+                    btnRegistrar.innerHTML = '<i class="fas fa-check-double"></i> Ya registraste tu asistencia hoy';
+                    btnRegistrar.classList.remove('btn-primary');
+                    btnRegistrar.classList.add('btn-success');
+                    
+                    mostrarAlerta('Ya has registrado tu asistencia para hoy.', 'info');
+                }
+            });
+    }
+
+    // Registrar asistencia
+    function registrarMiAsistencia() {
+        const btnRegistrar = document.getElementById('btnRegistrar');
+        
+        // Deshabilitar botón
+        btnRegistrar.disabled = true;
+        btnRegistrar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
+        
+        // Registrar en la base de datos
+        registrarAsistencia(
+            currentUser.uid,
+            currentUser.displayName,
+            currentUser.email
+        )
+        .then(() => {
+            // Éxito
+            btnRegistrar.innerHTML = '<i class="fas fa-check-double"></i> Ya registraste tu asistencia hoy';
+            btnRegistrar.classList.remove('btn-primary');
+            btnRegistrar.classList.add('btn-success');
+            
+            mostrarAlerta('¡Asistencia registrada exitosamente!', 'success');
+            
+            // Recargar historial
+            cargarHistorial();
+        })
+        .catch((error) => {
+            console.error('Error al registrar:', error);
+            mostrarAlerta('Error al registrar la asistencia. Por favor, intenta nuevamente.', 'danger');
+            
+            // Rehabilitar botón
+            btnRegistrar.disabled = false;
+            btnRegistrar.innerHTML = '<i class="fas fa-check-circle"></i> Registrar Asistencia';
+        });
+    }
+        // Cargar historial de asistencias
+        function cargarHistorial() {
+            const loadingHistorial = document.getElementById('loadingHistorial');
+            const historialContainer = document.getElementById('historialContainer');
+            const emptyHistorial = document.getElementById('emptyHistorial');
+            const historialBody = document.getElementById('historialBody');
+            
+            // Mostrar loader
+            loadingHistorial.style.display = 'block';
+            historialContainer.style.display = 'none';
+            emptyHistorial.style.display = 'none';
+            
+            obtenerAsistenciasUsuario(currentUser.uid)
+                .then((asistencias) => {
+                    loadingHistorial.style.display = 'none';
+                    
+                    if (asistencias.length === 0) {
+                        emptyHistorial.style.display = 'block';
+                    } else {
+                        historialContainer.style.display = 'block';
+                        
+                        // Llenar tabla
+                        historialBody.innerHTML = '';
+                        asistencias.forEach((asistencia, index) => {
+                            const row = document.createElement('tr');
+                            row.innerHTML = `
+                                <td>${index + 1}</td>
+                                <td>${formatearFecha(asistencia.fecha)}</td>
+                                <td>${asistencia.hora}</td>
+                                <td><span class="badge bg-success">Registrada</span></td>
+                            `;
+                            historialBody.appendChild(row);
+                        });
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error al cargar historial:', error);
+                    loadingHistorial.style.display = 'none';
+                    mostrarAlerta('Error al cargar el historial.', 'danger');
+                });
+        }
+
+        // Función para formatear fecha
+        function formatearFecha(fechaString) {
+            const fecha = new Date(fechaString + 'T00:00:00');
+            const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
+            return fecha.toLocaleDateString('es-ES', opciones);
+        }
+
+        // Mostrar menú de hoy
+        function cargarMenuDeHoy() {
+            const card = document.getElementById('menuHoyCard');
+            const contenido = document.getElementById('menuHoyContenido');
+            contenido.innerHTML = '<span class="text-muted"><i class="fas fa-spinner fa-spin"></i> Cargando menú...</span>';
+            card.style.display = 'block';
+            obtenerMenuDeHoy()
+                .then(({ dia, descripcion }) => {
+                    if (descripcion && descripcion.trim().length > 0) {
+                        contenido.innerHTML = `<strong>${dia.charAt(0).toUpperCase() + dia.slice(1)}:</strong> ${descripcion}`;
+                    } else {
+                        contenido.innerHTML = '<span class="text-muted">No hay menú publicado para hoy.</span>';
+                    }
+                })
+                .catch(() => {
+                    contenido.innerHTML = '<span class="text-danger">No se pudo cargar el menú de hoy.</span>';
+                });
+        }
+
+        // Función para mostrar alertas
+        function mostrarAlerta(mensaje, tipo) {
+            const alertContainer = document.getElementById('alertContainer');
+            const icono = tipo === 'success' ? 'check-circle' : tipo === 'danger' ? 'exclamation-circle' : 'info-circle';
+            
+            alertContainer.innerHTML = `
+                <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-${icono}"></i> ${mensaje}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            `;
+            
+            // Auto-cerrar después de 5 segundos
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+        // Manejar actualización del perfil
+document.getElementById('actualizarPerfilForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const nuevoNombre = document.getElementById('nombreUsuario').value.trim();
+    const btnSubmit = this.querySelector('button[type="submit"]');
+    const btnTextOriginal = btnSubmit.innerHTML;
+    
+    // Validar entrada
+    if (!nuevoNombre) {
+        mostrarAlerta('Por favor ingresa tu nombre completo', 'warning');
+        return;
+    }
+    
+    // Cambiar estado del botón
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
+    
+    // Actualizar perfil
+    actualizarNombreUsuario(nuevoNombre)
+        .then((nombre) => {
+            // Actualizar nombre en la UI
+            document.getElementById('userName').textContent = nombre;
+            mostrarAlerta('¡Perfil actualizado correctamente!', 'success');
+        })
+        .catch((error) => {
+            console.error('Error al actualizar perfil:', error);
+            mostrarAlerta('Error al actualizar el perfil. Intenta nuevamente.', 'danger');
+        })
+        .finally(() => {
+            // Restaurar botón
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = btnTextOriginal;
+        });
+});
+    </script>
+    <!-- Modal para solicitar nombre -->
+<div class="modal fade" id="nombreModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="nombreModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="nombreModalLabel">¡Bienvenido(a)!</h5>
+      </div>
+      <div class="modal-body">
+        <p>Para continuar, por favor ingresa tu nombre completo:</p>
+        <form id="nombreForm">
+          <div class="mb-3">
+            <label for="modalNombreUsuario" class="form-label">Nombre completo</label>
+            <input type="text" class="form-control" id="modalNombreUsuario" placeholder="Ej. Juan Pérez" required>
+            <div class="form-text">Este nombre se mostrará en tu perfil y registros de asistencia.</div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" id="guardarNombreBtn">
+          <i class="fas fa-save"></i> Guardar y continuar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "rules": {
+    "asistencias": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$asistenciaId": {
+        ".validate": "newData.hasChildren(['userId', 'nombre', 'email', 'fecha', 'hora', 'timestamp']) && newData.child('userId').val() == auth.uid"
+      }
+    }
+  }
+}
