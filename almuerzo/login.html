@@ -145,11 +145,23 @@
         // Verificar si ya está autenticado
         auth.onAuthStateChanged((user) => {
             if (user) {
-                // Ya está autenticado, redirigir
+                // Ya está autenticado, verificar si es admin por email o rol
                 if (user.email === ADMIN_EMAIL) {
                     window.location.href = 'admin.html';
                 } else {
-                    window.location.href = 'usuario.html';
+                    // Verificar rol en la base de datos
+                    getUserRole(user.uid)
+                        .then((role) => {
+                            if (role === 'admin') {
+                                window.location.href = 'admin.html';
+                            } else {
+                                window.location.href = 'usuario.html';
+                            }
+                        })
+                        .catch(() => {
+                            // Si no puede leer el rol, asumir usuario normal
+                            window.location.href = 'usuario.html';
+                        });
                 }
             }
         });

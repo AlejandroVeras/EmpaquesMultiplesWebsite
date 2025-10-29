@@ -117,6 +117,13 @@ function actualizarNombreUsuario(nuevoNombre) {
 function getUserRole(uid) {
     return database.ref('roles/' + uid)
         .once('value')
-        .then((snap) => snap.val() || 'usuario')
-        .catch(() => 'usuario');
+        .then((snap) => {
+            const rol = snap.val();
+            console.log('Rol obtenido para', uid, ':', rol);
+            return rol || 'usuario';
+        })
+        .catch((error) => {
+            console.error('Error al obtener rol:', error);
+            return 'usuario';
+        });
 }

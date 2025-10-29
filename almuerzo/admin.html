@@ -275,6 +275,7 @@
                 cargarAsistencias();
                 cargarMenu();
                 prepararAppSecundaria();
+                configurarRolAdmin();
                 
                 // Establecer fecha de hoy en filtros
                 const hoy = new Date().toISOString().split('T')[0];
@@ -379,6 +380,25 @@
             }
         }
 
+        // Asegurar que el admin (por email) tenga rol 'admin' en DB
+        function configurarRolAdmin() {
+            const user = auth.currentUser;
+            if (!user) return;
+            const esAdminEmail = (user.email === ADMIN_EMAIL);
+            if (!esAdminEmail) return;
+            const rolRef = database.ref('roles/' + user.uid);
+            rolRef.once('value')
+                .then((snap) => {
+                    const rol = snap.val();
+                    if (rol !== 'admin') {
+                        return rolRef.set('admin');
+                    }
+                })
+                .catch(() => {
+                    // Ignorar; se reflejará al crear usuarios si falla
+                });
+        }
+
         function setUsuarioStatus(message, type = 'muted') {
             const el = document.getElementById('usuarioStatus');
             el.className = type === 'success' ? 'text-success' : type === 'danger' ? 'text-danger' : 'text-muted';
@@ -435,7 +455,11 @@
                     updates['roles/' + uid] = r;
                     updates['perfiles/' + uid] = { username: u, nombre: n };
                     return database.ref().update(updates)
-                        .then(() => uid);
+                        .then(() => uid)
+                        .catch((err) => {
+                            // Si falla la DB, mostrar error concreto y mantener la cuenta de Auth creada
+                            throw new Error('Se creó el usuario en Auth pero falló guardar en la base de datos: ' + (err && err.message ? err.message : 'permiso denegado'));
+                        });
                 })
                 .then((uid) => {
                     // Cerrar sesión del secundario para no dejarlo abierto
