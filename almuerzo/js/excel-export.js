@@ -286,19 +286,6 @@ async function generarExcel(asistencias, nombreArchivo) {
             right: { style: 'thin', color: { argb: 'FFDDDDDD' } }
         };
         
-        // Email
-        cell = row.getCell(3);
-        cell.value = empleado.email;
-        cell.font = { name: 'Poppins', size: 10 };
-        cell.alignment = { vertical: 'middle', horizontal: 'left' };
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgColor } };
-        cell.border = {
-            top: { style: 'thin', color: { argb: 'FFDDDDDD' } },
-            bottom: { style: 'thin', color: { argb: 'FFDDDDDD' } },
-            left: { style: 'thin', color: { argb: 'FFDDDDDD' } },
-            right: { style: 'thin', color: { argb: 'FFDDDDDD' } }
-        };
-        
         // Total asistencias
         cell = row.getCell(4);
         cell.value = empleado.fechas.length;
