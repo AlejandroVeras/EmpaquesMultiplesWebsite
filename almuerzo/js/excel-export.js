@@ -116,7 +116,7 @@ async function generarExcel(asistencias, nombreArchivo) {
     };
     
     // Agregar subtítulo
-    worksheet.mergeCells('C3:H3');
+    worksheet.mergeCells('C3:I3');
     const subtitleCell = worksheet.getCell('C3');
     subtitleCell.value = 'Empaques Múltiples';
     subtitleCell.font = { 
@@ -131,7 +131,7 @@ async function generarExcel(asistencias, nombreArchivo) {
     };
     
     // Fecha de generación
-    worksheet.mergeCells('C4:H4');
+    worksheet.mergeCells('C4:I4');
     const dateCell = worksheet.getCell('C4');
     dateCell.value = `Generado: ${new Date().toLocaleString('es-ES', { 
         dateStyle: 'full', 
