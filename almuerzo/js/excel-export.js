@@ -287,7 +287,7 @@ async function generarExcel(asistencias, nombreArchivo) {
         };
         
         // Total asistencias
-        cell = row.getCell(4);
+        cell = row.getCell(3);
         cell.value = empleado.fechas.length;
         cell.font = { name: 'Poppins', size: 11, bold: true, color: { argb: 'FF116835' } };
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
@@ -300,7 +300,7 @@ async function generarExcel(asistencias, nombreArchivo) {
         };
         
         // Fechas y horas
-        let fechaColIndex = 5;
+        let fechaColIndex = 4;
         empleado.fechas.forEach((asistencia) => {
             // Fecha
             cell = row.getCell(fechaColIndex);
