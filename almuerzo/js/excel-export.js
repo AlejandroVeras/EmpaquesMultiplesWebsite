@@ -101,7 +101,7 @@ async function generarExcel(asistencias, nombreArchivo) {
     }
     
     // Agregar título principal (al lado del logo)
-    worksheet.mergeCells('C1:H2');
+    worksheet.mergeCells('C1:I2');
     const titleCell = worksheet.getCell('C1');
     titleCell.value = 'REPORTE DE ALMUERZO DE EMPLEADOS';
     titleCell.font = { 
