@@ -103,12 +103,12 @@ async function generarExcel(asistencias, nombreArchivo) {
     // Agregar título principal (al lado del logo)
     worksheet.mergeCells('C1:H2');
     const titleCell = worksheet.getCell('C1');
-    titleCell.value = 'REPORTE DE ASISTENCIAS AL COMEDOR';
+    titleCell.value = 'REPORTE DE ALMUERZO DE EMPLEADOS';
     titleCell.font = { 
         name: 'Poppins', 
         size: 18, 
         bold: true, 
-        color: { argb: 'FF0066CC' } 
+        color: { argb: 'FF116835' } 
     };
     titleCell.alignment = { 
         vertical: 'middle', 
@@ -154,7 +154,7 @@ async function generarExcel(asistencias, nombreArchivo) {
     worksheet.getCell('A5').fill = {
         type: 'pattern',
         pattern: 'solid',
-        fgColor: { argb: 'FF0066CC' }
+        fgColor: { argb: 'FF116835' }
     };
     
     // Obtener el número máximo de fechas
@@ -179,7 +179,7 @@ async function generarExcel(asistencias, nombreArchivo) {
         cell.fill = {
             type: 'pattern',
             pattern: 'solid',
-            fgColor: { argb: 'FF0066CC' }
+            fgColor: { argb: 'FF116835' }
         };
         cell.alignment = { 
             vertical: 'middle', 
@@ -289,7 +289,7 @@ async function generarExcel(asistencias, nombreArchivo) {
         // Total asistencias
         cell = row.getCell(4);
         cell.value = empleado.fechas.length;
-        cell.font = { name: 'Poppins', size: 11, bold: true, color: { argb: 'FF0066CC' } };
+        cell.font = { name: 'Poppins', size: 11, bold: true, color: { argb: 'FF116835' } };
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: bgColor } };
         cell.border = {
@@ -343,7 +343,7 @@ async function generarExcel(asistencias, nombreArchivo) {
     worksheet.getCell(`A${rowIndex}`).fill = {
         type: 'pattern',
         pattern: 'solid',
-        fgColor: { argb: 'FF0066CC' }
+        fgColor: { argb: 'FF116835' }
     };
     rowIndex++;
     
@@ -355,7 +355,7 @@ async function generarExcel(asistencias, nombreArchivo) {
         name: 'Poppins', 
         size: 12, 
         bold: true, 
-        color: { argb: 'FF0066CC' } 
+        color: { argb: 'FF116835' } 
     };
     resumenCell.alignment = { vertical: 'middle', horizontal: 'left' };
     rowIndex++;
