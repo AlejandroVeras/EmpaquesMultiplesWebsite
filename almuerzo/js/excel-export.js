@@ -164,7 +164,7 @@ async function generarExcel(asistencias, nombreArchivo) {
     const headerRow = worksheet.getRow(7);
     headerRow.height = 30;
     
-    const headers = ['#', 'NOMBRE', 'EMAIL', 'TOTAL'];
+    const headers = ['#', 'NOMBRE', 'TOTAL'];
     let colIndex = 1;
     
     headers.forEach(header => {
@@ -208,7 +208,7 @@ async function generarExcel(asistencias, nombreArchivo) {
         cell.fill = {
             type: 'pattern',
             pattern: 'solid',
-            fgColor: { argb: 'FF4472C4' }
+            fgColor: { argb: 'FF1b954d' }
         };
         cell.alignment = { 
             vertical: 'middle', 
@@ -234,7 +234,7 @@ async function generarExcel(asistencias, nombreArchivo) {
         cell.fill = {
             type: 'pattern',
             pattern: 'solid',
-            fgColor: { argb: 'FF4472C4' }
+            fgColor: { argb: 'FF1b954d' }
         };
         cell.alignment = { 
             vertical: 'middle', 
@@ -378,7 +378,6 @@ async function generarExcel(asistencias, nombreArchivo) {
     // Ajustar ancho de columnas
     worksheet.getColumn(1).width = 6;   // #
     worksheet.getColumn(2).width = 30;  // NOMBRE
-    worksheet.getColumn(3).width = 35;  // EMAIL
     worksheet.getColumn(4).width = 12;  // TOTAL
     
     // Columnas de fechas y horas
