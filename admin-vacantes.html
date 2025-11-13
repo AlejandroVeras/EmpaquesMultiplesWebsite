@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+   <head>
+      <!-- basic -->
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <!-- mobile metas -->
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+      <!-- site metas -->
+      <title>Administración de Vacantes - Empaques Múltiples</title>
+      <meta name="keywords" content="">
+      <meta name="description" content="">
+      <meta name="author" content="">
+      <!-- bootstrap css -->
+      <link rel="stylesheet" href="css/bootstrap.min.css">
+      <!-- style css -->
+      <link rel="stylesheet" href="css/style.css">
+      <!-- Responsive-->
+      <link rel="stylesheet" href="css/responsive.css">
+      <!-- fevicon -->
+      <link rel="icon" href="images/logo.png" type="image/x-icon" />
+      <!-- Scrollbar Custom CSS -->
+      <link rel="stylesheet" href="css/jquery.mCustomScrollbar.min.css">
+      <!-- Tweaks for older IEs-->
+      <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css" media="screen">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+      <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
+
+      <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"/>
+      <link rel="stylesheet" href="animaciones-modernas.css"/>
+   </head>
+
+<body class="main-layout">
+    <!-- loader  -->
+    <div class="loader_bg">
+        <div class="loader"><img src="images/loading.gif" alt="#" /></div>
+    </div>
+    <!-- end loader -->
+        <!-- Barra superior de contacto -->
+      <div class="top-contact-bar">
+         <div class="container">
+            <div class="top-contact-content">
+               <div class="contact-info">
+                  <a href="tel:+18095945880" class="contact-item">
+                     <i class="fas fa-phone"></i>
+                     <span>809 594 5880</span>
+                  </a>
+                  <a href="mailto:contacto@empaquesmultiples.com" class="contact-item">
+                     <i class="fas fa-envelope"></i>
+                     <span>contacto@casaempaques.com</span>
+                  </a>
+               </div>
+               <div class="social-links">
+                  <a href="https://instagram.com/empaquesmultiplesrd" class="social-link" target="_blank" title="Instagram">
+                     <i class="fab fa-instagram"></i>
+                  </a>
+                  <a href="https://wa.me/18292926176" class="social-link" target="_blank" title="WhatsApp">
+                     <i class="fab fa-whatsapp"></i>
+                  </a>
+               </div>
+            </div>
+         </div>
+      </div>
+
+    <!-- header -->
+   <header>
+      <div class="header">
+         <div class="container">
+            <div class="row align-items-center">
+               <div class="col-md-3 col-sm-3 logo_section">
+                  <div class="logo">
+                     <a href="index.html"><img src="images/logo.png" alt="Logo Empaques Múltiples" /></a>
+                  </div>
+               </div>
+               <div class="col-md-9">
+                  <nav class="navigation navbar navbar-expand-md navbar-dark d-flex align-items-center">
+                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample04" aria-controls="navbarsExample04" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                     </button>
+                     <div class="collapse navbar-collapse" id="navbarsExample04">
+                        <ul class="navbar-nav ml-auto main-menu">
+                           <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+                           <li class="nav-item dropdown megamenu">
+                              <a class="nav-link dropdown-toggle" href="about.html" id="nosotrosDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Nosotros</a>
+                              <div class="dropdown-menu" aria-labelledby="nosotrosDropdown">
+                                 <a class="dropdown-item" href="about.html">Sobre Nosotros</a>
+                                 <a class="dropdown-item" href="politicas-seguridad-alimentaria.html">Políticas de Seguridad Alimentaria</a>
+                              </div>
+                           </li>
+                           <li class="nav-item"><a class="nav-link" href="gallery.html">Noticias</a></li>
+                             <li class="nav-item dropdown megamenu">
+                              <a class="nav-link dropdown-toggle" href="productos.html" id="nosotrosDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Productos</a>
+                              <div class="dropdown-menu" aria-labelledby="nosotrosDropdown">
+                                 <a class="dropdown-item" href="productos.html">Nuestros Productos</a>
+                                 <a class="dropdown-item" href="productos-terceros.html">Marcas Privadas</a>
+                              </div>
+                           </li>
+                           <li class="nav-item"><a class="nav-link" href="contact.html">Contacto</a></li>
+                           <li class="nav-item"><a class="nav-link" href="empleo.html">Empleos</a></li>
+                        </ul>
+                     </div>
+                  </nav>
+               </div>
+            </div>
+         </div>
+      </div>
+   </header>
+    <!-- end header inner -->
+
+    <!-- Panel de Administración de Vacantes -->
+    <div class="admin-page-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="admin-page-header">
+                        <h1>Panel de Administración de Vacantes</h1>
+                        <p>Gestiona las vacantes disponibles en Empaques Múltiples</p>
+                        <a href="empleo.html" class="btn-volver">
+                            <i class="fas fa-arrow-left"></i> Volver a Empleos
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login -->
+            <div class="admin-login-container" id="adminLoginContainer">
+                <div class="admin-login-box">
+                    <div class="login-form">
+                        <div class="login-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h3>Acceso de RRHH</h3>
+                        <p class="login-subtitle">Ingrese su contraseña para acceder al panel de administración</p>
+                        <input type="password" id="adminPassword" class="contactus" placeholder="Contraseña" required onkeypress="if(event.key === 'Enter') loginAdmin()">
+                        <button class="send_btn" onclick="loginAdmin()">
+                            <i class="fas fa-sign-in-alt"></i> Ingresar
+                        </button>
+                        <p style="margin-top: 15px; font-size: 12px; color: #666;">Presione Enter para iniciar sesión</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenido del Admin -->
+            <div class="admin-content-container" id="adminContentContainer" style="display: none;">
+                <div class="admin-toolbar">
+                    <div>
+                        <h3>Gestionar Vacantes</h3>
+                        <p class="admin-subtitle">Administra las vacantes disponibles en el sitio web</p>
+                    </div>
+                    <div class="admin-actions">
+                        <button class="btn-add-vacante" onclick="showAddVacanteForm()">
+                            <i class="fas fa-plus"></i> Agregar Nueva Vacante
+                        </button>
+                        <button class="btn-logout" onclick="logoutAdmin()">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </button>
+                    </div>
+                </div>
+
+                <div class="admin-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #28a745;">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h4 id="totalVacantes">0</h4>
+                            <p>Total de Vacantes</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #116835;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h4 id="vacantesActivas">0</h4>
+                            <p>Vacantes Activas</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background-color: #6c757d;">
+                            <i class="fas fa-ban"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h4 id="vacantesCerradas">0</h4>
+                            <p>Vacantes Cerradas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="admin-vacantes-list" id="adminVacantesList">
+                    <!-- Lista de vacantes para administrar -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end Panel de Administración -->
+
+    <!-- Modal para Agregar/Editar Vacante -->
+    <div id="vacanteModal" class="modal-vacante" style="display: none;">
+        <div class="modal-content-vacante">
+            <div class="modal-header-vacante">
+                <h4 id="modalTitle">Agregar Vacante</h4>
+                <button class="close-modal-btn" onclick="closeVacanteModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body-vacante">
+                <form id="vacanteForm">
+                    <input type="hidden" id="vacanteId">
+                    <div class="form-group">
+                        <label>Título del Puesto *</label>
+                        <input type="text" id="vacanteTitulo" class="contactus" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Departamento *</label>
+                        <input type="text" id="vacanteDepartamento" class="contactus" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Descripción *</label>
+                        <textarea id="vacanteDescripcion" class="textarea" rows="5" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Requisitos *</label>
+                        <textarea id="vacanteRequisitos" class="textarea" rows="4" required placeholder="Ingrese cada requisito en una línea nueva. Puede comenzar con '•' para mejor formato."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Ubicación *</label>
+                        <input type="text" id="vacanteUbicacion" class="contactus" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Tipo de Contrato *</label>
+                        <select id="vacanteTipo" class="contactus" required>
+                            <option value="">Seleccione...</option>
+                            <option value="Tiempo Completo">Tiempo Completo</option>
+                            <option value="Medio Tiempo">Medio Tiempo</option>
+                            <option value="Por Contrato">Por Contrato</option>
+                            <option value="Temporal">Temporal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select id="vacanteEstado" class="contactus">
+                            <option value="activa">Activa</option>
+                            <option value="cerrada">Cerrada</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="send_btn">Guardar Vacante</button>
+                        <button type="button" class="send_btn" style="background-color: #666;" onclick="closeVacanteModal()">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- end Modal -->
+
+    <!--  footer -->
+ <!-- Bootstrap Footer moderno -->
+     <footer class="bg-dark text-white pt-5 pb-4">
+        <div class="container animate-on-scroll">
+            <div class="row">
+
+                <div class="col-md-3 mb-4">
+                    <h5 class="mb-3">Contacto</h5>
+                    <p class="text-white fs-5"><i class="fas fa-envelope me-2"></i> contacto@casaempaques.com</p>
+                    <p class="text-white fs-5"><i class="fas fa-phone me-2"></i>(809) 594-5880</p>
+                    <p class="text-white fs-5"><i class="fas fa-map-marker-alt me-2"></i> Calle 19 No. 24. Sector Alma Rosa II Santo Domingo Este, Rep. Dominicana</p>
+                    <div class="d-flex mt-3 gap-3">
+                      <p><a href="https://www.instagram.com/empaquesmultiplesrd/" class="text-white fs-5"><i class="fab fa-instagram"></i> @empaquesmultiplesrd</a></p>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <h5 class="mb-3">Navegación</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="index.html" class="text-white text-decoration-none">Inicio</a></li>
+                        <li><a href="about.html" class="text-white text-decoration-none">Nosotros</a></li>
+                        <li><a href="gallery.html" class="text-white text-decoration-none">Noticias</a></li>
+                        <li><a href="productos.html" class="text-white text-decoration-none">Productos</a></li>
+                        <li><a href="contact.html" class="text-white text-decoration-none">Contacto</a></li>
+                        <li><a href="empleo.html" class="text-white text-decoration-none">Empleos</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <h5 class="mb-3">¿En qué podemos ayudarte?</h5>
+                    <p class="text-white fs-5">Ofrecemos servicio de empaques a clientes institucionales y grandes cadenas de supermercados para sus marcas privadas, apegados a altos estándares internacionales.</p>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <figure><img src="images/logo.png" alt="#" /></figure>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="text-center border-top border-secondary pt-3 mt-4 small text-muted">
+                © 2025 Empaques Múltiples SRL. Todos los derechos reservados.
+            </div>
+        </div>
+    </footer>
+      <!-- end footer -->
+
+    <!-- Javascript files-->
+    <script src="js/jquery.min.js"></script>
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/jquery-3.0.0.min.js"></script>
+    <!-- sidebar -->
+    <script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script src="js/custom.js"></script>
+    <!-- Vacantes Script -->
+    <script src="js/vacantes.js"></script>
+    <script src="js/vacantes-admin.js"></script>
+
+</body>
+
+</html>
+

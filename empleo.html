@@ -111,6 +111,35 @@
    </header>
     <!-- end header inner -->
 
+    <!-- Sección de Vacantes Disponibles -->
+    <div id="vacantes" class="vacantes-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="titlepage">
+                        <h2>Vacantes Disponibles</h2>
+                        <p>Explora las oportunidades laborales disponibles en Empaques Múltiples</p>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12 text-right mb-3">
+                    <small class="admin-access-hint" style="display: block; text-align: right; color: #999; font-size: 12px; margin-top: 5px;">
+                    </small>
+                </div>
+            </div>
+            <div class="row" id="vacantesContainer">
+                <!-- Las vacantes se cargarán aquí dinámicamente -->
+            </div>
+            <div class="row" id="noVacantes" style="display: none;">
+                <div class="col-md-12 text-center">
+                    <p class="no-vacantes-message">No hay vacantes disponibles en este momento. Vuelve pronto para nuevas oportunidades.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end Sección de Vacantes -->
+
     <!-- Formulario de Empleo -->
     <div id="empleo" class="contact">
         <div class="container">
@@ -149,7 +178,10 @@
       <textarea class="textarea" placeholder="Carta de Presentación" name="Carta de Presentación"></textarea>
     </div>
     <div class="col-md-12">
-      <input class="contactus" placeholder="Puesto al que aspira" type="text" name="Puesto al que aspira" required>
+      <select class="contactus" name="Puesto al que aspira" id="puestoSelect" required>
+        <option value="">Seleccione un puesto...</option>
+        <!-- Las opciones se cargarán dinámicamente desde las vacantes disponibles -->
+      </select>
     </div>
     <div class="col-md-12">
       <button class="send_btn" type="submit">Enviar Solicitud</button>
@@ -216,6 +248,8 @@
     <!-- sidebar -->
     <script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
     <script src="js/custom.js"></script>
+    <!-- Vacantes Script -->
+    <script src="js/vacantes.js"></script>
 
 </body>
 
