@@ -3,6 +3,35 @@
     { "handle": "filesystem" },
     { "src": "/almuerzo", "dest": "/almuerzo.html" },
     { "src": "/dist-lunch/(.*)", "dest": "/dist-lunch/index.html" },
+    { "src": "/empleo/(.*)", "dest": "/empleo/index.html" },
+    { "src": "/admin-vacantes/(.*)", "dest": "/admin-vacantes/index.html" },
+    { "src": "/about/(.*)", "dest": "/about/index.html" },
+    { "src": "/contact/(.*)", "dest": "/contact/index.html" },
+    { "src": "/gallery/(.*)", "dest": "/gallery/index.html" },
+    { "src": "/productos/(.*)", "dest": "/productos/index.html" },
+    { "src": "/productos-terceros/(.*)", "dest": "/productos-terceros/index.html" },
+    { "src": "/politicas-seguridad-alimentaria/(.*)", "dest": "/politicas-seguridad-alimentaria/index.html" },
+    { "src": "/(about|contact|gallery|productos|productos-terceros|empleo|admin-vacantes|politicas-seguridad-alimentaria)\\.html$", "dest": "/$1/", "status": 301 },
     { "src": "/.*", "dest": "/index.html" }
+  ],
+  "rewrites": [
+    { "source": "/empleo", "destination": "/empleo/" },
+    { "source": "/admin-vacantes", "destination": "/admin-vacantes/" },
+    { "source": "/about", "destination": "/about/" },
+    { "source": "/contact", "destination": "/contact/" },
+    { "source": "/gallery", "destination": "/gallery/" },
+    { "source": "/productos", "destination": "/productos/" },
+    { "source": "/productos-terceros", "destination": "/productos-terceros/" },
+    { "source": "/politicas-seguridad-alimentaria", "destination": "/politicas-seguridad-alimentaria/" }
+  ],
+  "redirects": [
+    { "source": "/about.html", "destination": "/about/", "permanent": true },
+    { "source": "/contact.html", "destination": "/contact/", "permanent": true },
+    { "source": "/gallery.html", "destination": "/gallery/", "permanent": true },
+    { "source": "/productos.html", "destination": "/productos/", "permanent": true },
+    { "source": "/productos-terceros.html", "destination": "/productos-terceros/", "permanent": true },
+    { "source": "/empleo.html", "destination": "/empleo/", "permanent": true },
+    { "source": "/admin-vacantes.html", "destination": "/admin-vacantes/", "permanent": true },
+    { "source": "/politicas-seguridad-alimentaria.html", "destination": "/politicas-seguridad-alimentaria/", "permanent": true }
   ]
 }

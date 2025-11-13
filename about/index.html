@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <!-- basic -->
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <!-- mobile metas -->
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+      <!-- site metas -->
+      <title>Sobre Nosotros - Empaques Múltiples</title>
+      <meta name="keywords" content="">
+      <meta name="description" content="">
+      <meta name="author" content="">
+      <!-- bootstrap css -->
+      <link rel="stylesheet" href="../css/bootstrap.min.css">
+      <!-- style css -->
+      <link rel="stylesheet" href="../css/style.css">
+      <!-- Responsive-->
+      <link rel="stylesheet" href="../css/responsive.css">
+      <!-- fevicon -->
+      <link rel="icon" href="../images/logo.png" type="image/x-icon" />
+      <!-- Scrollbar Custom CSS -->
+      <link rel="stylesheet" href="../css/jquery.mCustomScrollbar.min.css">
+      <!-- Tweaks for older IEs-->
+      <link rel="stylesheet"
+         href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+      <link rel="stylesheet"
+         href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css"
+         media="screen">
+      <link rel="stylesheet"
+         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+         <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"/>
+<link rel="stylesheet" href="../animaciones-modernas.css"/>
+
+      <style>
+         /* Mejoras específicas para about page manteniendo el estilo original */
+         .about-hero {
+            background: #eae7e7;
+            background-size: cover;
+            background-position: center;
+            padding: 120px 0;
+            margin-bottom: 80px;
+         }
+
+         .about-hero h1 {
+            font-size: 60px;
+            line-height: 70px;
+            color: #1f1f1f;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+         }
+
+         .about-hero p {
+            color: #1f1f1f;
+            font-size: 18px;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+         }
+
+         .story-section {
+            padding: 80px 0;
+            background: #fff;
+         }
+
+         .story-box {
+            background: #f8f9fa;
+            padding: 50px;
+            border-radius: 10px;
+            margin-bottom: 40px;
+            border-left: 5px solid #116835;
+         }
+
+         .story-box h2 {
+            color: #116835;
+            font-size: 30px;
+            font-weight: bold;
+            margin-bottom: 25px;
+         }
+
+         .story-box p {
+            font-size: 17px;
+            line-height: 28px;
+            color: #2a2b2a;
+         }
+
+         .mission-vision-section {
+            background: #eae7e7;
+            padding: 80px 0;
+         }
+
+         .mv-card {
+            background: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            height: 100%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+         }
+
+         .mv-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(17, 104, 53, 0.2);
+         }
+
+         .mv-card i {
+            font-size: 50px;
+            color: #116835;
+            margin-bottom: 20px;
+            display: block;
+         }
+
+         .mv-card h3 {
+            color: #116835;
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 20px;
+         }
+
+         .values-section {
+            padding: 80px 0;
+            background: #fff;
+         }
+
+         .value-item {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #116835;
+            transition: all 0.3s ease;
+         }
+
+         .value-item:hover {
+            background: #116835;
+            color: #fff;
+         }
+
+         .value-item p {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 500;
+         }
+
+         .enhanced-service-box {
+            text-align: center;
+            padding: 40px 30px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+            height: 100%;
+         }
+
+         .enhanced-service-box:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(17, 104, 53, 0.2);
+         }
+
+         .enhanced-service-box i img {
+            width: 200px;
+            height: 200px;
+            margin-bottom: 20px;
+         }
+      </style>
+   </head>
+   <!-- body -->
+   <body class="main-layout in_page">
+      <!-- loader  -->
+      <div class="loader_bg">
+         <div class="loader"><img src="../images/loading.gif" alt="#" /></div>
+      </div>
+      <!-- end loader -->
+      
+      <!-- Barra superior de contacto -->
+      <div class="top-contact-bar">
+         <div class="container">
+            <div class="top-contact-content">
+               <div class="contact-info">
+                  <a href="tel:+18095945880" class="contact-item">
+                     <i class="fas fa-phone"></i>
+                     <span>809 594 5880</span>
+                  </a>
+                  <a href="mailto:contacto@empaquesmultiples.com" class="contact-item">
+                     <i class="fas fa-envelope"></i>
+                     <span>contacto@casaempaques.com</span>
+                  </a>
+               </div>
+               <div class="social-links">
+                  <a href="https://instagram.com/empaquesmultiplesrd" class="social-link" target="_blank" title="Instagram">
+                     <i class="fab fa-instagram"></i>
+                  </a>
+                  <a href="https://wa.me/18292926176" class="social-link" target="_blank" title="WhatsApp">
+                     <i class="fab fa-whatsapp"></i>
+                  </a>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <!-- header -->
+   <header>
+      <div class="header">
+         <div class="container">
+            <div class="row align-items-center">
+               <div class="col-md-3 col-sm-3 logo_section">
+                  <div class="logo">
+                     <a href="../"><img src="../images/logo.png" alt="Logo Empaques Múltiples" /></a>
+                  </div>
+               </div>
+               <div class="col-md-9">
+                  <nav class="navigation navbar navbar-expand-md navbar-dark d-flex align-items-center">
+                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample04" aria-controls="navbarsExample04" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                     </button>
+                     <div class="collapse navbar-collapse" id="navbarsExample04">
+                        <ul class="navbar-nav ml-auto main-menu">
+                           <li class="nav-item"><a class="nav-link" href="../">Inicio</a></li>
+                           <li class="nav-item dropdown megamenu">
+                              <a class="nav-link dropdown-toggle" href="../about/" id="nosotrosDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Nosotros</a>
+                              <div class="dropdown-menu" aria-labelledby="nosotrosDropdown">
+                                 <a class="dropdown-item" href="../about/">Sobre Nosotros</a>
+                                 <a class="dropdown-item" href="../politicas-seguridad-alimentaria/">Políticas de Seguridad Alimentaria</a>
+                              </div>
+                           </li>
+                           <li class="nav-item"><a class="nav-link" href="../gallery/">Noticias</a></li>
+                             <li class="nav-item dropdown megamenu">
+                              <a class="nav-link dropdown-toggle" href="../productos/" id="nosotrosDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Productos</a>
+                              <div class="dropdown-menu" aria-labelledby="nosotrosDropdown">
+                                 <a class="dropdown-item" href="../productos/">Nuestros Productos</a>
+                                 <a class="dropdown-item" href="../productos-terceros/">Marcas Privadas</a>
+                              </div>
+                           </li>
+                           <li class="nav-item"><a class="nav-link" href="../contact/">Contacto</a></li>
+                           <li class="nav-item"><a class="nav-link" href="../empleo/">Empleos</a></li>
+                        </ul>
+                     </div>
+                  </nav>
+               </div>
+            </div>
+         </div>
+      </div>
+   </header>
+      <!-- end header inner -->
+
+      <!-- About Hero Section -->
+      <div class="about-hero">
+         <div class="container">
+            <div class="row">
+               <div class="col-md-12">
+                  <h1>Sobre <span class="green">Nosotros</span></h1>
+                  <p>Más de 25 años de experiencia en la industria láctea y de empaques, comprometidos con la calidad y la innovación.</p>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <!-- Historia Section -->
+      <div class="story-section">
+         <div class="container">
+            <div class="row">
+               <div class="col-md-12">
+                  <div class="story-box">
+                     <h2>Nuestra Historia</h2>
+                     <p>Iniciamos en el año 1999 como una fábrica de ingredientes funcionales para la industria láctea. A través de los años hemos desarrollado productos alimenticios para consumo directo de alto valor nutricional y de máxima calidad, y en el servicio de empaques para marcas privadas e institucionales a grandes cadenas de supermercados, apegados a estándares internacionales.</p>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <!-- Mission & Vision Section -->
+      <div class="mission-vision-section">
+         <div class="container">
+            <div class="row">
+               <div class="col-md-12">
+                  <div class="titlepage">
+                     <h2>Misión y <span class="green">Visión</span></h2>
+                  </div>
+               </div>
+            </div>
+            <div class="row">
+               <div class="col-md-6" >
+                  <div class="mv-card">
+                     <i class="fas fa-bullseye"></i>  
+                     <h3>Misión</h3>
+                     <p>Producir de forma integral y oportuna alimentos funcionales, naturales, de máxima calidad y valor agregado, enfocados en la nutrición y salud de las familias en el contexto nacional, con un gran sentido de responsabilidad social, del medio ambiente y el desarrollo sostenible de su gente.</p>
+                  </div>
+               </div>
+               <div class="col-md-6">
+                  <div class="mv-card">
+                     <i class="fas fa-eye"></i>
+                     <h3>Visión</h3>
+                     <p>Seremos siempre una empresa líder en la excelencia de fabricación e innovación de productos alimenticios, cumpliendo los más estrictos estándares de inocuidad, calidad, integridad, tecnología, productividad y competitividad para satisfacer las necesidades de nutrición de nuestros clientes en mercados nacionales e internacionales.</p>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <!-- Values Section -->
+      <div class="values-section">
+         <div class="container">
+            <div class="row">
+               <div class="col-md-12">
+                  <div class="titlepage">
+                     <h2>Nuestros <span class="green">Valores</span></h2>
+                  </div>
+               </div>
+            </div>
+            <div class="row">
+               <div class="col-md-6">
+                  <div class="value-item">
+                     <p><i class="fas fa-check-circle" style="color: #116835; margin-right: 10px;"></i> Lealtad a los Principios Corporativos</p>
+                  </div>
+                  <div class="value-item">
+                     <p><i class="fas fa-check-circle" style="color: #116835; margin-right: 10px;"></i> Trabajo en Equipo</p>
+                  </div>
+                  <div class="value-item">
+                     <p><i class="fas fa-check-circle" style="color: #116835; margin-right: 10px;"></i> Innovación permanente en Productos Nutritivos</p>
+                  </div>
+                  <div class="value-item">
+                     <p><i class="fas fa-check-circle" style="color: #116835; margin-right: 10px;"></i> Compromiso con la Calidad, la Inocuidad y la Nutrición</p>
+                  </div>
+               </div>
+               <div class="col-md-6">
+                  <div class="value-item">
+                     <p><i class="fas fa-check-circle" style="color: #116835; margin-right: 10px;"></i> Orientación hacia el Cliente en Productos y Servicios</p>
+                  </div>
+                  <div class="value-item">
+                     <p><i class="fas fa-check-circle" style="color: #116835; margin-right: 10px;"></i> Sustentabilidad Ambiental</p>
+                  </div>
+                  <div class="value-item">
+                     <p><i class="fas fa-check-circle" style="color: #116835; margin-right: 10px;"></i> Responsabilidad Social Empresarial</p>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <!-- Services Section -->
+      <div class="service" style="background: #eae7e7; padding-bottom: 60px;">
+         <div class="container">
+            <div class="row">
+               <div class="col-md-12">
+                  <div class="titlepage">
+                     <h2>Nuestros <span class="green">Servicios</span></h2>
+                  </div>
+               </div>
+            </div>
+            <div class="row">
+               <div class="col-md-3 col-sm-6">
+                  <div class="enhanced-service-box">
+                     <i><img src="../images/lider-avenainstantanea.jpg" alt="#" /></i>
+                     <h3>Empaque Personalizado</h3>
+                     <p>Soluciones de empaques a la medida para clientes institucionales y supermercados.</p>
+                  </div>
+               </div>
+               <div class="col-md-3 col-sm-6">
+                  <div class="enhanced-service-box">
+                     <i><img src="../images/calidadcertificada.jpg" alt="#" /></i>
+                     <h3>Calidad Certificada</h3>
+                     <p>Operamos bajo estrictos estándares internacionales para garantizar la excelencia.</p>
+                  </div>
+               </div>
+               <div class="col-md-3 col-sm-6">
+                  <div class="enhanced-service-box">
+                     <i><img src="../images/variedadproductos.jpg" alt="#" /></i>
+                     <h3>Variedad de Productos</h3>
+                     <p>Productos lácteos, harinas, avenas, cocoa, granola, proteínas lácteas y más.</p>
+                  </div>
+               </div>
+               <div class="col-md-3 col-sm-6">
+                  <div class="enhanced-service-box">
+                     <i><img src="../images/inovacion y tecnologia.jpg" alt="#" /></i>
+                     <h3>Innovación y Tecnología</h3>
+                     <p>Implementamos procesos de última generación para optimizar la producción y la calidad.</p>
+                  </div>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <!-- Footer -->
+           <footer class="bg-dark text-white pt-5 pb-4">
+        <div class="container animate-on-scroll">
+            <div class="row">
+
+                <div class="col-md-3 mb-4">
+                    <h5 class="mb-3">Contacto</h5>
+                    <p class="text-white fs-5"><i class="fas fa-envelope me-2"></i> contacto@casaempaques.com</p>
+                    <p class="text-white fs-5"><i class="fas fa-phone me-2"></i>(809) 594-5880</p>
+                    <p class="text-white fs-5"><i class="fas fa-map-marker-alt me-2"></i> Calle 19 No. 24. Sector Alma Rosa II Santo Domingo Este, Rep. Dominicana</p>
+                    <div class="d-flex mt-3 gap-3">
+                      <p><a href="https://www.instagram.com/empaquesmultiplesrd/" class="text-white fs-5"><i class="fab fa-instagram"></i> @empaquesmultiplesrd</a></p>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <h5 class="mb-3">Navegación</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="../" class="text-white text-decoration-none">Inicio</a></li>
+                        <li><a href="../about/" class="text-white text-decoration-none">Nosotros</a></li>
+                        <li><a href="../gallery/" class="text-white text-decoration-none">Noticias</a></li>
+                        <li><a href="../productos/" class="text-white text-decoration-none">Productos</a></li>
+                        <li><a href="../contact/" class="text-white text-decoration-none">Contacto</a></li>
+                        <li><a href="../empleo/" class="text-white text-decoration-none">Empleos</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <h5 class="mb-3">¿En qué podemos ayudarte?</h5>
+                    <p class="text-white fs-5">Ofrecemos servicio de empaques a clientes institucionales y grandes cadenas de supermercados para sus marcas privadas, apegados a altos estándares internacionales.</p>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <figure><img src="../images/logo.png" alt="#" /></figure>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="text-center border-top border-secondary pt-3 mt-4 small text-muted">
+                © 2025 Empaques Múltiples SRL. Todos los derechos reservados.
+            </div>
+        </div>
+    </footer>
+      <!-- Javascript files-->
+      <script src="../js/jquery.min.js"></script>
+      <script src="../js/bootstrap.bundle.min.js"></script>
+      <script src="../js/jquery-3.0.0.min.js"></script>
+      <!-- sidebar -->
+      <script src="../js/jquery.mCustomScrollbar.concat.min.js"></script>
+      <script src="../js/custom.js"></script>
+
+      <script>
+         // Smooth animations on scroll
+         window.addEventListener('scroll', function() {
+            const elements = document.querySelectorAll('.story-box, .mv-card, .enhanced-service-box, .value-item');
+            elements.forEach(element => {
+               const elementTop = element.getBoundingClientRect().top;
+               const elementVisible = 150;
+
+               if (elementTop < window.innerHeight - elementVisible) {
+                  element.style.opacity = '1';
+                  element.style.transform = 'translateY(0)';
+               }
+            });
+         });
+
+         // Initialize elements with initial state
+         document.addEventListener('DOMContentLoaded', function() {
+            const elements = document.querySelectorAll('.story-box, .mv-card, .enhanced-service-box, .value-item');
+            elements.forEach(element => {
+               element.style.opacity = '0';
+               element.style.transform = 'translateY(20px)';
+               element.style.transition = 'all 0.6s ease';
+            });
+         });
+      </script>
+   </body>
+</html>

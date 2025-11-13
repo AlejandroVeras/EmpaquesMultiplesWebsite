@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+      <title>Noticias - Empaques Múltiples</title>
+      <meta name="keywords" content="">
+      <meta name="description" content="">
+      <meta name="author" content="">
+      <link rel="stylesheet" href="../css/bootstrap.min.css">
+      <link rel="stylesheet" href="../css/style.css">
+      <link rel="stylesheet" href="../css/responsive.css">
+      <link rel="icon" href="../images/logo.png" type="image/x-icon" />
+      <link rel="stylesheet" href="../css/jquery.mCustomScrollbar.min.css">
+      <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css" media="screen">
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"/>
+<link rel="stylesheet" href="../animaciones-modernas.css"/>
+      <style>
+#orderSelect {
+  background: #fff;
+  border: 2px solid #116835;
+  color: #222d32;
+  border-radius: 0;
+  padding: 0.5rem 0.5rem 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  outline: none;
+  box-shadow: none;
+  width: auto;
+  min-width: 200px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+#orderSelect:focus, #orderSelect:hover {
+  border-color: #116835;
+  background: #f6fff6;
+}
+#orderSelect option {
+  background: #fff;
+  color: #222d32;
+}
+@media (max-width: 576px) {
+  #orderSelect {
+    min-width: 120px;
+    font-size: 0.95rem;
+    padding: 0.4rem 1rem;
+  }
+}
+/* Animación fade para las tarjetas de noticias */
+.news-fade {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.45s cubic-bezier(.4,0,.2,1), transform 0.45s cubic-bezier(.4,0,.2,1);
+}
+.news-fade-in {
+  opacity: 1 !important;
+  transform: none !important;
+}
+      </style>
+   </head>
+   <body class="main-layout in_page">
+      <div class="loader_bg">
+         <div class="loader"><img src="../images/loading.gif" alt="#"/></div>
+      </div>
+      <div class="top-contact-bar">
+         <div class="container">
+            <div class="top-contact-content">
+               <div class="contact-info">
+                  <a href="tel:+18095945880" class="contact-item">
+                     <i class="fas fa-phone"></i>
+                     <span>809 594 5880</span>
+                  </a>
+                  <a href="mailto:contacto@empaquesmultiples.com" class="contact-item">
+                     <i class="fas fa-envelope"></i>
+                     <span>contacto@casaempaques.com</span>
+                  </a>
+               </div>
+               <div class="social-links">
+                  <a href="https://instagram.com/empaquesmultiplesrd" class="social-link" target="_blank" title="Instagram">
+                     <i class="fab fa-instagram"></i>
+                  </a>
+                  <a href="https://wa.me/18292926176" class="social-link" target="_blank" title="WhatsApp">
+                     <i class="fab fa-whatsapp"></i>
+                  </a>
+               </div>
+            </div>
+         </div>
+      </div>
+
+   <header>
+      <div class="header">
+         <div class="container">
+            <div class="row align-items-center">
+               <div class="col-md-3 col-sm-3 logo_section">
+                  <div class="logo">
+                     <a href="../"><img src="../images/logo.png" alt="Logo Empaques Múltiples" /></a>
+                  </div>
+               </div>
+               <div class="col-md-9">
+                  <nav class="navigation navbar navbar-expand-md navbar-dark d-flex align-items-center">
+                     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample04" aria-controls="navbarsExample04" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                     </button>
+                     <div class="collapse navbar-collapse" id="navbarsExample04">
+                        <ul class="navbar-nav ml-auto main-menu">
+                           <li class="nav-item"><a class="nav-link" href="../">Inicio</a></li>
+                           <li class="nav-item dropdown megamenu">
+                              <a class="nav-link dropdown-toggle" href="../about/" id="nosotrosDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Nosotros</a>
+                              <div class="dropdown-menu" aria-labelledby="nosotrosDropdown">
+                                 <a class="dropdown-item" href="../about/">Sobre Nosotros</a>
+                                 <a class="dropdown-item" href="../politicas-seguridad-alimentaria/">Políticas de Seguridad Alimentaria</a>
+                              </div>
+                           </li>
+                           <li class="nav-item"><a class="nav-link" href="../gallery/">Noticias</a></li>
+                             <li class="nav-item dropdown megamenu">
+                              <a class="nav-link dropdown-toggle" href="../productos/" id="nosotrosDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Productos</a>
+                              <div class="dropdown-menu" aria-labelledby="nosotrosDropdown">
+                                 <a class="dropdown-item" href="../productos/">Nuestros Productos</a>
+                                 <a class="dropdown-item" href="../productos-terceros/">Marcas Privadas</a>
+                              </div>
+                           </li>
+                           <li class="nav-item"><a class="nav-link" href="../contact/">Contacto</a></li>
+                           <li class="nav-item"><a class="nav-link" href="../empleo/">Empleos</a></li>
+                        </ul>
+                     </div>
+                  </nav>
+               </div>
+            </div>
+         </div>
+      </div>
+   </header>
+      <div class="latest_news">
+         <div class="container">
+            <div class="row">
+               <div class="col-md-12">
+                  <div class="titlepage">
+                     <h2>Múltiples <span class="green">Noticias</span></h2>
+                  </div>
+               </div>
+            </div>
+            <!-- Selector de orden -->
+            <div class="row">
+               <div class="col-12 d-flex justify-content-end mb-3">
+                  <select id="orderSelect" class="form-select w-auto" style="max-width:220px;">
+                     <option value="desc">Más nuevas primero</option>
+                     <option value="asc">Más viejas primero</option>
+                  </select>
+               </div>
+            </div>
+            <div class="row justify-content-center" id="newsGrid">
+               <!-- Todas las noticias tienen la clase news_date y formato consistente -->
+               <div class="col-lg-4 col-md-6 mb-4">
+                  <article class="news_box">
+                     <div class="news_img">
+                        <figure><img src="../images/Noticia1.jpg" alt="Nuestro Gerente General Representa al País en Asamblea de FEPALE"/></figure>
+                     </div>
+                     <div class="news_room">
+                        <h3>Nuestro Gerente General Representa al País en Asamblea de FEPALE</h3>
+                        <p>La República Dominicana fue anfitrión de la 31 Asamblea Anual de la Federación Panamericana de Lechería (FEPALE). Nuestro gerente general, Hugo Socorro, participó como representante nacional.</p>
+                        <p class="news_date">1 de Diciembre del 2023</p>
+                        <a class="read_more" href="../noticia-fepale.html">Ver Más</a>
+                     </div>
+                  </article>
+               </div>
+               <div class="col-lg-4 col-md-6 mb-4">
+                  <article class="news_box">
+                     <div class="news_img">
+                        <figure><img src="../images/Noticia2.jpg" alt="¡Estamos Certificados! Somos Operador Económico Autorizado"/></figure>
+                     </div>
+                     <div class="news_room">
+                        <h3>¡Estamos Certificados! Somos Operador Económico Autorizado</h3>
+                        <p>¡Enhorabuena! Hemos recibido con mucho orgullo la certificación como Operador Económico Autorizado (OEA) por @aduanasrd, que nos califica como importador confiable en la República Dominicana.</p>
+                        <p class="news_date">2 de Marzo del 2022</p>
+                        <a class="read_more" href="../noticia-oea.html">Ver Más</a>
+                     </div>
+                  </article>
+               </div>
+               <div class="col-lg-4 col-md-6 mb-4">
+                  <article class="news_box">
+                     <div class="news_img">
+                        <figure><img src="../images/LACTEOS.jpeg" alt="Los Lácteos: Esenciales para tu Salud Diaria"/></figure>
+                     </div>
+                     <div class="news_room">
+                        <h3>Los Lácteos: Esenciales para tu Salud Diaria</h3>
+                        <p>Los lácteos son fundamentales en tu alimentación por sus proteínas de alta calidad y su riqueza en calcio, vital para huesos y dientes. También aportan vitaminas A y D.</p>
+                        <p class="news_date">15 de Febrero del 2022</p>
+                        <a class="read_more" href="../noticia-lacteos1.html">Ver Más</a>
+                     </div>
+                  </article>
+               </div>
+               <div class="col-lg-4 col-md-6 mb-4">
+                  <article class="news_box">
+                     <div class="news_img">
+                        <figure><img src="../images/lacteos.png" alt="Lácteos: Fuente Vital de Salud y Prevención" /></figure>
+                     </div>
+                     <div class="news_room">
+                        <h3>Lácteos: Fuente Vital de Salud y Prevención</h3>
+                        <p>Los lácteos contienen una combinación única de proteínas de alto valor biológico, calcio fácilmente absorbible, vitaminas esenciales y grasas saludables.</p>
+                        <p class="news_date">5 de Abril del 2024</p>
+                        <a class="read_more" href="../noticia-lacteos-fuentes-vital.html">Ver Más</a>
+                     </div>
+                  </article>
+               </div>
+               <div class="col-lg-4 col-md-6 mb-4">
+                  <article class="news_box">
+                     <div class="news_img">
+                        <figure><img src="../images/lecherehidratacionpostejercicio.jpg" alt="La Leche en la Rehidratación Post-Ejercicio" /></figure>
+                     </div>
+                     <div class="news_room">
+                        <h3>La Leche en la Rehidratación Post-Ejercicio</h3>
+                        <p>La leche es efectiva para la rehidratación y recuperación post-ejercicio, superando a menudo a las bebidas deportivas. Sus proteínas, vitaminas y minerales ayudan a una mejor recuperación.</p>
+                        <p class="news_date">20 de Mayo del 2025</p>
+                        <a class="read_more" href="../noticia-rehidratacion-postejercicio.html">Ver Más</a>
+                     </div>
+                  </article>
+               </div>
+               <div class="col-lg-4 col-md-6 mb-4">
+                  <article class="news_box">
+                     <div class="news_img">
+                        <figure><img src="../images/noticiaconaleche.png" alt="Hugo Socorro Impulsa la Transformación Láctea en el Consejo de Conaleche" /></figure>
+                     </div>
+                     <div class="news_room">
+                        <h3>Nuestro Gerente General Impulsa la Transformación Láctea en el Consejo de Conaleche</h3>
+                        <p>Nuestro gerente general participa en reunión del Consejo Directivo del Conaleche.</p>
+                        <p class="news_date">8 de Octubre del 2020</p>
+                        <a class="read_more" href="../noticia-conaleche.html">Ver Más</a>
+                     </div>
+                  </article>
+               </div>
+            </div>
+         </div>
+      </div>
+          <footer class="bg-dark text-white pt-5 pb-4">
+        <div class="container animate-on-scroll">
+            <div class="row">
+
+                <div class="col-md-3 mb-4">
+                    <h5 class="mb-3">Contacto</h5>
+                    <p class="text-white fs-5"><i class="fas fa-envelope me-2"></i> contacto@casaempaques.com</p>
+                    <p class="text-white fs-5"><i class="fas fa-phone me-2"></i>(809) 594-5880</p>
+                    <p class="text-white fs-5"><i class="fas fa-map-marker-alt me-2"></i> Calle 19 No. 24. Sector Alma Rosa II Santo Domingo Este, Rep. Dominicana</p>
+                    <div class="d-flex mt-3 gap-3">
+                      <p><a href="https://www.instagram.com/empaquesmultiplesrd/" class="text-white fs-5"><i class="fab fa-instagram"></i> @empaquesmultiplesrd</a></p>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <h5 class="mb-3">Navegación</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="../" class="text-white text-decoration-none">Inicio</a></li>
+                        <li><a href="../about/" class="text-white text-decoration-none">Nosotros</a></li>
+                        <li><a href="../gallery/" class="text-white text-decoration-none">Noticias</a></li>
+                        <li><a href="../productos/" class="text-white text-decoration-none">Productos</a></li>
+                        <li><a href="../contact/" class="text-white text-decoration-none">Contacto</a></li>
+                        <li><a href="../empleo/" class="text-white text-decoration-none">Empleos</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <h5 class="mb-3">¿En qué podemos ayudarte?</h5>
+                    <p class="text-white fs-5">Ofrecemos servicio de empaques a clientes institucionales y grandes cadenas de supermercados para sus marcas privadas, apegados a altos estándares internacionales.</p>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <figure><img src="../images/logo.png" alt="#" /></figure>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="text-center border-top border-secondary pt-3 mt-4 small text-muted">
+                © 2025 Empaques Múltiples SRL. Todos los derechos reservados.
+            </div>
+        </div>
+    </footer>
+      <script src="../js/jquery.min.js"></script>
+      <script src="../js/popper.min.js"></script>
+      <script src="../js/bootstrap.bundle.min.js"></script>
+      <script src="../js/jquery-3.0.0.min.js"></script>
+      <script src="../js/jquery.mCustomScrollbar.concat.min.js"></script>
+      <script src="../js/custom.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.js"></script>
+      <!-- Script robusto para ordenar noticias -->
+      <script>
+(function() {
+   function parseSpanishDate(str) {
+      str = str.trim().toLowerCase();
+      str = str.replace(/\./g, '').replace(/del?/g, '').replace(/de/g, '').replace(/\s+/g, ' ').trim();
+      var meses = [
+         'enero','febrero','marzo','abril','mayo','junio','julio',
+         'agosto','septiembre','octubre','noviembre','diciembre'
+      ];
+      var partes = str.match(/(\d{1,2}) ([a-záéíóú]+) (\d{4})/i);
+      if(!partes) return null;
+      var dia = parseInt(partes[1]);
+      var mes = meses.indexOf(partes[2].normalize("NFD").replace(/[\u0300-\u036f]/g, ""));
+      var anio = parseInt(partes[3]);
+      if(mes === -1) return null;
+      return new Date(anio, mes, dia);
+   }
+
+   function animateNews(cards, $newsGrid) {
+      // Quita todas las tarjetas del DOM y les aplica la clase de fade
+      $(cards).each(function() {
+         $(this).addClass('news-fade').removeClass('news-fade-in');
+      });
+      // Elimina todas del grid
+      $newsGrid.children('.col-lg-4.col-md-6.mb-4').detach();
+      // Las vuelve a insertar en el orden correcto
+      $(cards).each(function(i) {
+         $newsGrid.append(this);
+         // Trigger reflow para animación (hack)
+         void this.offsetWidth;
+         setTimeout(() => {
+           $(this).addClass('news-fade-in');
+         }, 30 + i * 80); // Efecto cascada
+      });
+   }
+
+   $('#orderSelect').on('change', function() {
+      var order = $(this).val();
+      var $newsGrid = $('#newsGrid');
+      var $cards = $newsGrid.children('.col-lg-4.col-md-6.mb-4').get();
+
+      $cards.sort(function(a, b) {
+         function getFecha($card) {
+            var $fecha = $card.find('.news_date');
+            if (!$fecha.length) {
+               $fecha = $card.find('p').filter(function(){ return /\d{4}/.test($(this).text()); }).first();
+            }
+            var txt = $fecha.text();
+            var d = parseSpanishDate(txt);
+            if (!d) {
+               $card.css('border','2px solid red');
+               return new Date(0);
+            } else {
+               $card.css('border','');
+            }
+            return d;
+         }
+         var dateA = getFecha($(a));
+         var dateB = getFecha($(b));
+         return order === 'desc' ? dateB - dateA : dateA - dateB;
+      });
+
+      animateNews($cards, $newsGrid);
+   });
+
+   // Trigger sort on load, con animación también
+   $(document).ready(function() {
+      $('#orderSelect').trigger('change');
+   });
+})();
+      </script>
+   </body>
+</html>
