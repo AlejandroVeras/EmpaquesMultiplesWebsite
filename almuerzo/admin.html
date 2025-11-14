@@ -247,43 +247,51 @@
             </div>
         </div>
 
-        <!-- Eliminar Usuarios -->
-        <div class="card fade-in mt-4 border-danger">
-            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+        <!-- Lista de Usuarios Registrados -->
+        <div class="card fade-in mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
                 <span>
-                    <i class="fas fa-user-times"></i> Eliminar Usuarios
+                    <i class="fas fa-users"></i> Usuarios Registrados
                 </span>
-                <button class="btn btn-sm btn-outline-light" onclick="cargarListaUsuarios()">
+                <button class="btn btn-sm btn-outline-primary" onclick="cargarListaUsuarios()">
                     <i class="fas fa-sync-alt"></i> Actualizar Lista
                 </button>
             </div>
             <div class="card-body">
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle"></i> <strong>Advertencia:</strong> Esta acción eliminará permanentemente el usuario del sistema. Esta acción no se puede deshacer.
-                </div>
                 <div class="mb-3">
-                    <input 
-                        type="text" 
-                        class="form-control" 
-                        id="buscarUsuarioEliminar" 
-                        placeholder="Buscar usuario por nombre o username..."
-                        onkeyup="filtrarUsuariosEliminar()"
-                    >
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="buscarUsuario" 
+                            placeholder="Buscar por nombre o username..."
+                            onkeyup="filtrarUsuarios()"
+                        >
+                    </div>
                 </div>
                 <div id="loadingUsuarios" class="text-center py-4">
                     <div class="loader"></div>
                     <p class="text-muted">Cargando usuarios...</p>
                 </div>
                 <div id="usuariosContainer" style="display: none;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <span class="badge bg-primary" id="totalUsuarios">0 usuarios</span>
+                        </div>
+                        <div class="text-muted small" id="usuariosFiltradosInfo"></div>
+                    </div>
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Nombre</th>
+                                    <th>Nombre Completo</th>
                                     <th>Usuario</th>
                                     <th>Rol</th>
-                                    <th>Acciones</th>
+                                    <th>Estado</th>
                                 </tr>
                             </thead>
                             <tbody id="usuariosTableBody">
@@ -291,13 +299,12 @@
                             </tbody>
                         </table>
                     </div>
-                    <div id="emptyUsuarios" class="empty-state text-center py-4" style="display: none;">
-                        <i class="fas fa-users-slash fa-3x text-muted mb-3"></i>
-                        <h5>No se encontraron usuarios</h5>
-                        <p class="text-muted">No hay usuarios registrados en el sistema.</p>
-                    </div>
                 </div>
-                <div id="eliminarUsuarioStatus" class="mt-3"></div>
+                <div id="emptyUsuarios" class="empty-state text-center py-4" style="display: none;">
+                    <i class="fas fa-users-slash fa-3x text-muted mb-3"></i>
+                    <h5>No se encontraron usuarios</h5>
+                    <p class="text-muted">No hay usuarios registrados en el sistema o no hay resultados para tu búsqueda.</p>
+                </div>
             </div>
         </div>
 
@@ -987,7 +994,7 @@
         }
 
         // =====================
-        // Eliminar Usuarios (admin)
+        // Lista de Usuarios Registrados (admin)
         // =====================
         let todosUsuarios = [];
         let usuariosFiltrados = [];
@@ -1037,7 +1044,6 @@
                 console.error('Error al cargar usuarios:', error);
                 loadingUsuarios.style.display = 'none';
                 emptyUsuarios.style.display = 'block';
-                setEliminarUsuarioStatus('Error al cargar la lista de usuarios', 'danger');
             });
         }
 
@@ -1046,10 +1052,15 @@
             const usuariosContainer = document.getElementById('usuariosContainer');
             const emptyUsuarios = document.getElementById('emptyUsuarios');
             const usuariosTableBody = document.getElementById('usuariosTableBody');
+            const totalUsuarios = document.getElementById('totalUsuarios');
+            const usuariosFiltradosInfo = document.getElementById('usuariosFiltradosInfo');
             const currentUser = auth.currentUser;
 
             loadingUsuarios.style.display = 'none';
 
+            // Actualizar contadores
+            totalUsuarios.textContent = `${todosUsuarios.length} usuario${todosUsuarios.length !== 1 ? 's' : ''}`;
+            
             if (usuarios.length === 0) {
                 usuariosContainer.style.display = 'none';
                 emptyUsuarios.style.display = 'block';
@@ -1057,27 +1068,40 @@
                 usuariosContainer.style.display = 'block';
                 emptyUsuarios.style.display = 'none';
 
+                // Mostrar info de filtrado
+                if (usuarios.length < todosUsuarios.length) {
+                    usuariosFiltradosInfo.textContent = `Mostrando ${usuarios.length} de ${todosUsuarios.length} usuarios`;
+                } else {
+                    usuariosFiltradosInfo.textContent = '';
+                }
+
                 usuariosTableBody.innerHTML = '';
                 usuarios.forEach((usuario, index) => {
                     const row = document.createElement('tr');
                     const esUsuarioActual = currentUser && currentUser.uid === usuario.uid;
                     const esAdmin = usuario.rol === 'admin';
                     
+                    // Alternar colores de fila
+                    if (index % 2 === 0) {
+                        row.style.backgroundColor = '#f8f9fa';
+                    }
+                    
                     row.innerHTML = `
                         <td>${index + 1}</td>
-                        <td>${usuario.nombre}</td>
-                        <td><code>${usuario.username}</code></td>
+                        <td>
+                            <strong>${usuario.nombre}</strong>
+                            ${esUsuarioActual ? '<span class="badge bg-info ms-2">Tú</span>' : ''}
+                        </td>
+                        <td><code class="text-primary">${usuario.username}</code></td>
                         <td>
                             <span class="badge ${esAdmin ? 'bg-danger' : 'bg-secondary'}">
-                                ${esAdmin ? 'Administrador' : 'Usuario'}
+                                <i class="fas ${esAdmin ? 'fa-user-shield' : 'fa-user'}"></i> ${esAdmin ? 'Administrador' : 'Usuario'}
                             </span>
                         </td>
                         <td>
                             ${esUsuarioActual ? 
-                                '<span class="text-muted"><i class="fas fa-info-circle"></i> Usuario actual</span>' :
-                                `<button class="btn btn-sm btn-danger" onclick="confirmarEliminarUsuario('${usuario.username.replace(/'/g, "\\'")}', '${usuario.uid}', '${usuario.nombre.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">
-                                    <i class="fas fa-trash"></i> Eliminar
-                                </button>`
+                                '<span class="badge bg-success"><i class="fas fa-check-circle"></i> Activo</span>' :
+                                '<span class="badge bg-secondary"><i class="fas fa-user"></i> Registrado</span>'
                             }
                         </td>
                     `;
@@ -1086,86 +1110,19 @@
             }
         }
 
-        function filtrarUsuariosEliminar() {
-            const searchValue = document.getElementById('buscarUsuarioEliminar').value.toLowerCase();
-            usuariosFiltrados = todosUsuarios.filter(usuario => 
-                usuario.nombre.toLowerCase().includes(searchValue) ||
-                usuario.username.toLowerCase().includes(searchValue)
-            );
-            mostrarUsuarios(usuariosFiltrados);
-        }
-
-        function confirmarEliminarUsuario(username, uid, nombre) {
-            if (!confirm(`¿Estás seguro de que deseas eliminar al usuario "${nombre}" (${username})?\n\nEsta acción eliminará:\n- El usuario de la base de datos\n- El usuario de Firebase Authentication\n- Todos los datos asociados\n\nEsta acción NO se puede deshacer.`)) {
-                return;
-            }
-
-            eliminarUsuario(username, uid, nombre);
-        }
-
-        function setEliminarUsuarioStatus(message, type = 'muted') {
-            const el = document.getElementById('eliminarUsuarioStatus');
-            el.className = type === 'success' ? 'alert alert-success' : type === 'danger' ? 'alert alert-danger' : 'alert alert-info';
-            el.innerHTML = message;
-            if (type !== 'muted') {
-                setTimeout(() => {
-                    el.innerHTML = '';
-                    el.className = '';
-                }, 5000);
-            }
-        }
-
-        async function eliminarUsuario(username, uid, nombre) {
-            setEliminarUsuarioStatus(`Eliminando usuario "${nombre}"...`, 'info');
-
-            try {
-                // 1. Eliminar de la base de datos
-                const updates = {};
-                updates[`usernames/${username}`] = null;
-                updates[`roles/${uid}`] = null;
-                updates[`perfiles/${uid}`] = null;
-
-                await database.ref().update(updates);
-
-                // 2. Intentar eliminar de Firebase Auth usando la app secundaria
-                // Nota: Esto requiere autenticarse como el usuario o usar Admin SDK
-                // Por ahora, solo eliminamos de la base de datos
-                // El usuario deberá eliminarse manualmente de Firebase Console si es necesario
-                
-                try {
-                    // Intentar obtener el email del usuario desde Auth
-                    const email = construirEmail(username);
-                    
-                    // Nota: No podemos eliminar usuarios de Auth directamente desde el cliente
-                    // sin autenticarnos como ese usuario. Esto es una limitación de seguridad.
-                    // El usuario quedará en Auth pero sin acceso al sistema.
-                    
-                    setEliminarUsuarioStatus(
-                        `✓ Usuario "${nombre}" eliminado de la base de datos exitosamente.<br>` +
-                        `<small>Nota: Si el usuario aún existe en Firebase Authentication, deberás eliminarlo manualmente desde Firebase Console.</small>`,
-                        'success'
-                    );
-                } catch (authError) {
-                    // Si falla la eliminación de Auth, aún así reportamos éxito en DB
-                    setEliminarUsuarioStatus(
-                        `✓ Usuario "${nombre}" eliminado de la base de datos.<br>` +
-                        `<small class="text-warning">Advertencia: No se pudo eliminar de Firebase Auth. Elimínalo manualmente desde Firebase Console.</small>`,
-                        'success'
-                    );
-                }
-
-                // Recargar lista
-                setTimeout(() => {
-                    cargarListaUsuarios();
-                }, 1000);
-
-            } catch (error) {
-                console.error('Error al eliminar usuario:', error);
-                setEliminarUsuarioStatus(
-                    `Error al eliminar usuario: ${error.message || 'Error desconocido'}`,
-                    'danger'
+        function filtrarUsuarios() {
+            const searchValue = document.getElementById('buscarUsuario').value.toLowerCase().trim();
+            
+            if (searchValue === '') {
+                usuariosFiltrados = [...todosUsuarios];
+            } else {
+                usuariosFiltrados = todosUsuarios.filter(usuario => 
+                    usuario.nombre.toLowerCase().includes(searchValue) ||
+                    usuario.username.toLowerCase().includes(searchValue)
                 );
             }
+            
+            mostrarUsuarios(usuariosFiltrados);
         }
     </script>
 </body>
