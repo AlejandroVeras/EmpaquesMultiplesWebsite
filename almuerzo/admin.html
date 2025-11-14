@@ -191,6 +191,62 @@
             </div>
         </div>
 
+        <!-- Carga Masiva de Usuarios desde Excel (TEMPORAL) -->
+        <div class="card fade-in mt-4 border-warning">
+            <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="fas fa-file-excel"></i> Carga Masiva de Usuarios desde Excel <span class="badge bg-danger">TEMPORAL</span>
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> <strong>Formato requerido:</strong> El archivo Excel debe tener las columnas: <code>Empleado</code>, <code>Usuario</code>, <code>Contraseña</code> (en ese orden). La primera fila debe contener los encabezados.
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label">
+                            <i class="fas fa-file-upload"></i> Seleccionar archivo Excel (.xlsx o .xls)
+                        </label>
+                        <input type="file" id="excelFileInput" class="form-control" accept=".xlsx,.xls" onchange="previewExcelFile(event)">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">
+                            <i class="fas fa-user-tag"></i> Rol para usuarios nuevos
+                        </label>
+                        <select id="rolMasivo" class="form-select">
+                            <option value="usuario" selected>Usuario</option>
+                            <option value="admin">Administrador</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="excelPreview" class="mt-3" style="display: none;">
+                    <h6>Vista previa (primeras 5 filas):</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead id="excelPreviewHead"></thead>
+                            <tbody id="excelPreviewBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="d-flex gap-2 mt-3">
+                    <button class="btn btn-primary" id="btnCrearUsuarios" onclick="crearUsuariosDesdeExcel()" disabled>
+                        <i class="fas fa-users"></i> Crear Usuarios desde Excel
+                    </button>
+                    <div id="bulkUsuarioStatus" class="text-muted"></div>
+                </div>
+                <div id="bulkProgress" class="mt-3" style="display: none;">
+                    <div class="progress">
+                        <div id="bulkProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <div id="bulkProgressText" class="mt-2 text-muted"></div>
+                </div>
+                <div id="bulkResults" class="mt-3" style="display: none;">
+                    <h6>Resultados:</h6>
+                    <div id="bulkResultsContent"></div>
+                </div>
+            </div>
+        </div>
+
         <!-- Tabla de Asistencias -->
         <div class="card fade-in">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -253,6 +309,9 @@
     
     <!-- ExcelJS para exportación a Excel con logo (CAMBIADO DE SheetJS) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    
+    <!-- SheetJS para lectura de archivos Excel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
     <!-- Custom Scripts -->
     <script src="js/firebase-config.js"></script>
@@ -606,6 +665,270 @@
             const fecha = new Date(fechaString + 'T00:00:00');
             const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
             return fecha.toLocaleDateString('es-ES', opciones);
+        }
+
+        // =====================
+        // Carga Masiva de Usuarios desde Excel (TEMPORAL)
+        // =====================
+        let excelData = null;
+
+        function previewExcelFile(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                excelData = null;
+                document.getElementById('excelPreview').style.display = 'none';
+                document.getElementById('btnCrearUsuarios').disabled = true;
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+                    if (jsonData.length < 2) {
+                        alert('El archivo Excel debe tener al menos una fila de encabezados y una fila de datos.');
+                        excelData = null;
+                        document.getElementById('excelPreview').style.display = 'none';
+                        document.getElementById('btnCrearUsuarios').disabled = true;
+                        return;
+                    }
+
+                    // Verificar y mapear encabezados (flexible con variaciones)
+                    const headers = jsonData[0].map(h => String(h || '').trim().toLowerCase());
+                    
+                    // Buscar índices de columnas (flexible)
+                    const empleadoIdx = headers.findIndex(h => h.includes('empleado') || h.includes('nombre'));
+                    const usuarioIdx = headers.findIndex(h => h.includes('usuario') || h.includes('username'));
+                    const contraseñaIdx = headers.findIndex(h => 
+                        h.includes('contraseña') || h.includes('contrasena') || h.includes('password') || h.includes('pass')
+                    );
+
+                    if (empleadoIdx === -1 || usuarioIdx === -1 || contraseñaIdx === -1) {
+                        alert('El archivo Excel debe tener las columnas: Empleado (o Nombre), Usuario, Contraseña. Verifica los encabezados.');
+                        excelData = null;
+                        document.getElementById('excelPreview').style.display = 'none';
+                        document.getElementById('btnCrearUsuarios').disabled = true;
+                        return;
+                    }
+
+                    // Procesar datos (saltar encabezados)
+                    excelData = jsonData.slice(1)
+                        .filter(row => row && row.length > 0 && row[empleadoIdx] && row[usuarioIdx] && row[contraseñaIdx])
+                        .map(row => ({
+                            empleado: String(row[empleadoIdx] || '').trim(),
+                            usuario: String(row[usuarioIdx] || '').trim().toLowerCase(),
+                            contraseña: String(row[contraseñaIdx] || '').trim()
+                        }))
+                        .filter(row => row.empleado && row.usuario && row.contraseña);
+
+                    if (excelData.length === 0) {
+                        alert('No se encontraron filas válidas en el archivo Excel.');
+                        excelData = null;
+                        document.getElementById('excelPreview').style.display = 'none';
+                        document.getElementById('btnCrearUsuarios').disabled = true;
+                        return;
+                    }
+
+                    // Mostrar vista previa
+                    mostrarVistaPreviaExcel(excelData);
+                    document.getElementById('btnCrearUsuarios').disabled = false;
+                    setBulkUsuarioStatus(`Archivo cargado: ${excelData.length} usuario(s) encontrado(s)`, 'success');
+                } catch (error) {
+                    console.error('Error al leer el archivo Excel:', error);
+                    alert('Error al leer el archivo Excel. Asegúrate de que sea un archivo válido.');
+                    excelData = null;
+                    document.getElementById('excelPreview').style.display = 'none';
+                    document.getElementById('btnCrearUsuarios').disabled = true;
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function mostrarVistaPreviaExcel(data) {
+            const previewHead = document.getElementById('excelPreviewHead');
+            const previewBody = document.getElementById('excelPreviewBody');
+            
+            previewHead.innerHTML = '<tr><th>Empleado</th><th>Usuario</th><th>Contraseña</th></tr>';
+            previewBody.innerHTML = '';
+
+            const previewRows = data.slice(0, 5);
+            previewRows.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.empleado}</td>
+                    <td>${row.usuario}</td>
+                    <td>${'*'.repeat(row.contraseña.length)}</td>
+                `;
+                previewBody.appendChild(tr);
+            });
+
+            if (data.length > 5) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="3" class="text-center text-muted">... y ${data.length - 5} más</td>`;
+                previewBody.appendChild(tr);
+            }
+
+            document.getElementById('excelPreview').style.display = 'block';
+        }
+
+        function setBulkUsuarioStatus(message, type = 'muted') {
+            const el = document.getElementById('bulkUsuarioStatus');
+            el.className = type === 'success' ? 'text-success' : type === 'danger' ? 'text-danger' : 'text-muted';
+            el.textContent = message;
+        }
+
+        async function crearUsuariosDesdeExcel() {
+            if (!excelData || excelData.length === 0) {
+                setBulkUsuarioStatus('No hay datos para procesar', 'danger');
+                return;
+            }
+
+            const rol = document.getElementById('rolMasivo').value;
+            const total = excelData.length;
+            let exitosos = 0;
+            let fallidos = 0;
+            const errores = [];
+
+            // Deshabilitar botón y mostrar progreso
+            document.getElementById('btnCrearUsuarios').disabled = true;
+            document.getElementById('bulkProgress').style.display = 'block';
+            document.getElementById('bulkResults').style.display = 'none';
+            setBulkUsuarioStatus('Iniciando creación de usuarios...', 'muted');
+
+            // Procesar usuarios uno por uno con delay para evitar rate limiting
+            for (let i = 0; i < excelData.length; i++) {
+                const usuario = excelData[i];
+                const progress = Math.round(((i + 1) / total) * 100);
+                
+                document.getElementById('bulkProgressBar').style.width = progress + '%';
+                document.getElementById('bulkProgressText').textContent = 
+                    `Procesando ${i + 1} de ${total}: ${usuario.empleado}...`;
+
+                try {
+                    await crearUsuarioIndividual(
+                        usuario.usuario,
+                        usuario.empleado,
+                        usuario.contraseña,
+                        rol
+                    );
+                    exitosos++;
+                } catch (error) {
+                    fallidos++;
+                    errores.push({
+                        empleado: usuario.empleado,
+                        usuario: usuario.usuario,
+                        error: error.message || 'Error desconocido'
+                    });
+                }
+
+                // Pequeño delay para evitar sobrecargar Firebase
+                if (i < excelData.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+            }
+
+            // Mostrar resultados
+            document.getElementById('bulkProgress').style.display = 'none';
+            document.getElementById('bulkResults').style.display = 'block';
+            
+            const resultsContent = document.getElementById('bulkResultsContent');
+            resultsContent.innerHTML = `
+                <div class="alert alert-success">
+                    <strong>✓ Exitosos:</strong> ${exitosos} usuario(s) creado(s)
+                </div>
+                ${fallidos > 0 ? `
+                    <div class="alert alert-danger">
+                        <strong>✗ Fallidos:</strong> ${fallidos} usuario(s)
+                    </div>
+                    <details class="mt-2">
+                        <summary class="btn btn-sm btn-outline-danger">Ver detalles de errores</summary>
+                        <div class="mt-2">
+                            <table class="table table-sm table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Empleado</th>
+                                        <th>Usuario</th>
+                                        <th>Error</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${errores.map(e => `
+                                        <tr>
+                                            <td>${e.empleado}</td>
+                                            <td>${e.usuario}</td>
+                                            <td class="text-danger">${e.error}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                            </table>
+                        </div>
+                    </details>
+                ` : ''}
+            `;
+
+            if (exitosos > 0) {
+                setBulkUsuarioStatus(`✓ ${exitosos} usuario(s) creado(s) exitosamente`, 'success');
+            }
+            if (fallidos > 0) {
+                setBulkUsuarioStatus(`⚠ ${exitosos} exitosos, ${fallidos} fallidos`, 'danger');
+            }
+
+            // Habilitar botón nuevamente
+            document.getElementById('btnCrearUsuarios').disabled = false;
+        }
+
+        function crearUsuarioIndividual(usuario, nombre, contraseña, rol) {
+            return new Promise((resolve, reject) => {
+                // Validar campos
+                const err = validarCamposUsuario(usuario, nombre, contraseña);
+                if (err) {
+                    reject(new Error(err));
+                    return;
+                }
+
+                // Verificar que el username no exista
+                database.ref('usernames/' + usuario).once('value')
+                    .then((snap) => {
+                        if (snap.exists()) {
+                            throw new Error('El usuario ya existe');
+                        }
+                        // Crear en Auth usando app secundaria
+                        const email = construirEmail(usuario);
+                        return secondaryAuth.createUserWithEmailAndPassword(email, contraseña)
+                            .then((cred) => {
+                                const uid = cred.user.uid;
+                                // Asignar displayName
+                                return cred.user.updateProfile({ displayName: nombre })
+                                    .then(() => ({ uid }));
+                            });
+                    })
+                    .then(({ uid }) => {
+                        // Guardar mapeos en DB
+                        const updates = {};
+                        updates['usernames/' + usuario] = uid;
+                        updates['roles/' + uid] = rol;
+                        updates['perfiles/' + uid] = { username: usuario, nombre: nombre };
+                        return database.ref().update(updates)
+                            .then(() => uid)
+                            .catch((err) => {
+                                throw new Error('Error al guardar en la base de datos: ' + (err && err.message ? err.message : 'permiso denegado'));
+                            });
+                    })
+                    .then((uid) => {
+                        // Cerrar sesión del secundario
+                        return secondaryAuth.signOut().catch(() => {}).then(() => uid);
+                    })
+                    .then(() => {
+                        resolve();
+                    })
+                    .catch((e) => {
+                        reject(e);
+                    });
+            });
         }
     </script>
 </body>
