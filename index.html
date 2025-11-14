@@ -983,11 +983,22 @@ polvo, avena, harinas, cereales, granería en general (arroz, frijoles, azúcar)
         </div>
     </footer>
     <!-- Scripts optimizados con defer/async -->
-    <!-- jQuery - solo una versión (3.0.0) -->
-    <script src="js/jquery-3.0.0.min.js" defer></script>
+    <!-- jQuery - solo una versión (3.0.0) - sin defer para que esté disponible inmediatamente -->
+    <script src="js/jquery-3.0.0.min.js"></script>
     <script src="js/bootstrap.bundle.min.js" defer></script>
     <script src="js/jquery.mCustomScrollbar.concat.min.js" defer></script>
     <script src="js/custom.js" defer></script>
+    
+    <!-- Fallback para ocultar loader si jQuery falla -->
+    <script>
+        // Fallback: ocultar loader después de 3 segundos si jQuery no lo hace
+        setTimeout(function() {
+            var loader = document.querySelector('.loader_bg');
+            if (loader && loader.style.display !== 'none') {
+                loader.style.display = 'none';
+            }
+        }, 3000);
+    </script>
 
     <!-- Scripts inline optimizados -->
     <script>
