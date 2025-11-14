@@ -1,0 +1,16 @@
+# Archivos grandes que no son necesarios para el deploy
+videos/HARINA.mp4
+videos/HARINA.webm
+*.md
+!README.md
+
+# Archivos de desarrollo
+node_modules
+.git
+.env
+.env.local
+
+# Archivos de backup
+*-backup.html
+almuerzo-backup.html
+
