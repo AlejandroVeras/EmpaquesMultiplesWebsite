@@ -78,5 +78,34 @@
       "destination": "/politicas-seguridad-alimentaria",
       "permanent": true
     }
+  ],
+  "headers": [
+    {
+      "source": "/(.*\\.(js|css|jpg|jpeg|png|gif|svg|webp|woff|woff2|ttf|eot|ico))",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.(html))",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/images/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
   ]
 }

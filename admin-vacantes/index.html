@@ -1,14 +1,14 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
    <head>
       <!-- basic -->
       <meta charset="utf-8">
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
       <!-- mobile metas -->
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+      
       <!-- site metas -->
-      <title>Administración de Vacantes - Empaques Múltiples</title>
+      <title>AdministraciÃ³n de Vacantes - Empaques MÃºltiples</title>
       <meta name="keywords" content="">
       <meta name="description" content="">
       <meta name="author" content="">
@@ -23,7 +23,7 @@
       <!-- Scrollbar Custom CSS -->
       <link rel="stylesheet" href="../css/jquery.mCustomScrollbar.min.css">
       <!-- Tweaks for older IEs-->
-      <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+      
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css" media="screen">
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
       <!--[if lt IE 9]>
@@ -73,7 +73,7 @@
             <div class="row align-items-center">
                <div class="col-md-3 col-sm-3 logo_section">
                   <div class="logo">
-                     <a href="../"><img src="../images/logo.png" alt="Logo Empaques Múltiples" /></a>
+                     <a href="../"><img src="../images/logo.png" alt="Logo Empaques MÃºltiples" /></a>
                   </div>
                </div>
                <div class="col-md-9">
@@ -88,7 +88,7 @@
                               <a class="nav-link dropdown-toggle" href="../about/" id="nosotrosDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Nosotros</a>
                               <div class="dropdown-menu" aria-labelledby="nosotrosDropdown">
                                  <a class="dropdown-item" href="../about/">Sobre Nosotros</a>
-                                 <a class="dropdown-item" href="../politicas-seguridad-alimentaria/">Políticas de Seguridad Alimentaria</a>
+                                 <a class="dropdown-item" href="../politicas-seguridad-alimentaria/">PolÃ­ticas de Seguridad Alimentaria</a>
                               </div>
                            </li>
                            <li class="nav-item"><a class="nav-link" href="../gallery/">Noticias</a></li>
@@ -111,14 +111,14 @@
    </header>
     <!-- end header inner -->
 
-    <!-- Panel de Administración de Vacantes -->
+    <!-- Panel de AdministraciÃ³n de Vacantes -->
     <div class="admin-page-section">
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
                     <div class="admin-page-header">
-                        <h1>Panel de Administración de Vacantes</h1>
-                        <p>Gestiona las vacantes disponibles en Empaques Múltiples</p>
+                        <h1>Panel de AdministraciÃ³n de Vacantes</h1>
+                        <p>Gestiona las vacantes disponibles en Empaques MÃºltiples</p>
                         <a href="../empleo/" class="btn-volver">
                             <i class="fas fa-arrow-left"></i> Volver a Empleos
                         </a>
@@ -134,12 +134,12 @@
                             <i class="fas fa-lock"></i>
                         </div>
                         <h3>Acceso de RRHH</h3>
-                        <p class="login-subtitle">Ingrese su contraseña para acceder al panel de administración</p>
-                        <input type="password" id="adminPassword" class="contactus" placeholder="Contraseña" required onkeypress="if(event.key === 'Enter') loginAdmin()">
+                        <p class="login-subtitle">Ingrese su contraseÃ±a para acceder al panel de administraciÃ³n</p>
+                        <input type="password" id="adminPassword" class="contactus" placeholder="ContraseÃ±a" required onkeypress="if(event.key === 'Enter') loginAdmin()">
                         <button class="send_btn" onclick="loginAdmin()">
                             <i class="fas fa-sign-in-alt"></i> Ingresar
                         </button>
-                        <p style="margin-top: 15px; font-size: 12px; color: #666;">Presione Enter para iniciar sesión</p>
+                        <p style="margin-top: 15px; font-size: 12px; color: #666;">Presione Enter para iniciar sesiÃ³n</p>
                     </div>
                 </div>
             </div>
@@ -156,7 +156,7 @@
                             <i class="fas fa-plus"></i> Agregar Nueva Vacante
                         </button>
                         <button class="btn-logout" onclick="logoutAdmin()">
-                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                            <i class="fas fa-sign-out-alt"></i> Cerrar SesiÃ³n
                         </button>
                     </div>
                 </div>
@@ -197,7 +197,7 @@
             </div>
         </div>
     </div>
-    <!-- end Panel de Administración -->
+    <!-- end Panel de AdministraciÃ³n -->
 
     <!-- Modal para Agregar/Editar Vacante -->
     <div id="vacanteModal" class="modal-vacante" style="display: none;">
@@ -212,7 +212,7 @@
                 <form id="vacanteForm">
                     <input type="hidden" id="vacanteId">
                     <div class="form-group">
-                        <label>Título del Puesto *</label>
+                        <label>TÃ­tulo del Puesto *</label>
                         <input type="text" id="vacanteTitulo" class="contactus" required>
                     </div>
                     <div class="form-group">
@@ -220,15 +220,15 @@
                         <input type="text" id="vacanteDepartamento" class="contactus" required>
                     </div>
                     <div class="form-group">
-                        <label>Descripción *</label>
+                        <label>DescripciÃ³n *</label>
                         <textarea id="vacanteDescripcion" class="textarea" rows="5" required></textarea>
                     </div>
                     <div class="form-group">
                         <label>Requisitos *</label>
-                        <textarea id="vacanteRequisitos" class="textarea" rows="4" required placeholder="Ingrese cada requisito en una línea nueva. Puede comenzar con '•' para mejor formato."></textarea>
+                        <textarea id="vacanteRequisitos" class="textarea" rows="4" required placeholder="Ingrese cada requisito en una lÃ­nea nueva. Puede comenzar con 'â€¢' para mejor formato."></textarea>
                     </div>
                     <div class="form-group">
-                        <label>Ubicación *</label>
+                        <label>UbicaciÃ³n *</label>
                         <input type="text" id="vacanteUbicacion" class="contactus" required>
                     </div>
                     <div class="form-group">
@@ -275,7 +275,7 @@
                 </div>
 
                 <div class="col-md-3 mb-4">
-                    <h5 class="mb-3">Navegación</h5>
+                    <h5 class="mb-3">NavegaciÃ³n</h5>
                     <ul class="list-unstyled">
                         <li><a href="../" class="text-white text-decoration-none">Inicio</a></li>
                         <li><a href="../about/" class="text-white text-decoration-none">Nosotros</a></li>
@@ -287,8 +287,8 @@
                 </div>
 
                 <div class="col-md-3 mb-4">
-                    <h5 class="mb-3">¿En qué podemos ayudarte?</h5>
-                    <p class="text-white fs-5">Ofrecemos servicio de empaques a clientes institucionales y grandes cadenas de supermercados para sus marcas privadas, apegados a altos estándares internacionales.</p>
+                    <h5 class="mb-3">Â¿En quÃ© podemos ayudarte?</h5>
+                    <p class="text-white fs-5">Ofrecemos servicio de empaques a clientes institucionales y grandes cadenas de supermercados para sus marcas privadas, apegados a altos estÃ¡ndares internacionales.</p>
                 </div>
 
                 <div class="col-md-3 mb-4">
@@ -298,19 +298,19 @@
             </div>
 
             <div class="text-center border-top border-secondary pt-3 mt-4 small text-muted">
-                © 2025 Empaques Múltiples SRL. Todos los derechos reservados.
+                Â© 2025 Empaques MÃºltiples SRL. Todos los derechos reservados.
             </div>
         </div>
     </footer>
       <!-- end footer -->
 
     <!-- Javascript files-->
-    <script src="../js/jquery.min.js"></script>
-    <script src="../js/bootstrap.bundle.min.js"></script>
-    <script src="../js/jquery-3.0.0.min.js"></script>
+    
+    <script src="../js/bootstrap defer.bundle.min.js"></script>
+    <script src="../js/jquery-3.0.0.min.js" defer></script>
     <!-- sidebar -->
-    <script src="../js/jquery.mCustomScrollbar.concat.min.js"></script>
-    <script src="../js/custom.js"></script>
+    <script src="../js/jquery.mCustomScrollbar defer.concat.min.js"></script>
+    <script src="../js/custom.js" defer></script>
     <!-- Vacantes Script -->
     <script src="../js/vacantes.js"></script>
     <script src="../js/vacantes-admin.js"></script>

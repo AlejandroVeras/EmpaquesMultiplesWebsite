@@ -1,17 +1,27 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
    <head>
       <!-- basic -->
       <meta charset="utf-8">
       <meta http-equiv="X-UA-Compatible" content="IE=edge">
       <!-- mobile metas -->
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
       <!-- site metas -->
       <title>Sobre Nosotros - Empaques Múltiples</title>
-      <meta name="keywords" content="">
-      <meta name="description" content="">
-      <meta name="author" content="">
+      <meta name="keywords" content="empaques múltiples, sobre nosotros, historia, misión, visión, valores">
+      <meta name="description" content="Conoce más sobre Empaques Múltiples, nuestra historia, misión, visión y valores. Más de 25 años de experiencia en la industria láctea.">
+      <meta name="author" content="Empaques Múltiples">
+      
+      <!-- Preconnect to external domains for faster loading -->
+      <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
+      <link rel="preconnect" href="https://netdna.bootstrapcdn.com" crossorigin>
+      <link rel="preconnect" href="https://unpkg.com" crossorigin>
+      
+      <!-- Preload critical resources -->
+      <link rel="preload" href="../css/bootstrap.min.css" as="style">
+      <link rel="preload" href="../css/style.css" as="style">
+      <link rel="preload" href="../images/logo.png" as="image">
+      
       <!-- bootstrap css -->
       <link rel="stylesheet" href="../css/bootstrap.min.css">
       <!-- style css -->
@@ -20,18 +30,22 @@
       <link rel="stylesheet" href="../css/responsive.css">
       <!-- fevicon -->
       <link rel="icon" href="../images/logo.png" type="image/x-icon" />
-      <!-- Scrollbar Custom CSS -->
-      <link rel="stylesheet" href="../css/jquery.mCustomScrollbar.min.css">
-      <!-- Tweaks for older IEs-->
-      <link rel="stylesheet"
-         href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
-      <link rel="stylesheet"
-         href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css"
-         media="screen">
-      <link rel="stylesheet"
-         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-         <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"/>
-<link rel="stylesheet" href="../animaciones-modernas.css"/>
+      <!-- Scrollbar Custom CSS - loaded asynchronously -->
+      <link rel="stylesheet" href="../css/jquery.mCustomScrollbar.min.css" media="print" onload="this.media='all'">
+      <noscript><link rel="stylesheet" href="../css/jquery.mCustomScrollbar.min.css"></noscript>
+      
+      <!-- Font Awesome - solo versión 6.4.0 -->
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+      
+      <!-- Fancybox - loaded asynchronously -->
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css" media="print" onload="this.media='all'">
+      <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css"></noscript>
+      
+      <!-- AOS and custom animations - loaded asynchronously -->
+      <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" media="print" onload="this.media='all'">
+      <noscript><link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"></noscript>
+      <link rel="stylesheet" href="../animaciones-modernas.css" media="print" onload="this.media='all'">
+      <noscript><link rel="stylesheet" href="../animaciones-modernas.css"></noscript>
 
       <style>
          /* Mejoras específicas para about page manteniendo el estilo original */
@@ -172,7 +186,7 @@
    <body class="main-layout in_page">
       <!-- loader  -->
       <div class="loader_bg">
-         <div class="loader"><img src="../images/loading.gif" alt="#" /></div>
+          <div class="loader"><img src="../images/loading.gif" alt="#" loading="lazy" /></div>
       </div>
       <!-- end loader -->
       
@@ -209,7 +223,7 @@
             <div class="row align-items-center">
                <div class="col-md-3 col-sm-3 logo_section">
                   <div class="logo">
-                     <a href="../"><img src="../images/logo.png" alt="Logo Empaques Múltiples" /></a>
+                      <a href="../"><img src="../images/logo.png" alt="Logo Empaques Múltiples" loading="eager" fetchpriority="high" /></a>
                   </div>
                </div>
                <div class="col-md-9">
@@ -355,28 +369,28 @@
             <div class="row">
                <div class="col-md-3 col-sm-6">
                   <div class="enhanced-service-box">
-                     <i><img src="../images/lider-avenainstantanea.jpg" alt="#" /></i>
+                      <i><img src="../images/lider-avenainstantanea.jpg" alt="#" loading="lazy" /></i>
                      <h3>Empaque Personalizado</h3>
                      <p>Soluciones de empaques a la medida para clientes institucionales y supermercados.</p>
                   </div>
                </div>
                <div class="col-md-3 col-sm-6">
                   <div class="enhanced-service-box">
-                     <i><img src="../images/calidadcertificada.jpg" alt="#" /></i>
+                      <i><img src="../images/calidadcertificada.jpg" alt="#" loading="lazy" /></i>
                      <h3>Calidad Certificada</h3>
                      <p>Operamos bajo estrictos estándares internacionales para garantizar la excelencia.</p>
                   </div>
                </div>
                <div class="col-md-3 col-sm-6">
                   <div class="enhanced-service-box">
-                     <i><img src="../images/variedadproductos.jpg" alt="#" /></i>
+                      <i><img src="../images/variedadproductos.jpg" alt="#" loading="lazy" /></i>
                      <h3>Variedad de Productos</h3>
                      <p>Productos lácteos, harinas, avenas, cocoa, granola, proteínas lácteas y más.</p>
                   </div>
                </div>
                <div class="col-md-3 col-sm-6">
                   <div class="enhanced-service-box">
-                     <i><img src="../images/inovacion y tecnologia.jpg" alt="#" /></i>
+                      <i><img src="../images/inovacion y tecnologia.jpg" alt="#" loading="lazy" /></i>
                      <h3>Innovación y Tecnología</h3>
                      <p>Implementamos procesos de última generación para optimizar la producción y la calidad.</p>
                   </div>
@@ -418,7 +432,7 @@
                 </div>
 
                 <div class="col-md-3 mb-4">
-                    <figure><img src="../images/logo.png" alt="#" /></figure>
+                     <figure><img src="../images/logo.png" alt="#" loading="lazy" /></figure>
                     </ul>
                 </div>
             </div>
@@ -429,12 +443,12 @@
         </div>
     </footer>
       <!-- Javascript files-->
-      <script src="../js/jquery.min.js"></script>
-      <script src="../js/bootstrap.bundle.min.js"></script>
-      <script src="../js/jquery-3.0.0.min.js"></script>
+      <!-- Scripts optimizados con defer -->
+      <script src="../js/jquery-3.0.0.min.js" defer></script>
+      <script src="../js/bootstrap.bundle.min.js" defer></script>
       <!-- sidebar -->
-      <script src="../js/jquery.mCustomScrollbar.concat.min.js"></script>
-      <script src="../js/custom.js"></script>
+      <script src="../js/jquery.mCustomScrollbar.concat.min.js" defer></script>
+      <script src="../js/custom.js" defer></script>
 
       <script>
          // Smooth animations on scroll
