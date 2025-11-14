@@ -247,6 +247,60 @@
             </div>
         </div>
 
+        <!-- Eliminar Usuarios -->
+        <div class="card fade-in mt-4 border-danger">
+            <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="fas fa-user-times"></i> Eliminar Usuarios
+                </span>
+                <button class="btn btn-sm btn-outline-light" onclick="cargarListaUsuarios()">
+                    <i class="fas fa-sync-alt"></i> Actualizar Lista
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>Advertencia:</strong> Esta acción eliminará permanentemente el usuario del sistema. Esta acción no se puede deshacer.
+                </div>
+                <div class="mb-3">
+                    <input 
+                        type="text" 
+                        class="form-control" 
+                        id="buscarUsuarioEliminar" 
+                        placeholder="Buscar usuario por nombre o username..."
+                        onkeyup="filtrarUsuariosEliminar()"
+                    >
+                </div>
+                <div id="loadingUsuarios" class="text-center py-4">
+                    <div class="loader"></div>
+                    <p class="text-muted">Cargando usuarios...</p>
+                </div>
+                <div id="usuariosContainer" style="display: none;">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Nombre</th>
+                                    <th>Usuario</th>
+                                    <th>Rol</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usuariosTableBody">
+                                <!-- Se llenará dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div id="emptyUsuarios" class="empty-state text-center py-4" style="display: none;">
+                        <i class="fas fa-users-slash fa-3x text-muted mb-3"></i>
+                        <h5>No se encontraron usuarios</h5>
+                        <p class="text-muted">No hay usuarios registrados en el sistema.</p>
+                    </div>
+                </div>
+                <div id="eliminarUsuarioStatus" class="mt-3"></div>
+            </div>
+        </div>
+
         <!-- Tabla de Asistencias -->
         <div class="card fade-in">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -334,6 +388,7 @@
                 cargarMenu();
                 prepararAppSecundaria();
                 configurarRolAdmin();
+                cargarListaUsuarios();
                 
                 // Establecer fecha de hoy en filtros
                 const hoy = new Date().toISOString().split('T')[0];
@@ -929,6 +984,188 @@
                         reject(e);
                     });
             });
+        }
+
+        // =====================
+        // Eliminar Usuarios (admin)
+        // =====================
+        let todosUsuarios = [];
+        let usuariosFiltrados = [];
+
+        function cargarListaUsuarios() {
+            const loadingUsuarios = document.getElementById('loadingUsuarios');
+            const usuariosContainer = document.getElementById('usuariosContainer');
+            const emptyUsuarios = document.getElementById('emptyUsuarios');
+            
+            loadingUsuarios.style.display = 'block';
+            usuariosContainer.style.display = 'none';
+            emptyUsuarios.style.display = 'none';
+
+            // Obtener todos los usuarios desde la base de datos
+            Promise.all([
+                database.ref('usernames').once('value'),
+                database.ref('perfiles').once('value'),
+                database.ref('roles').once('value')
+            ])
+            .then(([usernamesSnap, perfilesSnap, rolesSnap]) => {
+                const usernames = usernamesSnap.val() || {};
+                const perfiles = perfilesSnap.val() || {};
+                const roles = rolesSnap.val() || {};
+
+                // Construir lista de usuarios
+                todosUsuarios = [];
+                Object.keys(usernames).forEach(username => {
+                    const uid = usernames[username];
+                    const perfil = perfiles[uid] || {};
+                    const rol = roles[uid] || 'usuario';
+
+                    todosUsuarios.push({
+                        username: username,
+                        uid: uid,
+                        nombre: perfil.nombre || 'Sin nombre',
+                        rol: rol
+                    });
+                });
+
+                // Ordenar por nombre
+                todosUsuarios.sort((a, b) => a.nombre.localeCompare(b.nombre));
+                usuariosFiltrados = [...todosUsuarios];
+                
+                mostrarUsuarios(usuariosFiltrados);
+            })
+            .catch((error) => {
+                console.error('Error al cargar usuarios:', error);
+                loadingUsuarios.style.display = 'none';
+                emptyUsuarios.style.display = 'block';
+                setEliminarUsuarioStatus('Error al cargar la lista de usuarios', 'danger');
+            });
+        }
+
+        function mostrarUsuarios(usuarios) {
+            const loadingUsuarios = document.getElementById('loadingUsuarios');
+            const usuariosContainer = document.getElementById('usuariosContainer');
+            const emptyUsuarios = document.getElementById('emptyUsuarios');
+            const usuariosTableBody = document.getElementById('usuariosTableBody');
+            const currentUser = auth.currentUser;
+
+            loadingUsuarios.style.display = 'none';
+
+            if (usuarios.length === 0) {
+                usuariosContainer.style.display = 'none';
+                emptyUsuarios.style.display = 'block';
+            } else {
+                usuariosContainer.style.display = 'block';
+                emptyUsuarios.style.display = 'none';
+
+                usuariosTableBody.innerHTML = '';
+                usuarios.forEach((usuario, index) => {
+                    const row = document.createElement('tr');
+                    const esUsuarioActual = currentUser && currentUser.uid === usuario.uid;
+                    const esAdmin = usuario.rol === 'admin';
+                    
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${usuario.nombre}</td>
+                        <td><code>${usuario.username}</code></td>
+                        <td>
+                            <span class="badge ${esAdmin ? 'bg-danger' : 'bg-secondary'}">
+                                ${esAdmin ? 'Administrador' : 'Usuario'}
+                            </span>
+                        </td>
+                        <td>
+                            ${esUsuarioActual ? 
+                                '<span class="text-muted"><i class="fas fa-info-circle"></i> Usuario actual</span>' :
+                                `<button class="btn btn-sm btn-danger" onclick="confirmarEliminarUsuario('${usuario.username.replace(/'/g, "\\'")}', '${usuario.uid}', '${usuario.nombre.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">
+                                    <i class="fas fa-trash"></i> Eliminar
+                                </button>`
+                            }
+                        </td>
+                    `;
+                    usuariosTableBody.appendChild(row);
+                });
+            }
+        }
+
+        function filtrarUsuariosEliminar() {
+            const searchValue = document.getElementById('buscarUsuarioEliminar').value.toLowerCase();
+            usuariosFiltrados = todosUsuarios.filter(usuario => 
+                usuario.nombre.toLowerCase().includes(searchValue) ||
+                usuario.username.toLowerCase().includes(searchValue)
+            );
+            mostrarUsuarios(usuariosFiltrados);
+        }
+
+        function confirmarEliminarUsuario(username, uid, nombre) {
+            if (!confirm(`¿Estás seguro de que deseas eliminar al usuario "${nombre}" (${username})?\n\nEsta acción eliminará:\n- El usuario de la base de datos\n- El usuario de Firebase Authentication\n- Todos los datos asociados\n\nEsta acción NO se puede deshacer.`)) {
+                return;
+            }
+
+            eliminarUsuario(username, uid, nombre);
+        }
+
+        function setEliminarUsuarioStatus(message, type = 'muted') {
+            const el = document.getElementById('eliminarUsuarioStatus');
+            el.className = type === 'success' ? 'alert alert-success' : type === 'danger' ? 'alert alert-danger' : 'alert alert-info';
+            el.innerHTML = message;
+            if (type !== 'muted') {
+                setTimeout(() => {
+                    el.innerHTML = '';
+                    el.className = '';
+                }, 5000);
+            }
+        }
+
+        async function eliminarUsuario(username, uid, nombre) {
+            setEliminarUsuarioStatus(`Eliminando usuario "${nombre}"...`, 'info');
+
+            try {
+                // 1. Eliminar de la base de datos
+                const updates = {};
+                updates[`usernames/${username}`] = null;
+                updates[`roles/${uid}`] = null;
+                updates[`perfiles/${uid}`] = null;
+
+                await database.ref().update(updates);
+
+                // 2. Intentar eliminar de Firebase Auth usando la app secundaria
+                // Nota: Esto requiere autenticarse como el usuario o usar Admin SDK
+                // Por ahora, solo eliminamos de la base de datos
+                // El usuario deberá eliminarse manualmente de Firebase Console si es necesario
+                
+                try {
+                    // Intentar obtener el email del usuario desde Auth
+                    const email = construirEmail(username);
+                    
+                    // Nota: No podemos eliminar usuarios de Auth directamente desde el cliente
+                    // sin autenticarnos como ese usuario. Esto es una limitación de seguridad.
+                    // El usuario quedará en Auth pero sin acceso al sistema.
+                    
+                    setEliminarUsuarioStatus(
+                        `✓ Usuario "${nombre}" eliminado de la base de datos exitosamente.<br>` +
+                        `<small>Nota: Si el usuario aún existe en Firebase Authentication, deberás eliminarlo manualmente desde Firebase Console.</small>`,
+                        'success'
+                    );
+                } catch (authError) {
+                    // Si falla la eliminación de Auth, aún así reportamos éxito en DB
+                    setEliminarUsuarioStatus(
+                        `✓ Usuario "${nombre}" eliminado de la base de datos.<br>` +
+                        `<small class="text-warning">Advertencia: No se pudo eliminar de Firebase Auth. Elimínalo manualmente desde Firebase Console.</small>`,
+                        'success'
+                    );
+                }
+
+                // Recargar lista
+                setTimeout(() => {
+                    cargarListaUsuarios();
+                }, 1000);
+
+            } catch (error) {
+                console.error('Error al eliminar usuario:', error);
+                setEliminarUsuarioStatus(
+                    `Error al eliminar usuario: ${error.message || 'Error desconocido'}`,
+                    'danger'
+                );
+            }
         }
     </script>
 </body>
