@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
-    
-    <title>Marcas Privadas - Empaques MÃºltiples</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <title>Marcas Privadas - Empaques Múltiples</title>
     <meta name="keywords" content="">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -14,24 +14,24 @@
     <link rel="stylesheet" href="../css/responsive.css">
     <link rel="icon" href="../images/logo.png" type="image/x-icon" />
     <link rel="stylesheet" href="../css/jquery.mCustomScrollbar.min.css">
-    
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css" media="screen">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Estilo base para los elementos que se animarÃ¡n al hacer scroll */
+        /* Estilo base para los elementos que se animarán al hacer scroll */
         .animate-on-scroll {
             opacity: 0;
             transform: translateY(30px);
             transition: opacity 0.6s ease-out, transform 0.6s ease-out;
         }
 
-        /* Estilo que se aplicarÃ¡ cuando el elemento sea visible */
+        /* Estilo que se aplicará cuando el elemento sea visible */
         .animate-on-scroll.is-visible {
             opacity: 1;
             transform: translateY(0);
         }
         
-        /* Efecto de apariciÃ³n escalonada para los productos de la galerÃ­a */
+        /* Efecto de aparición escalonada para los productos de la galería */
         .gallery .row .col-md-4 {
              transition-delay: var(--delay, 0s);
         }
@@ -43,7 +43,7 @@
         .social-link,
         .contact-item,
         footer .text-white,
-        .gallery_item-content { /* Aplicamos transiciÃ³n al nuevo contenedor */
+        .gallery_item-content { /* Aplicamos transición al nuevo contenedor */
             transition: all 0.3s ease-in-out;
         }
 
@@ -52,10 +52,10 @@
             border-radius: 15px; /* Bordes redondeados */
             overflow: hidden; /* Asegura que el zoom no se salga del contenedor */
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
-            display: flex; /* Para organizar la imagen y el tÃ­tulo */
-            flex-direction: column; /* Apilar imagen y tÃ­tulo */
+            display: flex; /* Para organizar la imagen y el título */
+            flex-direction: column; /* Apilar imagen y título */
             align-items: center; /* Centrar contenido */
-            padding-bottom: 15px; /* Espacio para el tÃ­tulo */
+            padding-bottom: 15px; /* Espacio para el título */
             background-color: #fff; /* Fondo blanco para el contenido */
         }
         .gallery_item-content:hover {
@@ -91,14 +91,14 @@
             transform: scale(1.1); /* Efecto de zoom dentro de la figura */
         }
 
-        /* Estilo para el tÃ­tulo del producto */
+        /* Estilo para el título del producto */
         .product-title {
             text-align: center;
-            margin-top: 15px; /* MÃ¡s espacio arriba */
+            margin-top: 15px; /* Más espacio arriba */
             margin-bottom: 0; /* Elimina margen inferior por defecto */
-            font-size: 1.2em; /* Un poco mÃ¡s grande */
-            font-weight: 600; /* Un poco mÃ¡s de peso */
-            color: #116835; /* Un color mÃ¡s oscuro para mayor legibilidad, quizÃ¡s el verde corporativo */
+            font-size: 1.2em; /* Un poco más grande */
+            font-weight: 600; /* Un poco más de peso */
+            color: #116835; /* Un color más oscuro para mayor legibilidad, quizás el verde corporativo */
             padding: 0 10px; /* Padding horizontal para evitar que el texto se pegue a los bordes */
         }
 
@@ -114,7 +114,7 @@
         }
 
 
-        /* Efecto hover para Ã­conos sociales y de contacto */
+        /* Efecto hover para íconos sociales y de contacto */
         .social-link:hover,
         .contact-item:hover,
         footer .text-white:hover {
@@ -158,7 +158,7 @@
             <div class="row align-items-center">
                <div class="col-md-3 col-sm-3 logo_section">
                   <div class="logo">
-                     <a href="../"><img src="../images/logo.png" alt="Logo Empaques MÃºltiples" /></a>
+                     <a href="../"><img src="../images/logo.png" alt="Logo Empaques Múltiples" /></a>
                   </div>
                </div>
                <div class="col-md-9">
@@ -173,7 +173,7 @@
                               <a class="nav-link dropdown-toggle" href="../about/" id="nosotrosDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Nosotros</a>
                               <div class="dropdown-menu" aria-labelledby="nosotrosDropdown">
                                  <a class="dropdown-item" href="../about/">Sobre Nosotros</a>
-                                 <a class="dropdown-item" href="../politicas-seguridad-alimentaria/">PolÃ­ticas de Seguridad Alimentaria</a>
+                                 <a class="dropdown-item" href="../politicas-seguridad-alimentaria/">Políticas de Seguridad Alimentaria</a>
                               </div>
                            </li>
                            <li class="nav-item"><a class="nav-link" href="../gallery/">Noticias</a></li>
@@ -201,9 +201,9 @@
                     <div class="titlepage">
                         <h2>Servicio de Maquila y<span class="green"> Empaque para Productos Alimenticios</span></h2>
                         <p>Ofrecemos servicio de empaque a clientes institucionales
-y grandes cadenas de supermercados para sus marcas privadas, apegados a altos estÃ¡ndares
+y grandes cadenas de supermercados para sus marcas privadas, apegados a altos estándares
 internacionales. Ofrecemos servicio de empaque para productos comestibles como leche en
-polvo, avena, harinas, cereales, granerÃ­a en general (arroz, frijoles, azÃºcar).</p>
+polvo, avena, harinas, cereales, granería en general (arroz, frijoles, azúcar).</p>
                     </div>
                 </div>
             </div>
@@ -212,9 +212,9 @@ polvo, avena, harinas, cereales, granerÃ­a en general (arroz, frijoles, azÃº
                     <a href="../lider-avenainstantanea.html" class="product-link">
                         <div class="gallery_item-content">
                             <div class="gallery_img">
-                                <figure><img src="../images/lider-avenainstantanea.jpg" alt="LÃ­der Avena InstantÃ¡nea" /></figure>
+                                <figure><img src="../images/lider-avenainstantanea.jpg" alt="Líder Avena Instantánea" /></figure>
                             </div>
-                            <h3 class="product-title">LÃ­der Avena InstantÃ¡nea</h3>
+                            <h3 class="product-title">Líder Avena Instantánea</h3>
                         </div>
                     </a>
                 </div>
@@ -222,9 +222,9 @@ polvo, avena, harinas, cereales, granerÃ­a en general (arroz, frijoles, azÃº
                     <a href="../lider-avenamolida.html" class="product-link">
                         <div class="gallery_item-content">
                             <div class="gallery_img">
-                                <figure><img src="../images/lider-avenamolida.jpg" alt="LÃ­der Avena Molida" /></figure>
+                                <figure><img src="../images/lider-avenamolida.jpg" alt="Líder Avena Molida" /></figure>
                             </div>
-                            <h3 class="product-title">LÃ­der Avena Molida</h3>
+                            <h3 class="product-title">Líder Avena Molida</h3>
                         </div>
                     </a>
                 </div>
@@ -232,9 +232,9 @@ polvo, avena, harinas, cereales, granerÃ­a en general (arroz, frijoles, azÃº
                     <a href="../lider-cocoaenpolvo.html" class="product-link">
                         <div class="gallery_item-content">
                             <div class="gallery_img">
-                                <figure><img src="../images/lider-cocoaenpolvo.jpg" alt="LÃ­der Cocoa en Polvo" /></figure>
+                                <figure><img src="../images/lider-cocoaenpolvo.jpg" alt="Líder Cocoa en Polvo" /></figure>
                             </div>
-                            <h3 class="product-title">LÃ­der Cocoa en Polvo</h3>
+                            <h3 class="product-title">Líder Cocoa en Polvo</h3>
                         </div>
                     </a>
                 </div>
@@ -242,9 +242,9 @@ polvo, avena, harinas, cereales, granerÃ­a en general (arroz, frijoles, azÃº
                     <a href="../lider-lecheenteraenpolvo.html" class="product-link">
                         <div class="gallery_item-content">
                             <div class="gallery_img">
-                                <figure><img src="../images/lider-lecheenteraenpolvo6.4L.jpg" alt="LÃ­der Leche Entera en Polvo 6.4L" /></figure>
+                                <figure><img src="../images/lider-lecheenteraenpolvo6.4L.jpg" alt="Líder Leche Entera en Polvo 6.4L" /></figure>
                             </div>
-                            <h3 class="product-title">LÃ­der Leche Entera en Polvo</h3>
+                            <h3 class="product-title">Líder Leche Entera en Polvo</h3>
                         </div>
                     </a>
                 </div>
@@ -252,9 +252,9 @@ polvo, avena, harinas, cereales, granerÃ­a en general (arroz, frijoles, azÃº
                     <a href="../lideravenaintegral.html" class="product-link">
                         <div class="gallery_item-content">
                             <div class="gallery_img">
-                                <figure><img src="../images/lideravenaintegral.jpg" alt="LÃ­der Avena Integral" /></figure>
+                                <figure><img src="../images/lideravenaintegral.jpg" alt="Líder Avena Integral" /></figure>
                             </div>
-                            <h3 class="product-title">LÃ­der Avena Integral</h3>
+                            <h3 class="product-title">Líder Avena Integral</h3>
                         </div>
                     </a>
                 </div>
@@ -262,9 +262,9 @@ polvo, avena, harinas, cereales, granerÃ­a en general (arroz, frijoles, azÃº
                     <a href="../wala-avenainstantanea.html" class="product-link">
                         <div class="gallery_item-content">
                             <div class="gallery_img">
-                                <figure><img src="../images/wala-avenainstantanea.jpg" alt="Wala Avena InstantÃ¡nea" /></figure>
+                                <figure><img src="../images/wala-avenainstantanea.jpg" alt="Wala Avena Instantánea" /></figure>
                             </div>
-                            <h3 class="product-title">Wala Avena InstantÃ¡nea</h3>
+                            <h3 class="product-title">Wala Avena Instantánea</h3>
                         </div>
                     </a>
                 </div>
@@ -337,7 +337,7 @@ polvo, avena, harinas, cereales, granerÃ­a en general (arroz, frijoles, azÃº
                 </div>
 
                 <div class="col-md-3 mb-4">
-                    <h5 class="mb-3">NavegaciÃ³n</h5>
+                    <h5 class="mb-3">Navegación</h5>
                     <ul class="list-unstyled">
                         <li><a href="../" class="text-white text-decoration-none">Inicio</a></li>
                         <li><a href="../about/" class="text-white text-decoration-none">Nosotros</a></li>
@@ -349,8 +349,8 @@ polvo, avena, harinas, cereales, granerÃ­a en general (arroz, frijoles, azÃº
                 </div>
 
                 <div class="col-md-3 mb-4">
-                    <h5 class="mb-3">Â¿En quÃ© podemos ayudarte?</h5>
-                    <p class="text-white fs-5">Ofrecemos servicio de empaques a clientes institucionales y grandes cadenas de supermercados para sus marcas privadas, apegados a altos estÃ¡ndares internacionales.</p>
+                    <h5 class="mb-3">¿En qué podemos ayudarte?</h5>
+                    <p class="text-white fs-5">Ofrecemos servicio de empaques a clientes institucionales y grandes cadenas de supermercados para sus marcas privadas, apegados a altos estándares internacionales.</p>
                 </div>
 
                 <div class="col-md-3 mb-4">
@@ -360,24 +360,24 @@ polvo, avena, harinas, cereales, granerÃ­a en general (arroz, frijoles, azÃº
             </div>
 
             <div class="text-center border-top border-secondary pt-3 mt-4 small text-muted">
-                Â© 2025 Empaques MÃºltiples SRL. Todos los derechos reservados.
+                © 2025 Empaques Múltiples SRL. Todos los derechos reservados.
             </div>
         </div>
     </footer>
-    
+    <script src="../js/jquery.min.js"></script>
     <script src="../js/bootstrap.bundle.min.js"></script>
-    <script src="../js/jquery-3.0.0.min.js" defer></script>
+    <script src="../js/jquery-3.0.0.min.js"></script>
     <script src="../js/jquery.mCustomScrollbar.concat.min.js"></script>
-    <script src="../js/custom.js" defer></script>
+    <script src="../js/custom.js"></script>
     
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             // Selecciona todos los elementos que quieres animar
             const targets = document.querySelectorAll('.animate-on-scroll');
 
-            // ConfiguraciÃ³n del Intersection Observer
+            // Configuración del Intersection Observer
             const observerOptions = {
-                root: null, // usa el viewport como el Ã¡rea de observaciÃ³n
+                root: null, // usa el viewport como el área de observación
                 rootMargin: '0px',
                 threshold: 0.1 // el callback se ejecuta cuando al menos el 10% del elemento es visible
             };
@@ -385,11 +385,11 @@ polvo, avena, harinas, cereales, granerÃ­a en general (arroz, frijoles, azÃº
             // El callback que se ejecuta cuando un elemento observado entra o sale del viewport
             const observerCallback = (entries, observer) => {
                 entries.forEach((entry, index) => {
-                    // Si el elemento estÃ¡ intersectando (visible)
+                    // Si el elemento está intersectando (visible)
                     if (entry.isIntersecting) {
-                        // Aplicar un retraso escalonado a los items de la galerÃ­a
+                        // Aplicar un retraso escalonado a los items de la galería
                         if (entry.target.parentElement.parentElement.classList.contains('gallery')) {
-                             // Calcula un retraso basado en el Ã­ndice del elemento
+                             // Calcula un retraso basado en el índice del elemento
                             const delay = index % 3 * 100; // 0ms, 100ms, 200ms, y se repite
                             entry.target.style.transitionDelay = `${delay}ms`;
                         }

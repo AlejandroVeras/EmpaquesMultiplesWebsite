@@ -1,8 +1,8 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Registro de Almuerzo | Empaques MÃºltiples</title>
+  <title>Registro de Almuerzo | Empaques Múltiples</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Fuente Google usada en el sitio -->
   <link href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap" rel="stylesheet">
@@ -199,15 +199,15 @@
 </head>
 <body>
   <div class="header">
-    <span class="logo"><img src="images/logo.png" alt="Logo Empaques MÃºltiples" /> loading="lazy"</span>
+    <span class="logo"><img src="images/logo.png" alt="Logo Empaques Múltiples" /></span>
     <span class="titulo">Registro de Almuerzo</span>
   </div>
   <div class="container">
-    <button class="logout hidden">Cerrar sesiÃ³n</button>
+    <button class="logout hidden">Cerrar sesión</button>
     <div id="auth">
       <h3>Ingreso de empleado</h3>
       <input type="text" id="usuario" placeholder="Usuario">
-      <input type="password" id="password" placeholder="ContraseÃ±a">
+      <input type="password" id="password" placeholder="Contraseña">
       <button id="login">Ingresar</button>
       <button id="register">Registrarse</button>
       <div id="auth-error" class="error"></div>
@@ -216,22 +216,22 @@
       <div id="bienvenida" class="bienvenida"></div>
       <form id="almuerzo-form">
         <input type="text" id="nombre" placeholder="Tu nombre completo" required>
-        <button type="submit">Â¡Anotarme para almuerzo hoy!</button>
+        <button type="submit">¡Anotarme para almuerzo hoy!</button>
       </form>
       <div id="form-success" class="success hidden"></div>
       <div id="form-error" class="error"></div>
       <hr>
-      <h4>Mis almuerzos Ãºltimos 60 dÃ­as:</h4>
+      <h4>Mis almuerzos últimos 60 días:</h4>
       <ul id="hist-list"></ul>
     </div>
   </div>
   <script>
-    // ConfiguraciÃ³n Supabase
+    // Configuración Supabase
     const SUPABASE_URL = 'https://hvhroguawvsztdhvkxpv.supabase.co';
     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh2aHJvZ3Vhd3ZzenRkaHZreHB2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc1OTgyNTcsImV4cCI6MjA3MzE3NDI1N30.D_UdP-7b43JUweoYuzfT2OOKy2g2VvigKuJeeeUgVgg';
     const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    // Estado de sesiÃ³n
+    // Estado de sesión
     let empleadoActual = null;
 
     // Elementos
@@ -266,7 +266,7 @@
       const usuario = usuarioInput.value.trim();
       const password = passInput.value;
       if (!usuario || !password) {
-        authError.textContent = "Ingresa usuario y contraseÃ±a.";
+        authError.textContent = "Ingresa usuario y contraseña.";
         return;
       }
       // Buscar usuario en la tabla empleados
@@ -275,14 +275,14 @@
         .select('*')
         .eq('usuario', usuario);
       if (error || data.length === 0) {
-        authError.textContent = "Usuario o contraseÃ±a incorrectos.";
+        authError.textContent = "Usuario o contraseña incorrectos.";
         return;
       }
       const empleado = data[0];
       // Verificar hash
       const match = bcrypt.compareSync(password, empleado.password_hash);
       if (!match) {
-        authError.textContent = "Usuario o contraseÃ±a incorrectos.";
+        authError.textContent = "Usuario o contraseña incorrectos.";
         return;
       }
       empleadoActual = empleado;
@@ -296,7 +296,7 @@
       const password = passInput.value;
       const nombre = nombreInput.value.trim();
       if (!usuario || !password || !nombre) {
-        authError.textContent = "Completa usuario, nombre y contraseÃ±a.";
+        authError.textContent = "Completa usuario, nombre y contraseña.";
         return;
       }
       // Verifica si existe usuario
@@ -314,7 +314,7 @@
         .from('empleados')
         .insert([{ usuario, password_hash: hash, nombre }]);
       if (error) authError.textContent = error.message;
-      else authError.textContent = "Â¡Registro exitoso! Ingresa tu usuario y contraseÃ±a.";
+      else authError.textContent = "¡Registro exitoso! Ingresa tu usuario y contraseña.";
     };
 
     // Logout
@@ -328,7 +328,7 @@
       authDiv.classList.add('hidden');
       mainDiv.classList.remove('hidden');
       logoutBtn.classList.remove('hidden');
-      bienvenidaDiv.textContent = `Â¡Bienvenido, ${empleado.nombre}!`;
+      bienvenidaDiv.textContent = `¡Bienvenido, ${empleado.nombre}!`;
       await cargarListaPersonal(empleado);
     }
 
@@ -337,10 +337,10 @@
       e.preventDefault();
       formError.textContent = '';
       formSuccess.classList.add('hidden');
-      if (!empleadoActual) return formError.textContent = "Debes iniciar sesiÃ³n.";
+      if (!empleadoActual) return formError.textContent = "Debes iniciar sesión.";
       const nombre = nombreInput.value.trim();
       if (!nombre) return formError.textContent = "Ingresa tu nombre.";
-      // Evita duplicados por dÃ­a y usuario
+      // Evita duplicados por día y usuario
       const { data: yaAnotado, error: errorDup } = await client
         .from('almuerzos')
         .select('*')
@@ -355,7 +355,7 @@
       if (error) formError.textContent = error.message;
       else {
         nombreInput.value = "";
-        formSuccess.textContent = "Â¡Registro exitoso!";
+        formSuccess.textContent = "¡Registro exitoso!";
         formSuccess.classList.remove('hidden');
         await cargarListaPersonal(empleadoActual);
       }

@@ -9,20 +9,9 @@ $(function () {
 	/* Preloader
 	-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- */
 	
-	// Verificar que jQuery esté disponible
-	if (typeof $ !== 'undefined') {
-		setTimeout(function () {
-			$('.loader_bg').fadeToggle();
-		}, 1500);
-	} else {
-		// Fallback sin jQuery
-		setTimeout(function () {
-			var loader = document.querySelector('.loader_bg');
-			if (loader) {
-				loader.style.display = 'none';
-			}
-		}, 1500);
-	}
+	setTimeout(function () {
+		$('.loader_bg').fadeToggle();
+	}, 1500);
 	
 	/* Tooltip
 	-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- */
