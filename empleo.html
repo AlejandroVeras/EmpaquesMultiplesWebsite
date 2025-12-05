@@ -31,7 +31,6 @@
       <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script><![endif]-->
 
       <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css"/>
-<link rel="stylesheet" href="animaciones-modernas.css"/>
    </head>
 
 <body class="main-layout">
@@ -241,16 +240,71 @@
     </footer>
       <!-- end footer -->
 
-    <!-- Javascript files-->
-    <script src="js/jquery.min.js"></script>
-    <script src="js/bootstrap.bundle.min.js"></script>
-    <script src="js/jquery-3.0.0.min.js"></script>
-    <!-- sidebar -->
-    <script src="js/jquery.mCustomScrollbar.concat.min.js"></script>
-    <script src="js/custom.js"></script>
-    <!-- Vacantes Script -->
-    <script src="js/vacantes.js"></script>
-
-</body>
-
-</html>
+      <script src="js/jquery.min.js"></script>
+      <script src="js/bootstrap.bundle.min.js"></script>
+      <script src="js/custom.js"></script>
+  
+      <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+      <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+      
+      <script src="almuerzo/js/firebase-config.js"></script>
+  
+      <script>
+          document.addEventListener('DOMContentLoaded', function() {
+              const container = document.getElementById('vacantesContainer');
+              const noVacantes = document.getElementById('noVacantes');
+              const selectPuesto = document.getElementById('puestoSelect');
+              
+              // Usamos la variable 'database' que viene de firebase-config.js
+              // NOTA: firebase-config.js inicializa 'database'. 
+              
+              firebase.database().ref('vacantes').once('value').then((snapshot) => {
+                  if (!snapshot.exists()) {
+                      if(noVacantes) noVacantes.style.display = 'block';
+                      return;
+                  }
+  
+                  if(container) container.innerHTML = '';
+                  if(noVacantes) noVacantes.style.display = 'none';
+  
+                  snapshot.forEach((child) => {
+                      const v = child.val();
+                      
+                      // Formatear requisitos
+                      const reqList = v.requisitos ? v.requisitos.split(',').map(r => `<li><i class="fas fa-check text-success"></i> ${r.trim()}</li>`).join('') : '';
+  
+                      const card = `
+                          <div class="col-md-6 mb-4">
+                              <div class="job-card p-4 border rounded shadow-sm h-100 bg-white">
+                                  <div class="d-flex justify-content-between align-items-start">
+                                      <h4 style="color: #116835; font-weight: bold;">${v.titulo}</h4>
+                                      <span class="badge bg-success text-white">${v.tipo}</span>
+                                  </div>
+                                  <p class="text-muted mb-2"><i class="fas fa-building"></i> ${v.departamento}</p>
+                                  <p class="mb-3 text-dark">${v.descripcion}</p>
+                                  <ul class="list-unstyled small text-muted mb-4">${reqList}</ul>
+                                  <a href="#empleo" onclick="aplicar('${v.titulo}')" class="btn btn-outline-success w-100">Aplicar</a>
+                              </div>
+                          </div>
+                      `;
+                      container.innerHTML += card;
+  
+                      // Llenar select
+                      if(selectPuesto) {
+                          const opt = document.createElement('option');
+                          opt.value = v.titulo;
+                          opt.innerText = v.titulo;
+                          selectPuesto.appendChild(opt);
+                      }
+                  });
+              });
+          });
+  
+          function aplicar(titulo) {
+              const select = document.getElementById('puestoSelect');
+              if(select) select.value = titulo;
+              document.getElementById('empleo').scrollIntoView({ behavior: 'smooth' });
+          }
+      </script>
+  </body>
+  </html>
