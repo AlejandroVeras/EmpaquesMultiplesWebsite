@@ -6,20 +6,15 @@
     <title>Panel de Administración - Sistema de Almuerzo</title>
     <link rel="icon" href="../images/logo.png" type="image/x-icon" />
     
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="css/almuerzo.css">
 </head>
 <body>
-    <!-- Header -->
     <div class="almuerzo-header">
         <div class="container">
             <div class="row align-items-center">
@@ -41,9 +36,7 @@
         </div>
     </div>
 
-    <!-- Contenido Principal -->
     <div class="almuerzo-container">
-        <!-- Estadísticas -->
         <div class="row mb-4">
             <div class="col-md-4">
                 <div class="stat-card fade-in">
@@ -65,7 +58,35 @@
             </div>
         </div>
 
-        <!-- Filtros y Exportación -->
+        <div class="card fade-in mb-4 border-success">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <span class="h5 mb-0">
+                    <i class="fas fa-utensils me-2"></i> Listado del Almuerzo de Hoy
+                </span>
+                <span class="badge bg-white text-success fs-6 px-3 py-2 rounded-pill" id="badgeHoyTotal">
+                    <i class="fas fa-users"></i> 0 personas
+                </span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4" style="width: 150px;">Hora</th>
+                                <th>Nombre del Colaborador</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaHoyBody">
+                            </tbody>
+                    </table>
+                </div>
+                <div id="emptyHoy" class="text-center text-muted py-5" style="display:none;">
+                    <i class="fas fa-clock fa-2x mb-2 text-secondary opacity-50"></i>
+                    <p class="mb-0">Aún no hay registros para el día de hoy.</p>
+                </div>
+            </div>
+        </div>
+
         <div class="filter-section fade-in">
             <div class="row align-items-end">
                 <div class="col-md-3">
@@ -82,7 +103,7 @@
                 </div>
                 <div class="col-md-3">
                     <button class="btn btn-primary w-100" onclick="aplicarFiltro()">
-                        <i class="fas fa-filter"></i> Filtrar
+                        <i class="fas fa-filter"></i> Filtrar Historial
                     </button>
                 </div>
                 <div class="col-md-3">
@@ -96,18 +117,17 @@
                     <button class="btn btn-secondary" onclick="limpiarFiltros()">
                         <i class="fas fa-times"></i> Limpiar Filtros
                     </button>
-                    <button class="btn btn-info" onclick="verHoy()">
-                        <i class="fas fa-calendar-day"></i> Ver Hoy
+                    <button class="btn btn-outline-info" onclick="verHoy()">
+                        <i class="fas fa-calendar-day"></i> Filtrar tabla por Hoy
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Menú Semanal -->
         <div class="card fade-in mt-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>
-                    <i class="fas fa-burger"></i> Menú Semanal del Almuerzo
+                    <i class="fas fa-burger"></i> Menú Semanal
                 </span>
                 <button class="btn btn-sm btn-outline-primary" onclick="cargarMenu()">
                     <i class="fas fa-rotate"></i> Recargar
@@ -153,7 +173,6 @@
             </div>
         </div>
 
-        <!-- Gestión de Usuarios -->
         <div class="card fade-in mt-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>
@@ -191,7 +210,66 @@
             </div>
         </div>
 
-        <!-- Lista de Usuarios Registrados -->
+        <div class="card fade-in mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="fas fa-file-excel"></i> Creación Masiva de Usuarios
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Instrucciones:</strong> Suba un archivo Excel con las columnas: <code>usuario</code>, <code>nombre</code>, <code>password</code>, <code>rol</code> (opcional, por defecto 'usuario').
+                    <br><small>Descargue la <a href="#" onclick="descargarPlantillaExcel()" class="text-primary">plantilla de ejemplo</a></small>.
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label">
+                            <i class="fas fa-file-excel"></i> Archivo Excel
+                        </label>
+                        <input type="file" id="excelFile" class="form-control" accept=".xlsx,.xls" onchange="validarArchivoExcel()">
+                        <div class="form-text">Formatos soportados: .xlsx, .xls</div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">&nbsp;</label>
+                        <button class="btn btn-success w-100" onclick="procesarExcelUsuarios()" id="procesarBtn" disabled>
+                            <i class="fas fa-upload"></i> Procesar Excel
+                        </button>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <div id="excelStatus" class="text-muted"></div>
+                    <div id="excelProgress" class="progress mt-2" style="display: none;">
+                        <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div id="excelPreview" class="mt-3" style="display: none;">
+                    <h6>Vista previa de usuarios a crear:</h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered" id="excelPreviewTable">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Nombre</th>
+                                    <th>Rol</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                    <div class="mt-3">
+                        <button class="btn btn-primary" onclick="confirmarCrearUsuariosExcel()" id="confirmarBtn">
+                            <i class="fas fa-check"></i> Confirmar y Crear Usuarios
+                        </button>
+                        <button class="btn btn-secondary" onclick="cancelarExcel()">
+                            <i class="fas fa-times"></i> Cancelar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="card fade-in mt-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>
@@ -236,11 +314,11 @@
                                     <th>Usuario</th>
                                     <th>Rol</th>
                                     <th>Estado</th>
+                                    <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="usuariosTableBody">
-                                <!-- Se llenará dinámicamente -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
@@ -252,28 +330,26 @@
             </div>
         </div>
 
-        <!-- Tabla de Asistencias -->
         <div class="card fade-in">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>
-                    <i class="fas fa-list"></i> Todas las Asistencias
+                    <i class="fas fa-list"></i> Historial Completo de Asistencias
                 </span>
                 <span class="badge bg-white text-primary" id="totalRegistros">0 registros</span>
             </div>
             <div class="card-body">
                 <div id="loadingAsistencias" class="text-center">
                     <div class="loader"></div>
-                    <p class="text-muted">Cargando asistencias...</p>
+                    <p class="text-muted">Cargando historial...</p>
                 </div>
                 
                 <div id="asistenciasContainer" style="display: none;">
-                    <!-- Buscador -->
                     <div class="mb-3">
                         <input 
                             type="text" 
                             class="form-control" 
                             id="searchInput" 
-                            placeholder="Buscar por nombre"
+                            placeholder="Buscar en el historial por nombre..."
                             onkeyup="filtrarTabla()"
                         >
                     </div>
@@ -289,8 +365,7 @@
                                 </tr>
                             </thead>
                             <tbody id="asistenciasBody">
-                                <!-- Se llenará dinámicamente -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
@@ -304,18 +379,15 @@
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- ExcelJS para exportación a Excel con logo (CAMBIADO DE SheetJS) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     
-    <!-- Custom Scripts -->
     <script src="js/firebase-config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/database.js"></script>
@@ -325,7 +397,7 @@
         let todasAsistencias = [];
         let asistenciasFiltradas = [];
 
-        // Verificar autenticación al cargar (requiere admin)
+        // Verificar autenticación al cargar
         checkAuth(true)
             .then((user) => {
                 document.getElementById('userEmail').textContent = user.email;
@@ -347,7 +419,6 @@
                 console.error('Error de autenticación:', error);
             });
 
-        // Cargar estadísticas
         function cargarEstadisticas() {
             obtenerEstadisticas()
                 .then((stats) => {
@@ -361,7 +432,7 @@
         }
 
         // =====================
-        // Menú Semanal (admin)
+        // Menú Semanal
         // =====================
         function uiGetMenuValues() {
             return {
@@ -423,7 +494,7 @@
         }
 
         // =====================
-        // Gestión de Usuarios (admin)
+        // Gestión de Usuarios
         // =====================
         let secondaryApp = null;
         let secondaryAuth = null;
@@ -435,13 +506,11 @@
                     secondaryAuth = secondaryApp.auth();
                 }
             } catch (e) {
-                // Si ya existe, obtener referencias
                 secondaryApp = firebase.app('secondary');
                 secondaryAuth = secondaryApp.auth();
             }
         }
 
-        // Asegurar que el admin (por email) tenga rol 'admin' en DB
         function configurarRolAdmin() {
             const user = auth.currentUser;
             if (!user) return;
@@ -455,9 +524,7 @@
                         return rolRef.set('admin');
                     }
                 })
-                .catch(() => {
-                    // Ignorar; se reflejará al crear usuarios si falla
-                });
+                .catch(() => {});
         }
 
         function setUsuarioStatus(message, type = 'muted') {
@@ -493,47 +560,38 @@
 
             setUsuarioStatus('Creando usuario...');
 
-            // Verificar que el username no exista
             database.ref('usernames/' + u).once('value')
                 .then((snap) => {
                     if (snap.exists()) {
                         throw new Error('El usuario ya existe');
                     }
-                    // Crear en Auth usando app secundaria
                     const email = construirEmail(u);
                     return secondaryAuth.createUserWithEmailAndPassword(email, p)
                         .then((cred) => {
                             const uid = cred.user.uid;
-                            // Asignar displayName en el usuario recién creado (app secundaria)
                             return cred.user.updateProfile({ displayName: n })
                                 .then(() => ({ uid }));
                         });
                 })
                 .then(({ uid }) => {
-                    // Guardar mapeos en DB: username -> uid, rol, perfil
                     const updates = {};
                     updates['usernames/' + u] = uid;
                     updates['roles/' + uid] = r;
                     updates['perfiles/' + uid] = { username: u, nombre: n };
                     return database.ref().update(updates)
-                        .then(() => uid)
-                        .catch((err) => {
-                            // Si falla la DB, mostrar error concreto y mantener la cuenta de Auth creada
-                            throw new Error('Se creó el usuario en Auth pero falló guardar en la base de datos: ' + (err && err.message ? err.message : 'permiso denegado'));
-                        });
+                        .then(() => uid);
                 })
                 .then((uid) => {
-                    // Cerrar sesión del secundario para no dejarlo abierto
                     return secondaryAuth.signOut().catch(() => {}).then(() => uid);
                 })
                 .then(() => {
                     setUsuarioStatus('Usuario creado correctamente', 'success');
-                    // Limpiar campos
                     document.getElementById('nuevo_usuario').value = '';
                     document.getElementById('nuevo_nombre').value = '';
                     document.getElementById('nuevo_password').value = '';
                     document.getElementById('nuevo_rol').value = 'usuario';
                     setTimeout(() => setUsuarioStatus(''), 2500);
+                    cargarListaUsuarios();
                 })
                 .catch((e) => {
                     console.error(e);
@@ -541,137 +599,8 @@
                 });
         }
 
-        // Cargar todas las asistencias
-        function cargarAsistencias() {
-            const loadingAsistencias = document.getElementById('loadingAsistencias');
-            const asistenciasContainer = document.getElementById('asistenciasContainer');
-            const emptyAsistencias = document.getElementById('emptyAsistencias');
-            
-            loadingAsistencias.style.display = 'block';
-            asistenciasContainer.style.display = 'none';
-            emptyAsistencias.style.display = 'none';
-            
-            obtenerTodasAsistencias()
-                .then((asistencias) => {
-                    todasAsistencias = asistencias;
-                    asistenciasFiltradas = asistencias;
-                    mostrarAsistencias(asistencias);
-                })
-                .catch((error) => {
-                    console.error('Error al cargar asistencias:', error);
-                    loadingAsistencias.style.display = 'none';
-                    emptyAsistencias.style.display = 'block';
-                });
-        }
-
-        // Mostrar asistencias en la tabla
-        function mostrarAsistencias(asistencias) {
-            const loadingAsistencias = document.getElementById('loadingAsistencias');
-            const asistenciasContainer = document.getElementById('asistenciasContainer');
-            const emptyAsistencias = document.getElementById('emptyAsistencias');
-            const asistenciasBody = document.getElementById('asistenciasBody');
-            const totalRegistros = document.getElementById('totalRegistros');
-            
-            loadingAsistencias.style.display = 'none';
-            
-            if (asistencias.length === 0) {
-                emptyAsistencias.style.display = 'block';
-                asistenciasContainer.style.display = 'none';
-            } else {
-                asistenciasContainer.style.display = 'block';
-                emptyAsistencias.style.display = 'none';
-                
-                // Actualizar contador
-                totalRegistros.textContent = `${asistencias.length} registro${asistencias.length !== 1 ? 's' : ''}`;
-                
-                // Llenar tabla
-                asistenciasBody.innerHTML = '';
-                asistencias.forEach((asistencia, index) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${index + 1}</td>
-                        <td>${asistencia.nombre}</td>
-                        <td>${formatearFecha(asistencia.fecha)}</td>
-                        <td>${asistencia.hora}</td>
-                    `;
-                    asistenciasBody.appendChild(row);
-                });
-            }
-        }
-
-        // Aplicar filtro de fechas
-        function aplicarFiltro() {
-            const fechaInicio = document.getElementById('fechaInicio').value;
-            const fechaFin = document.getElementById('fechaFin').value;
-            
-            if (!fechaInicio || !fechaFin) {
-                alert('Por favor, selecciona ambas fechas.');
-                return;
-            }
-            
-            if (fechaInicio > fechaFin) {
-                alert('La fecha de inicio no puede ser mayor a la fecha fin.');
-                return;
-            }
-            
-            filtrarAsistenciasPorFecha(fechaInicio, fechaFin)
-                .then((asistencias) => {
-                    asistenciasFiltradas = asistencias;
-                    mostrarAsistencias(asistencias);
-                })
-                .catch((error) => {
-                    console.error('Error al filtrar:', error);
-                });
-        }
-
-        // Limpiar filtros
-        function limpiarFiltros() {
-            document.getElementById('fechaInicio').value = '';
-            document.getElementById('fechaFin').value = '';
-            document.getElementById('searchInput').value = '';
-            asistenciasFiltradas = todasAsistencias;
-            mostrarAsistencias(todasAsistencias);
-        }
-
-        // Ver asistencias de hoy
-        function verHoy() {
-            const hoy = new Date().toISOString().split('T')[0];
-            document.getElementById('fechaInicio').value = hoy;
-            document.getElementById('fechaFin').value = hoy;
-            aplicarFiltro();
-        }
-
-        // Filtrar tabla por búsqueda
-        function filtrarTabla() {
-            const searchValue = document.getElementById('searchInput').value.toLowerCase();
-            const filtradas = asistenciasFiltradas.filter((asistencia) => {
-                return asistencia.nombre.toLowerCase().includes(searchValue) ||
-                       asistencia.email.toLowerCase().includes(searchValue);
-            });
-            mostrarAsistencias(filtradas);
-        }
-
-        // Exportar datos a Excel
-        function exportarDatos() {
-            const fechaInicio = document.getElementById('fechaInicio').value;
-            const fechaFin = document.getElementById('fechaFin').value;
-            
-            if (fechaInicio && fechaFin) {
-                exportarPorFecha(fechaInicio, fechaFin);
-            } else {
-                exportarTodas();
-            }
-        }
-
-        // Función para formatear fecha
-        function formatearFecha(fechaString) {
-            const fecha = new Date(fechaString + 'T00:00:00');
-            const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
-            return fecha.toLocaleDateString('es-ES', opciones);
-        }
-
         // =====================
-        // Lista de Usuarios Registrados (admin)
+        // Lista de Usuarios
         // =====================
         let todosUsuarios = [];
         let usuariosFiltrados = [];
@@ -685,7 +614,6 @@
             usuariosContainer.style.display = 'none';
             emptyUsuarios.style.display = 'none';
 
-            // Obtener todos los usuarios desde la base de datos
             Promise.all([
                 database.ref('usernames').once('value'),
                 database.ref('perfiles').once('value'),
@@ -696,7 +624,6 @@
                 const perfiles = perfilesSnap.val() || {};
                 const roles = rolesSnap.val() || {};
 
-                // Construir lista de usuarios
                 todosUsuarios = [];
                 Object.keys(usernames).forEach(username => {
                     const uid = usernames[username];
@@ -711,7 +638,6 @@
                     });
                 });
 
-                // Ordenar por nombre
                 todosUsuarios.sort((a, b) => a.nombre.localeCompare(b.nombre));
                 usuariosFiltrados = [...todosUsuarios];
                 
@@ -734,8 +660,6 @@
             const currentUser = auth.currentUser;
 
             loadingUsuarios.style.display = 'none';
-
-            // Actualizar contadores
             totalUsuarios.textContent = `${todosUsuarios.length} usuario${todosUsuarios.length !== 1 ? 's' : ''}`;
             
             if (usuarios.length === 0) {
@@ -745,7 +669,6 @@
                 usuariosContainer.style.display = 'block';
                 emptyUsuarios.style.display = 'none';
 
-                // Mostrar info de filtrado
                 if (usuarios.length < todosUsuarios.length) {
                     usuariosFiltradosInfo.textContent = `Mostrando ${usuarios.length} de ${todosUsuarios.length} usuarios`;
                 } else {
@@ -758,10 +681,7 @@
                     const esUsuarioActual = currentUser && currentUser.uid === usuario.uid;
                     const esAdmin = usuario.rol === 'admin';
                     
-                    // Alternar colores de fila
-                    if (index % 2 === 0) {
-                        row.style.backgroundColor = '#f8f9fa';
-                    }
+                    if (index % 2 === 0) row.style.backgroundColor = '#f8f9fa';
                     
                     row.innerHTML = `
                         <td>${index + 1}</td>
@@ -776,9 +696,15 @@
                             </span>
                         </td>
                         <td>
-                            ${esUsuarioActual ? 
+                            ${esUsuarioActual ?
                                 '<span class="badge bg-success"><i class="fas fa-check-circle"></i> Activo</span>' :
                                 '<span class="badge bg-secondary"><i class="fas fa-user"></i> Registrado</span>'
+                            }
+                        </td>
+                        <td>
+                            ${esUsuarioActual ?
+                                '<span class="text-muted small">No disponible</span>' :
+                                `<button class="btn btn-sm btn-danger" onclick="eliminarUsuario('${usuario.uid}', '${usuario.username}')" title="Eliminar usuario"><i class="fas fa-trash"></i> Eliminar</button>`
                             }
                         </td>
                     `;
@@ -789,17 +715,363 @@
 
         function filtrarUsuarios() {
             const searchValue = document.getElementById('buscarUsuario').value.toLowerCase().trim();
-            
             if (searchValue === '') {
                 usuariosFiltrados = [...todosUsuarios];
             } else {
-                usuariosFiltrados = todosUsuarios.filter(usuario => 
+                usuariosFiltrados = todosUsuarios.filter(usuario =>
                     usuario.nombre.toLowerCase().includes(searchValue) ||
                     usuario.username.toLowerCase().includes(searchValue)
                 );
             }
-            
             mostrarUsuarios(usuariosFiltrados);
+        }
+
+        function eliminarUsuario(uid, username) {
+            if (!confirm(`¿Está seguro de que desea eliminar al usuario "${username}"?`)) {
+                return;
+            }
+
+            if (!confirm('Esta acción eliminará su acceso y todos sus registros. ¿Confirmar?')) {
+                return;
+            }
+
+            const btn = event.target.closest('button') || event.target;
+            const originalContent = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            const updates = {};
+            updates['usernames/' + username] = null; 
+            updates['roles/' + uid] = null;          
+            updates['perfiles/' + uid] = null;       
+
+            database.ref('asistencias')
+                .orderByChild('userId')
+                .equalTo(uid)
+                .once('value')
+                .then((snapshot) => {
+                    snapshot.forEach((childSnapshot) => {
+                        updates['asistencias/' + childSnapshot.key] = null;
+                    });
+                    return database.ref().update(updates);
+                })
+                .then(() => {
+                    alert('Usuario eliminado del sistema correctamente.');
+                    cargarListaUsuarios();
+                })
+                .catch((error) => {
+                    console.error('Error al eliminar:', error);
+                    alert('Hubo un error al eliminar los datos: ' + error.message);
+                    btn.disabled = false;
+                    btn.innerHTML = originalContent;
+                });
+        }
+
+        // ==========================================
+        // LÓGICA DE IMPORTACIÓN MASIVA EXCEL
+        // ==========================================
+        let usuariosExcelParaProcesar = [];
+
+        function validarArchivoExcel() {
+            const input = document.getElementById('excelFile');
+            const procesarBtn = document.getElementById('procesarBtn');
+            const filePath = input.value;
+            const allowedExtensions = /(\.xlsx|\.xls)$/i;
+
+            if (!allowedExtensions.exec(filePath)) {
+                alert('Por favor sube un archivo con extensión .xlsx o .xls');
+                input.value = '';
+                procesarBtn.disabled = true;
+                return false;
+            }
+            procesarBtn.disabled = false;
+        }
+
+        function descargarPlantillaExcel() {
+            const wb = XLSX.utils.book_new();
+            const ws_data = [
+                ["usuario", "nombre", "password", "rol"], 
+                ["juan.perez", "Juan Pérez", "empaques2025", "usuario"],
+                ["maria.g", "María González", "clave123", "admin"]
+            ];
+            const ws = XLSX.utils.aoa_to_sheet(ws_data);
+            XLSX.utils.book_append_sheet(wb, ws, "Plantilla Usuarios");
+            XLSX.writeFile(wb, "plantilla_usuarios_almuerzo.xlsx");
+        }
+
+        function procesarExcelUsuarios() {
+            const input = document.getElementById('excelFile');
+            const file = input.files[0];
+            const statusDiv = document.getElementById('excelStatus');
+            
+            if (!file) return;
+
+            statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Leyendo archivo...';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const data = new Uint8Array(e.target.result);
+                const workbook = XLSX.read(data, {type: 'array'});
+                const firstSheetName = workbook.SheetNames[0];
+                const worksheet = workbook.Sheets[firstSheetName];
+                const jsonData = XLSX.utils.sheet_to_json(worksheet);
+                
+                if (jsonData.length === 0) {
+                    statusDiv.innerHTML = '<span class="text-danger">El archivo está vacío.</span>';
+                    return;
+                }
+
+                const primeraFila = jsonData[0];
+                if (!primeraFila.hasOwnProperty('usuario') || !primeraFila.hasOwnProperty('password')) {
+                    statusDiv.innerHTML = '<span class="text-danger">Faltan columnas "usuario" y "password".</span>';
+                    return;
+                }
+
+                usuariosExcelParaProcesar = jsonData;
+                mostrarPrevisualizacionExcel(jsonData);
+                statusDiv.innerHTML = '';
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function mostrarPrevisualizacionExcel(datos) {
+            const previewDiv = document.getElementById('excelPreview');
+            const tbody = document.querySelector('#excelPreviewTable tbody');
+            tbody.innerHTML = '';
+
+            datos.forEach((fila) => {
+                const tr = document.createElement('tr');
+                const usuarioValido = fila.usuario && String(fila.usuario).length >= 3;
+                const passValido = fila.password && String(fila.password).length >= 6;
+                
+                const estado = (usuarioValido && passValido) 
+                    ? '<span class="badge bg-success">Listo</span>' 
+                    : '<span class="badge bg-warning text-dark">Datos inválidos</span>';
+
+                tr.innerHTML = `
+                    <td>${fila.usuario || ''}</td>
+                    <td>${fila.nombre || ''}</td>
+                    <td>${fila.rol || 'usuario'}</td>
+                    <td>${estado}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            previewDiv.style.display = 'block';
+        }
+
+        function cancelarExcel() {
+            document.getElementById('excelFile').value = '';
+            document.getElementById('excelPreview').style.display = 'none';
+            document.getElementById('procesarBtn').disabled = true;
+            usuariosExcelParaProcesar = [];
+        }
+
+        async function confirmarCrearUsuariosExcel() {
+            if (usuariosExcelParaProcesar.length === 0) return;
+
+            const confirmBtn = document.getElementById('confirmarBtn');
+            const progressDiv = document.getElementById('excelProgress');
+            const progressBar = progressDiv.querySelector('.progress-bar');
+            const statusDiv = document.getElementById('excelStatus');
+
+            confirmBtn.disabled = true;
+            progressDiv.style.display = 'flex';
+            let creados = 0;
+            let errores = 0;
+
+            prepararAppSecundaria();
+
+            for (let i = 0; i < usuariosExcelParaProcesar.length; i++) {
+                const fila = usuariosExcelParaProcesar[i];
+                const porcentaje = Math.round(((i + 1) / usuariosExcelParaProcesar.length) * 100);
+                progressBar.style.width = `${porcentaje}%`;
+                progressBar.textContent = `${porcentaje}%`;
+
+                try {
+                    const u = String(fila.usuario || '').trim().toLowerCase().replace(/\s/g, '');
+                    const n = String(fila.nombre || 'Usuario Sin Nombre').trim();
+                    const p = String(fila.password || '');
+                    const r = String(fila.rol || 'usuario').toLowerCase();
+
+                    if (u.length < 3 || p.length < 6) throw new Error('Datos inválidos');
+
+                    const snap = await database.ref('usernames/' + u).once('value');
+                    if (snap.exists()) throw new Error('Ya existe');
+
+                    const email = construirEmail(u);
+                    const userCred = await secondaryAuth.createUserWithEmailAndPassword(email, p);
+                    const uid = userCred.user.uid;
+
+                    await userCred.user.updateProfile({ displayName: n });
+
+                    const updates = {};
+                    updates['usernames/' + u] = uid;
+                    updates['roles/' + uid] = r;
+                    updates['perfiles/' + uid] = { username: u, nombre: n };
+                    
+                    await database.ref().update(updates);
+                    await secondaryAuth.signOut();
+
+                    creados++;
+                } catch (error) {
+                    console.error(`Error con ${fila.usuario}:`, error);
+                    errores++;
+                }
+            }
+
+            statusDiv.innerHTML = `
+                <div class="alert alert-success">
+                    Finalizado. <b>Creados:</b> ${creados}, <b>Errores:</b> ${errores}
+                </div>
+            `;
+            
+            setTimeout(() => {
+                cancelarExcel();
+                cargarListaUsuarios();
+                progressDiv.style.display = 'none';
+                confirmBtn.disabled = false;
+            }, 3000);
+        }
+
+        // =====================
+        // Funciones Tabla General y Panel Hoy
+        // =====================
+        function cargarAsistencias() {
+            const loading = document.getElementById('loadingAsistencias');
+            const container = document.getElementById('asistenciasContainer');
+            const empty = document.getElementById('emptyAsistencias');
+            
+            loading.style.display = 'block';
+            container.style.display = 'none';
+            empty.style.display = 'none';
+            
+            obtenerTodasAsistencias()
+                .then((asistencias) => {
+                    todasAsistencias = asistencias;
+                    asistenciasFiltradas = asistencias;
+                    
+                    // Llenar tabla histórica
+                    mostrarAsistencias(asistencias);
+                    
+                    // Llenar tabla de HOY
+                    actualizarPanelHoy(asistencias);
+                })
+                .catch((error) => {
+                    console.error('Error al cargar asistencias:', error);
+                    loading.style.display = 'none';
+                    empty.style.display = 'block';
+                });
+        }
+
+        function actualizarPanelHoy(todas) {
+            const hoy = new Date().toISOString().split('T')[0];
+            const delDia = todas.filter(a => a.fecha === hoy);
+            
+            // Actualizar Badge/Contador
+            const badge = document.getElementById('badgeHoyTotal');
+            badge.innerHTML = `<i class="fas fa-users"></i> ${delDia.length} personas`;
+            
+            // Actualizar Tabla (SIN EMAIL)
+            const tbody = document.getElementById('tablaHoyBody');
+            const empty = document.getElementById('emptyHoy');
+            tbody.innerHTML = '';
+            
+            if (delDia.length === 0) {
+                empty.style.display = 'block';
+            } else {
+                empty.style.display = 'none';
+                delDia.forEach(a => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="ps-4 text-success fw-bold">${a.hora.substring(0, 5)}</td>
+                        <td>
+                            <strong>${a.nombre}</strong>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+        }
+
+        function mostrarAsistencias(asistencias) {
+            const loading = document.getElementById('loadingAsistencias');
+            const container = document.getElementById('asistenciasContainer');
+            const empty = document.getElementById('emptyAsistencias');
+            const body = document.getElementById('asistenciasBody');
+            const total = document.getElementById('totalRegistros');
+            
+            loading.style.display = 'none';
+            
+            if (asistencias.length === 0) {
+                empty.style.display = 'block';
+                container.style.display = 'none';
+            } else {
+                container.style.display = 'block';
+                empty.style.display = 'none';
+                total.textContent = `${asistencias.length} registro${asistencias.length !== 1 ? 's' : ''}`;
+                
+                body.innerHTML = '';
+                asistencias.forEach((asistencia, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${asistencia.nombre}</td>
+                        <td>${formatearFecha(asistencia.fecha)}</td>
+                        <td>${asistencia.hora}</td>
+                    `;
+                    body.appendChild(row);
+                });
+            }
+        }
+
+        function aplicarFiltro() {
+            const fi = document.getElementById('fechaInicio').value;
+            const ff = document.getElementById('fechaFin').value;
+            
+            if (!fi || !ff) { alert('Selecciona ambas fechas.'); return; }
+            if (fi > ff) { alert('Fecha inicio mayor a fin.'); return; }
+            
+            filtrarAsistenciasPorFecha(fi, ff)
+                .then((asistencias) => {
+                    asistenciasFiltradas = asistencias;
+                    mostrarAsistencias(asistencias);
+                });
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('fechaInicio').value = '';
+            document.getElementById('fechaFin').value = '';
+            document.getElementById('searchInput').value = '';
+            asistenciasFiltradas = todasAsistencias;
+            mostrarAsistencias(todasAsistencias);
+        }
+
+        function verHoy() {
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('fechaInicio').value = hoy;
+            document.getElementById('fechaFin').value = hoy;
+            aplicarFiltro();
+        }
+
+        function filtrarTabla() {
+            const val = document.getElementById('searchInput').value.toLowerCase();
+            const filtradas = asistenciasFiltradas.filter((a) => {
+                return a.nombre.toLowerCase().includes(val) || a.email.toLowerCase().includes(val);
+            });
+            mostrarAsistencias(filtradas);
+        }
+
+        function exportarDatos() {
+            const fi = document.getElementById('fechaInicio').value;
+            const ff = document.getElementById('fechaFin').value;
+            if (fi && ff) exportarPorFecha(fi, ff);
+            else exportarTodas();
+        }
+
+        function formatearFecha(f) {
+            const date = new Date(f + 'T00:00:00');
+            return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
         }
     </script>
 </body>
