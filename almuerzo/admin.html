@@ -330,6 +330,84 @@
             </div>
         </div>
 
+        <div class="card fade-in mt-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="fas fa-clock-check"></i> Preferencias de Registro de Usuarios
+                </span>
+                <button class="btn btn-sm btn-outline-primary" onclick="cargarPreferenciasRegistro()">
+                    <i class="fas fa-sync-alt"></i> Actualizar
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="loadingPreferencias" class="text-center py-4">
+                    <div class="loader"></div>
+                    <p class="text-muted">Cargando preferencias...</p>
+                </div>
+                
+                <div id="preferenciasContainer" style="display: none;">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Información:</strong> Aquí puedes ver cómo cada usuario ha configurado su registro de asistencia (manual diario, automático semanal o personalizado).
+                    </div>
+                    
+                    <div class="mb-3">
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="searchPreferencias" 
+                            placeholder="Buscar usuario por nombre..."
+                            onkeyup="filtrarPreferencias()"
+                        >
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <div class="stat-card text-center p-3">
+                                <div class="stat-number text-primary" id="contDiario">0</div>
+                                <div class="stat-label">Registro Manual Diario</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card text-center p-3">
+                                <div class="stat-number text-success" id="contSemanal">0</div>
+                                <div class="stat-label">Registro Automático Semanal</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="stat-card text-center p-3">
+                                <div class="stat-number text-warning" id="contPersonalizado">0</div>
+                                <div class="stat-label">Registro Personalizado</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Usuario</th>
+                                    <th>Nombre</th>
+                                    <th>Tipo de Registro</th>
+                                    <th>Detalles</th>
+                                    <th>Última Modificación</th>
+                                </tr>
+                            </thead>
+                            <tbody id="preferenciasTableBody">
+                                <!-- Se llenará dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div id="emptyPreferencias" class="empty-state text-center py-4" style="display: none;">
+                    <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                    <h5>No hay preferencias configuradas</h5>
+                    <p class="text-muted">Los usuarios aún no han configurado sus preferencias de registro.</p>
+                </div>
+            </div>
+        </div>
+
         <div class="card fade-in">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>
@@ -409,6 +487,7 @@
                 prepararAppSecundaria();
                 configurarRolAdmin();
                 cargarListaUsuarios();
+                cargarPreferenciasRegistro();
                 
                 // Establecer fecha de hoy en filtros
                 const hoy = new Date().toISOString().split('T')[0];
@@ -1072,6 +1151,119 @@
         function formatearFecha(f) {
             const date = new Date(f + 'T00:00:00');
             return date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        // =====================
+        // Funciones de Preferencias de Registro
+        // =====================
+        
+        function cargarPreferenciasRegistro() {
+            const loadingEl = document.getElementById('loadingPreferencias');
+            const containerEl = document.getElementById('preferenciasContainer');
+            const emptyEl = document.getElementById('emptyPreferencias');
+            
+            loadingEl.style.display = 'block';
+            containerEl.style.display = 'none';
+            emptyEl.style.display = 'none';
+            
+            // Obtener todas las preferencias
+            database.ref('preferenciasRegistro').once('value')
+                .then((snapshot) => {
+                    const preferencias = [];
+                    const contadores = { diario: 0, semanal: 0, personalizado: 0 };
+                    
+                    snapshot.forEach((childSnapshot) => {
+                        const userId = childSnapshot.key;
+                        const pref = childSnapshot.val();
+                        
+                        preferencias.push({
+                            userId: userId,
+                            ...pref
+                        });
+                        
+                        if (pref.tipo === 'diario') contadores.diario++;
+                        else if (pref.tipo === 'semanal') contadores.semanal++;
+                        else if (pref.tipo === 'personalizado') contadores.personalizado++;
+                    });
+                    
+                    loadingEl.style.display = 'none';
+                    
+                    if (preferencias.length === 0) {
+                        emptyEl.style.display = 'block';
+                    } else {
+                        containerEl.style.display = 'block';
+                        
+                        // Actualizar contadores
+                        document.getElementById('contDiario').textContent = contadores.diario;
+                        document.getElementById('contSemanal').textContent = contadores.semanal;
+                        document.getElementById('contPersonalizado').textContent = contadores.personalizado;
+                        
+                        // Llenar tabla
+                        mostrarPreferencias(preferencias);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error al cargar preferencias:', error);
+                    loadingEl.style.display = 'none';
+                    emptyEl.style.display = 'block';
+                });
+        }
+        
+        function mostrarPreferencias(preferencias) {
+            const tbody = document.getElementById('preferenciasTableBody');
+            tbody.innerHTML = '';
+            
+            // Obtener información de usuarios para mostrar nombres
+            database.ref('users').once('value')
+                .then((snapshot) => {
+                    const usuarios = {};
+                    snapshot.forEach((child) => {
+                        usuarios[child.key] = child.val();
+                    });
+                    
+                    preferencias.forEach((pref, index) => {
+                        const usuario = usuarios[pref.userId] || {};
+                        const row = document.createElement('tr');
+                        
+                        const fechaMod = pref.fechaCreacion 
+                            ? new Date(pref.fechaCreacion).toLocaleDateString('es-ES')
+                            : 'N/A';
+                        
+                        let tipoClase = 'secondary';
+                        let tipoLabel = 'Manual Diario';
+                        if (pref.tipo === 'semanal') {
+                            tipoClase = 'success';
+                            tipoLabel = 'Automático (L-V)';
+                        } else if (pref.tipo === 'personalizado') {
+                            tipoClase = 'warning';
+                            tipoLabel = 'Personalizado';
+                        }
+                        
+                        let detalles = '-';
+                        if (pref.tipo === 'personalizado' && pref.diasSeleccionados) {
+                            detalles = pref.diasSeleccionados.join(', ');
+                        }
+                        
+                        row.innerHTML = `
+                            <td><code>${pref.userId.substring(0, 12)}...</code></td>
+                            <td><strong>${usuario.displayName || 'N/A'}</strong><br><small class="text-muted">${usuario.email || ''}</small></td>
+                            <td><span class="badge bg-${tipoClase}">${tipoLabel}</span></td>
+                            <td><small>${detalles}</small></td>
+                            <td><small class="text-muted">${fechaMod}</small></td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                });
+        }
+        
+        function filtrarPreferencias() {
+            const val = document.getElementById('searchPreferencias').value.toLowerCase();
+            const filas = document.querySelectorAll('#preferenciasTableBody tr');
+            
+            filas.forEach((fila) => {
+                const texto = fila.textContent.toLowerCase();
+                fila.style.display = texto.includes(val) ? '' : 'none';
+            });
         }
     </script>
 </body>

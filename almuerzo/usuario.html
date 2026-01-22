@@ -54,8 +54,105 @@
             </div>
         </div>
 
-        <!-- Tarjeta de registro -->
+        <!-- Tarjeta de preferencias de registro -->
         <div class="card fade-in">
+            <div class="card-header">
+                <i class="fas fa-cog"></i> Configurar Registro de Asistencia
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-4">Elige cómo deseas registrar tu asistencia al almuerzo:</p>
+                
+                <div class="row">
+                    <!-- Opción 1: Registro Diario Manual -->
+                    <div class="col-md-6 mb-3">
+                        <div class="option-card p-3 border rounded cursor-pointer" id="opcionDiario" style="cursor: pointer;">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipoRegistro" id="radioDiario" value="diario">
+                                <label class="form-check-label w-100" for="radioDiario">
+                                    <strong><i class="fas fa-calendar-day"></i> Registro Manual Diario</strong>
+                                    <small class="d-block text-muted mt-1">Registrate manualmente cada día que asistas</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Opción 2: Registro Semanal Automático -->
+                    <div class="col-md-6 mb-3">
+                        <div class="option-card p-3 border rounded cursor-pointer" id="opcionSemanal" style="cursor: pointer;">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipoRegistro" id="radioSemanal" value="semanal">
+                                <label class="form-check-label w-100" for="radioSemanal">
+                                    <strong><i class="fas fa-calendar-week"></i> Registro Automático Semanal</strong>
+                                    <small class="d-block text-muted mt-1">Registrate automáticamente de lunes a viernes</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Opción 3: Registro Personalizado -->
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <div class="option-card p-3 border rounded cursor-pointer" id="opcionPersonalizado" style="cursor: pointer;">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="tipoRegistro" id="radioPersonalizado" value="personalizado">
+                                <label class="form-check-label w-100" for="radioPersonalizado">
+                                    <strong><i class="fas fa-hand-pointer"></i> Registro Personalizado</strong>
+                                    <small class="d-block text-muted mt-1">Elige los días específicos de la semana</small>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Selección de días (se muestra solo con opción personalizado) -->
+                        <div id="diasContainer" style="display: none;" class="mt-3">
+                            <p class="small text-muted">Selecciona los días en los que deseas asistir:</p>
+                            <div class="dias-grid">
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="dia-lunes" value="lunes" data-dia="lunes">
+                                    <label class="form-check-label" for="dia-lunes">Lunes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="dia-martes" value="martes" data-dia="martes">
+                                    <label class="form-check-label" for="dia-martes">Martes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="dia-miercoles" value="miercoles" data-dia="miercoles">
+                                    <label class="form-check-label" for="dia-miercoles">Miércoles</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="dia-jueves" value="jueves" data-dia="jueves">
+                                    <label class="form-check-label" for="dia-jueves">Jueves</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="dia-viernes" value="viernes" data-dia="viernes">
+                                    <label class="form-check-label" for="dia-viernes">Viernes</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="dia-sabado" value="sabado" data-dia="sabado">
+                                    <label class="form-check-label" for="dia-sabado">Sábado</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="checkbox" id="dia-domingo" value="domingo" data-dia="domingo">
+                                    <label class="form-check-label" for="dia-domingo">Domingo</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <button id="btnGuardarPreferencia" class="btn btn-success" onclick="guardarPreferenciaRegistro()">
+                        <i class="fas fa-save"></i> Guardar Preferencia
+                    </button>
+                    <p class="text-muted small mt-3">
+                        <i class="fas fa-info-circle"></i> Tu configuración actual: <span id="preferenciaActual">Cargando...</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta de registro -->
+        <div class="card fade-in" id="tarjetaRegistroDiario" style="display: none;">
             <div class="card-header">
                 <i class="fas fa-utensils"></i> Registro de Asistencia al Almuerzo
             </div>
@@ -130,144 +227,275 @@
     
     <script>
         let currentUser = null;
-    let nombreModal;
+        let nombreModal;
+        let preferenciaActual = null;
 
-    // Verificar autenticación al cargar
-    checkAuth(false)
-        .then((user) => {
-            currentUser = user;
-            
-            // Actualizar información del usuario
-            document.getElementById('userEmail').textContent = user.email;
-            
-            // Verificar si el usuario tiene nombre configurado
-            if (!user.displayName) {
-                // Mostrar modal para pedir nombre
-                nombreModal = new bootstrap.Modal(document.getElementById('nombreModal'));
-                nombreModal.show();
+        // Verificar autenticación al cargar
+        checkAuth(false)
+            .then((user) => {
+                currentUser = user;
                 
-                // Configurar evento para guardar nombre
-                document.getElementById('guardarNombreBtn').addEventListener('click', guardarNombreUsuario);
-            } else {
-                // Usuario ya tiene nombre, mostrar normalmente
-                document.getElementById('userName').textContent = user.displayName;
-                inicializarPagina();
-            }
-        })
-        .catch((error) => {
-            console.error('Error de autenticación:', error);
-        });
-
-    // Función para guardar nombre de usuario
-    function guardarNombreUsuario() {
-        const nuevoNombre = document.getElementById('modalNombreUsuario').value.trim();
-        const guardarBtn = document.getElementById('guardarNombreBtn');
-        
-        // Validar entrada
-        if (!nuevoNombre) {
-            // Mostrar mensaje de error en el modal
-            const formControl = document.getElementById('modalNombreUsuario');
-            formControl.classList.add('is-invalid');
-            return;
-        }
-        
-        // Cambiar estado del botón
-        guardarBtn.disabled = true;
-        guardarBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
-        
-        // Actualizar perfil
-        actualizarNombreUsuario(nuevoNombre)
-            .then((nombre) => {
-                // Actualizar nombre en la UI
-                document.getElementById('userName').textContent = nombre;
+                // Actualizar información del usuario
+                document.getElementById('userEmail').textContent = user.email;
                 
-                // Cerrar modal
-                nombreModal.hide();
-                
-                // Mostrar mensaje de éxito
-                mostrarAlerta('¡Bienvenido(a), ' + nombre + '! Tu perfil ha sido configurado.', 'success');
-                
-                // Inicializar la página
-                inicializarPagina();
+                // Verificar si el usuario tiene nombre configurado
+                if (!user.displayName) {
+                    // Mostrar modal para pedir nombre
+                    nombreModal = new bootstrap.Modal(document.getElementById('nombreModal'));
+                    nombreModal.show();
+                    
+                    // Configurar evento para guardar nombre
+                    document.getElementById('guardarNombreBtn').addEventListener('click', guardarNombreUsuario);
+                } else {
+                    // Usuario ya tiene nombre, mostrar normalmente
+                    document.getElementById('userName').textContent = user.displayName;
+                    inicializarPagina();
+                }
             })
             .catch((error) => {
-                console.error('Error al actualizar perfil:', error);
-                mostrarAlerta('Error al guardar el nombre. Por favor intenta nuevamente.', 'danger');
-                
-                // Restaurar botón
-                guardarBtn.disabled = false;
-                guardarBtn.innerHTML = '<i class="fas fa-save"></i> Guardar y continuar';
+                console.error('Error de autenticación:', error);
             });
-    }
-    
-    // Configurar validación de formulario modal
-    document.getElementById('nombreForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        guardarNombreUsuario();
-    });
 
-    // Función para inicializar la página una vez configurado el nombre
-    function inicializarPagina() {
-        // Cargar historial
-        cargarHistorial();
-        
-        // Verificar si ya registró hoy
-        verificarRegistroHoy();
-
-        // Cargar menú del día
-        cargarMenuDeHoy();
-    }
-
-    // Verificar si ya registró asistencia hoy
-    function verificarRegistroHoy() {
-        verificarAsistenciaHoy(currentUser.uid)
-            .then((yaRegistrado) => {
-                const btnRegistrar = document.getElementById('btnRegistrar');
-                if (yaRegistrado) {
-                    btnRegistrar.disabled = true;
-                    btnRegistrar.innerHTML = '<i class="fas fa-check-double"></i> Ya registraste tu asistencia hoy';
-                    btnRegistrar.classList.remove('btn-primary');
-                    btnRegistrar.classList.add('btn-success');
+        // Función para guardar nombre de usuario
+        function guardarNombreUsuario() {
+            const nuevoNombre = document.getElementById('modalNombreUsuario').value.trim();
+            const guardarBtn = document.getElementById('guardarNombreBtn');
+            
+            // Validar entrada
+            if (!nuevoNombre) {
+                // Mostrar mensaje de error en el modal
+                const formControl = document.getElementById('modalNombreUsuario');
+                formControl.classList.add('is-invalid');
+                return;
+            }
+            
+            // Cambiar estado del botón
+            guardarBtn.disabled = true;
+            guardarBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+            
+            // Actualizar perfil
+            actualizarNombreUsuario(nuevoNombre)
+                .then((nombre) => {
+                    // Actualizar nombre en la UI
+                    document.getElementById('userName').textContent = nombre;
                     
-                    mostrarAlerta('Ya has registrado tu asistencia para hoy.', 'info');
-                }
-            });
-    }
-
-    // Registrar asistencia
-    function registrarMiAsistencia() {
-        const btnRegistrar = document.getElementById('btnRegistrar');
+                    // Cerrar modal
+                    nombreModal.hide();
+                    
+                    // Mostrar mensaje de éxito
+                    mostrarAlerta('¡Bienvenido(a), ' + nombre + '! Tu perfil ha sido configurado.', 'success');
+                    
+                    // Inicializar la página
+                    inicializarPagina();
+                })
+                .catch((error) => {
+                    console.error('Error al actualizar perfil:', error);
+                    mostrarAlerta('Error al guardar el nombre. Por favor intenta nuevamente.', 'danger');
+                    
+                    // Restaurar botón
+                    guardarBtn.disabled = false;
+                    guardarBtn.innerHTML = '<i class="fas fa-save"></i> Guardar y continuar';
+                });
+        }
         
-        // Deshabilitar botón
-        btnRegistrar.disabled = true;
-        btnRegistrar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
-        
-        // Registrar en la base de datos
-        registrarAsistencia(
-            currentUser.uid,
-            currentUser.displayName,
-            currentUser.email
-        )
-        .then(() => {
-            // Éxito
-            btnRegistrar.innerHTML = '<i class="fas fa-check-double"></i> Ya registraste tu asistencia hoy';
-            btnRegistrar.classList.remove('btn-primary');
-            btnRegistrar.classList.add('btn-success');
-            
-            mostrarAlerta('¡Asistencia registrada exitosamente!', 'success');
-            
-            // Recargar historial
-            cargarHistorial();
-        })
-        .catch((error) => {
-            console.error('Error al registrar:', error);
-            mostrarAlerta('Error al registrar la asistencia. Por favor, intenta nuevamente.', 'danger');
-            
-            // Rehabilitar botón
-            btnRegistrar.disabled = false;
-            btnRegistrar.innerHTML = '<i class="fas fa-check-circle"></i> Registrar Asistencia';
+        // Configurar validación de formulario modal
+        document.getElementById('nombreForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            guardarNombreUsuario();
         });
-    }
+
+        // Función para inicializar la página una vez configurado el nombre
+        function inicializarPagina() {
+            // Cargar preferencia de registro
+            cargarPreferenciaRegistro();
+            
+            // Cargar historial
+            cargarHistorial();
+            
+            // Verificar si ya registró hoy
+            verificarRegistroHoy();
+
+            // Cargar menú del día
+            cargarMenuDeHoy();
+            
+            // Configurar listeners para opciones de registro
+            configurarOpcionesRegistro();
+        }
+
+        // Configurar los listeners para las opciones de registro
+        function configurarOpcionesRegistro() {
+            const radios = document.querySelectorAll('input[name="tipoRegistro"]');
+            const diasContainer = document.getElementById('diasContainer');
+            const opcionDiario = document.getElementById('opcionDiario');
+            const opcionSemanal = document.getElementById('opcionSemanal');
+            const opcionPersonalizado = document.getElementById('opcionPersonalizado');
+            
+            // Cambio de opción
+            radios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    if (this.value === 'personalizado') {
+                        diasContainer.style.display = 'block';
+                    } else {
+                        diasContainer.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Click en las tarjetas de opción
+            opcionDiario.addEventListener('click', () => {
+                document.getElementById('radioDiario').checked = true;
+                diasContainer.style.display = 'none';
+            });
+            
+            opcionSemanal.addEventListener('click', () => {
+                document.getElementById('radioSemanal').checked = true;
+                diasContainer.style.display = 'none';
+            });
+            
+            opcionPersonalizado.addEventListener('click', () => {
+                document.getElementById('radioPersonalizado').checked = true;
+                diasContainer.style.display = 'block';
+            });
+        }
+
+        // Cargar la preferencia actual del usuario
+        function cargarPreferenciaRegistro() {
+            obtenerPreferenciaRegistro(currentUser.uid)
+                .then((preferencia) => {
+                    preferenciaActual = preferencia;
+                    
+                    // Actualizar UI con preferencia actual
+                    if (preferencia) {
+                        document.getElementById('preferenciaActual').textContent = 
+                            obtenerDescripcionPreferencia(preferencia);
+                        
+                        // Seleccionar la opción actual
+                        const radioActual = document.querySelector(
+                            `input[name="tipoRegistro"][value="${preferencia.tipo}"]`
+                        );
+                        if (radioActual) {
+                            radioActual.checked = true;
+                            
+                            // Si es personalizado, marcar los días seleccionados
+                            if (preferencia.tipo === 'personalizado') {
+                                document.getElementById('diasContainer').style.display = 'block';
+                                document.querySelectorAll('.form-check-input[id^="dia-"]').forEach(checkbox => {
+                                    checkbox.checked = preferencia.diasSeleccionados.includes(checkbox.value);
+                                });
+                            }
+                        }
+                    } else {
+                        document.getElementById('preferenciaActual').textContent = 'Sin configurar';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error al cargar preferencia:', error);
+                    document.getElementById('preferenciaActual').textContent = 'Error al cargar';
+                });
+        }
+
+        // Guardar la preferencia de registro
+        function guardarPreferenciaRegistro() {
+            const tipoSeleccionado = document.querySelector('input[name="tipoRegistro"]:checked').value;
+            const diasSeleccionados = [];
+            
+            if (tipoSeleccionado === 'personalizado') {
+                // Obtener días seleccionados
+                document.querySelectorAll('.form-check-input[id^="dia-"]:checked').forEach(checkbox => {
+                    diasSeleccionados.push(checkbox.value);
+                });
+                
+                // Validar que hay al menos un día seleccionado
+                if (diasSeleccionados.length === 0) {
+                    mostrarAlerta('Por favor selecciona al menos un día de la semana', 'warning');
+                    return;
+                }
+            }
+            
+            const btnGuardar = document.getElementById('btnGuardarPreferencia');
+            btnGuardar.disabled = true;
+            btnGuardar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+            
+            guardarPreferenciaRegistro(currentUser.uid, tipoSeleccionado, diasSeleccionados)
+                .then(() => {
+                    mostrarAlerta('¡Preferencia de registro guardada exitosamente!', 'success');
+                    
+                    // Recargar preferencia para actualizar UI
+                    cargarPreferenciaRegistro();
+                    
+                    // Si seleccionó diario, mostrar la tarjeta de registro
+                    if (tipoSeleccionado === 'diario') {
+                        document.getElementById('tarjetaRegistroDiario').style.display = 'block';
+                        verificarRegistroHoy();
+                    } else {
+                        document.getElementById('tarjetaRegistroDiario').style.display = 'none';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error al guardar preferencia:', error);
+                    mostrarAlerta('Error al guardar la preferencia. Por favor intenta nuevamente.', 'danger');
+                })
+                .finally(() => {
+                    btnGuardar.disabled = false;
+                    btnGuardar.innerHTML = '<i class="fas fa-save"></i> Guardar Preferencia';
+                });
+        }
+
+        // Verificar si ya registró asistencia hoy
+        function verificarRegistroHoy() {
+            verificarAsistenciaHoy(currentUser.uid)
+                .then((yaRegistrado) => {
+                    const btnRegistrar = document.getElementById('btnRegistrar');
+                    const tipoSeleccionado = document.querySelector('input[name="tipoRegistro"]:checked');
+                    
+                    // Solo mostrar si está en modo diario
+                    if (tipoSeleccionado && tipoSeleccionado.value === 'diario') {
+                        if (yaRegistrado) {
+                            btnRegistrar.disabled = true;
+                            btnRegistrar.innerHTML = '<i class="fas fa-check-double"></i> Ya registraste tu asistencia hoy';
+                            btnRegistrar.classList.remove('btn-primary');
+                            btnRegistrar.classList.add('btn-success');
+                            
+                            mostrarAlerta('Ya has registrado tu asistencia para hoy.', 'info');
+                        }
+                    }
+                });
+        }
+
+        // Registrar asistencia
+        function registrarMiAsistencia() {
+            const btnRegistrar = document.getElementById('btnRegistrar');
+            
+            // Deshabilitar botón
+            btnRegistrar.disabled = true;
+            btnRegistrar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
+            
+            // Registrar en la base de datos
+            registrarAsistencia(
+                currentUser.uid,
+                currentUser.displayName,
+                currentUser.email
+            )
+            .then(() => {
+                // Éxito
+                btnRegistrar.innerHTML = '<i class="fas fa-check-double"></i> Ya registraste tu asistencia hoy';
+                btnRegistrar.classList.remove('btn-primary');
+                btnRegistrar.classList.add('btn-success');
+                
+                mostrarAlerta('¡Asistencia registrada exitosamente!', 'success');
+                
+                // Recargar historial
+                cargarHistorial();
+            })
+            .catch((error) => {
+                console.error('Error al registrar:', error);
+                mostrarAlerta('Error al registrar la asistencia. Por favor, intenta nuevamente.', 'danger');
+                
+                // Rehabilitar botón
+                btnRegistrar.disabled = false;
+                btnRegistrar.innerHTML = '<i class="fas fa-check-circle"></i> Registrar Asistencia';
+            });
+        }
         // Cargar historial de asistencias
         function cargarHistorial() {
             const loadingHistorial = document.getElementById('loadingHistorial');
