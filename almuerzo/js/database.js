@@ -230,3 +230,82 @@ function obtenerDescripcionPreferencia(preferencia) {
     
     return 'Sin configurar';
 }
+
+// =====================
+// Gestión de Días Feriados (NEW)
+// =====================
+
+// Obtener todos los días feriados
+function obtenerDiasFeriados() {
+    return database.ref('diasFeriados').once('value')
+        .then((snapshot) => {
+            const feriados = [];
+            snapshot.forEach((childSnapshot) => {
+                feriados.push({
+                    fecha: childSnapshot.key,
+                    ...childSnapshot.val()
+                });
+            });
+            return feriados.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+        });
+}
+
+// Agregar un día feriado
+function agregarDiaFeriado(fecha, nombre) {
+    return database.ref(`diasFeriados/${fecha}`).set({
+        nombre: nombre,
+        fechaCreacion: new Date().getTime()
+    });
+}
+
+// Eliminar un día feriado
+function eliminarDiaFeriado(fecha) {
+    return database.ref(`diasFeriados/${fecha}`).remove();
+}
+
+// Verificar si una fecha es feriado
+function esUnDiaFeriado(fecha) {
+    return obtenerDiasFeriados()
+        .then((feriados) => {
+            return feriados.some((f) => f.fecha === fecha);
+        });
+}
+
+// Obtener nombre del feriado si existe
+function obtenerNombreFeriado(fecha) {
+    return obtenerDiasFeriados()
+        .then((feriados) => {
+            const feriado = feriados.find((f) => f.fecha === fecha);
+            return feriado ? feriado.nombre : null;
+        });
+}
+
+// Actualizar debeRegistrarseHoy para validar feriados
+function debeRegistrarseHoyConFeriados(userId, preferencia) {
+    if (!preferencia) return Promise.resolve(false);
+    
+    const dias = ['domingo', 'lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado'];
+    const hoyIndex = new Date().getDay();
+    const hoyNombre = dias[hoyIndex];
+    const hoyFecha = new Date().toISOString().split('T')[0];
+    
+    let debeRegistrarse = false;
+    
+    if (preferencia.tipo === 'semanal') {
+        debeRegistrarse = hoyIndex >= 1 && hoyIndex <= 5;
+    } else if (preferencia.tipo === 'personalizado') {
+        debeRegistrarse = preferencia.diasSeleccionados.includes(hoyNombre);
+    } else if (preferencia.tipo === 'diario') {
+        return Promise.resolve(false);
+    }
+    
+    // Si debe registrarse, validar que no sea feriado
+    if (debeRegistrarse) {
+        return esUnDiaFeriado(hoyFecha)
+            .then((esFeriado) => {
+                return !esFeriado;
+            });
+    }
+    
+    return Promise.resolve(false);
+}

@@ -141,7 +141,7 @@
                 </div>
                 
                 <div class="mt-4">
-                    <button id="btnGuardarPreferencia" class="btn btn-success" onclick="guardarPreferenciaRegistro()">
+                    <button id="btnGuardarPreferencia" class="btn btn-success" onclick="guardarMiPreferenciaRegistro()">
                         <i class="fas fa-save"></i> Guardar Preferencia
                     </button>
                     <p class="text-muted small mt-3">
@@ -395,7 +395,7 @@
         }
 
         // Guardar la preferencia de registro
-        function guardarPreferenciaRegistro() {
+        function guardarMiPreferenciaRegistro() {
             const tipoSeleccionado = document.querySelector('input[name="tipoRegistro"]:checked').value;
             const diasSeleccionados = [];
             

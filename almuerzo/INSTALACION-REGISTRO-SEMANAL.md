@@ -1,4 +1,4 @@
-# Guía de Instalación: Sistema de Registro Semanal
+# Guía de Instalación: Sistema de Registro Semanal y Gestión de Feriados
 
 ## Paso 1: Actualizar las Reglas de Firebase
 
@@ -23,6 +23,10 @@
         ".write": "auth.uid == $userId"
       }
     },
+    "diasFeriados": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
     "menuSemanal": {
       ".read": "auth != null"
     },
@@ -40,13 +44,14 @@
 
 Asegúrate de que los siguientes archivos estén actualizados:
 
-✅ **almuerzo/js/database.js** - Contiene nuevas funciones para preferencias
+✅ **almuerzo/js/database.js** - Contiene nuevas funciones para preferencias y feriados
 ✅ **almuerzo/usuario.html** - Interfaz de configuración de registro
-✅ **almuerzo/admin.html** - Panel para ver preferencias de usuarios
+✅ **almuerzo/admin.html** - Panel para ver preferencias de usuarios y gestionar feriados
 ✅ **almuerzo/css/almuerzo.css** - Estilos para nuevos elementos
 ✅ **almuerzo/REGISTRO-SEMANAL.md** - Documentación completa
+✅ **almuerzo/GESTION-DIAS-FERIADOS.md** - Documentación de feriados
 
-## Paso 3: Prueba del Sistema
+## Paso 3: Prueba del Sistema de Registro Semanal
 
 ### Para Usuarios:
 
@@ -69,6 +74,19 @@ Asegúrate de que los siguientes archivos estén actualizados:
    - Tabla con detalles de cada usuario
    - Buscador por nombre
 4. Haz clic en **"Actualizar"** para refrescar la lista
+
+## Paso 3b: Configurar Días Feriados ⭐ NUEVO
+
+1. En el panel de admin, busca **"Gestión de Días Feriados"**
+2. Ingresa la fecha del feriado (formato: YYYY-MM-DD, ej: 2026-01-01)
+3. Ingresa el nombre del feriado (ej: "Año Nuevo", "Navidad")
+4. Haz clic en **"Agregar Feriado"**
+5. Verifica que aparezca en la tabla
+
+**Beneficios:**
+- ✅ Los empleados NO se registran automáticamente en días feriados
+- ✅ Aún pueden registrarse manualmente si lo requieren
+- ✅ Evita contar asistencias en días no laborales
 
 ## Paso 4: Configurar Registro Automático (Opcional)
 
@@ -144,6 +162,9 @@ exports.registroAsistenciaAutomatica = functions.pubsub
 - [ ] Se muestran correctamente los contadores de usuarios
 - [ ] La búsqueda en el panel de admin funciona
 - [ ] Los estilos se ven correctamente en desktop y mobile
+- [ ] **NUEVO**: El admin puede agregar feriados
+- [ ] **NUEVO**: Los feriados aparecen en la tabla
+- [ ] **NUEVO**: Los empleados NO se registran en días feriados
 
 ## Troubleshooting
 
@@ -184,4 +205,7 @@ Para reportar problemas o solicitar mejoras, contacta al equipo de desarrollo.
 - ✅ Creada interfaz de configuración en usuario.html
 - ✅ Agregada visualización de preferencias en admin.html
 - ✅ Agregados estilos CSS para nuevos elementos
+- ✅ **NUEVO**: Agregadas funciones de gestión de feriados en database.js
+- ✅ **NUEVO**: Agregado panel de gestión de feriados en admin.html
+- ✅ **NUEVO**: Validación de feriados en registro automático
 - ✅ Documentación completa del sistema
