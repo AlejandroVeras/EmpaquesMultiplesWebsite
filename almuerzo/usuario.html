@@ -306,20 +306,58 @@
 
         // Función para inicializar la página una vez configurado el nombre
         function inicializarPagina() {
-            // Cargar preferencia de registro
-            cargarPreferenciaRegistro();
-            
-            // Cargar historial
-            cargarHistorial();
-            
-            // Verificar si ya registró hoy
-            verificarRegistroHoy();
+            // Cargar preferencia de registro y luego proceder con la lógica automática
+            cargarPreferenciaRegistro()
+                .then((preferencia) => {
+                    // Cargar historial
+                    cargarHistorial();
 
-            // Cargar menú del día
-            cargarMenuDeHoy();
-            
-            // Configurar listeners para opciones de registro
-            configurarOpcionesRegistro();
+                    // Verificar si ya registró hoy (solo para modo diario)
+                    verificarRegistroHoy();
+
+                    // Intentar registro automático para preferencias semanal/personalizado
+                    if (preferencia && (preferencia.tipo === \'semanal\' || preferencia.tipo === \'personalizado\')) {
+                        // Primero, verificar si la fecha actual es un feriado
+                        esUnDiaFeriado(new Date().toISOString().split(\'T\')[0])
+                            .then(esFeriado => {
+                                if (esFeriado) {
+                                    mostrarAlerta(\'Hoy es un día feriado, el registro automático está deshabilitado.\', \'info\');
+                                } else {
+                                    // Si no es feriado, intentar registro automático
+                                    registrarAsistenciaAutomatica(
+                                        currentUser.uid,
+                                        currentUser.displayName,
+                                        currentUser.email
+                                    ).then(resultado => {
+                                        if (resultado.exito) {
+                                            mostrarAlerta(resultado.mensaje, \'success\');
+                                            cargarHistorial(); // Recargar historial después de registro automático
+                                        } else if (resultado.mensaje !== \'Ya está registrado para hoy\' && resultado.mensaje !== \'No debe registrarse hoy según su configuración\') {
+                                            // Mostrar otros mensajes de error, excepto si ya está registrado o no debe registrarse hoy
+                                            mostrarAlerta(resultado.mensaje, \'warning\');
+                                        }\
+                                    }).catch(error => {
+                                        console.error(\'Error en registro automático:\', error);\
+                                        mostrarAlerta(\'Error en el registro automático.\', \'danger\');
+                                    });
+                                }\
+                            })\
+                            .catch(error => {\
+                                console.error(\'Error al verificar día feriado:\', error);\
+                                mostrarAlerta(\'Error al verificar días feriados para registro automático.\', \'danger\');\
+                            });\
+                    }\
+
+                    // Cargar menú del día
+                    cargarMenuDeHoy();
+
+                    // Configurar listeners para opciones de registro
+                    configurarOpcionesRegistro();
+                })
+                .catch(error => {
+                    console.error(\'Error al inicializar la página:\', error);\
+                    mostrarAlerta(\'Error al cargar la configuración inicial.\', \'danger\');\
+                });
         }
 
         // Configurar los listeners para las opciones de registro
@@ -360,7 +398,7 @@
 
         // Cargar la preferencia actual del usuario
         function cargarPreferenciaRegistro() {
-            obtenerPreferenciaRegistro(currentUser.uid)
+            return obtenerPreferenciaRegistro(currentUser.uid)
                 .then((preferencia) => {
                     preferenciaActual = preferencia;
                     
