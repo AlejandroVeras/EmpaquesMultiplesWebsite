@@ -230,6 +230,53 @@
         let nombreModal;
         let preferenciaActual = null;
 
+        // Guardar la preferencia de registro
+        function guardarMiPreferenciaRegistro() {
+            const tipoSeleccionado = document.querySelector('input[name="tipoRegistro"]:checked').value;
+            const diasSeleccionados = [];
+            
+            if (tipoSeleccionado === 'personalizado') {
+                // Obtener días seleccionados
+                document.querySelectorAll('.form-check-input[id^="dia-"]:checked').forEach(checkbox => {
+                    diasSeleccionados.push(checkbox.value);
+                });
+                
+                // Validar que hay al menos un día seleccionado
+                if (diasSeleccionados.length === 0) {
+                    mostrarAlerta('Por favor selecciona al menos un día de la semana', 'warning');
+                    return;
+                }
+            }
+            
+            const btnGuardar = document.getElementById('btnGuardarPreferencia');
+            btnGuardar.disabled = true;
+            btnGuardar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+            
+            guardarPreferenciaRegistro(currentUser.uid, tipoSeleccionado, diasSeleccionados)
+                .then(() => {
+                    mostrarAlerta('¡Preferencia de registro guardada exitosamente!', 'success');
+                    
+                    // Recargar preferencia para actualizar UI
+                    cargarPreferenciaRegistro();
+                    
+                    // Si seleccionó diario, mostrar la tarjeta de registro
+                    if (tipoSeleccionado === 'diario') {
+                        document.getElementById('tarjetaRegistroDiario').style.display = 'block';
+                        verificarRegistroHoy();
+                    } else {
+                        document.getElementById('tarjetaRegistroDiario').style.display = 'none';
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error al guardar preferencia:', error);
+                    mostrarAlerta('Error al guardar la preferencia. Por favor intenta nuevamente.', 'danger');
+                })
+                .finally(() => {
+                    btnGuardar.disabled = false;
+                    btnGuardar.innerHTML = '<i class="fas fa-save"></i> Guardar Preferencia';
+                });
+        }
+
         // Verificar autenticación al cargar
         checkAuth(false)
             .then((user) => {
@@ -316,12 +363,12 @@
                     verificarRegistroHoy();
 
                     // Intentar registro automático para preferencias semanal/personalizado
-                    if (preferencia && (preferencia.tipo === \'semanal\' || preferencia.tipo === \'personalizado\')) {
+                    if (preferencia && (preferencia.tipo === 'semanal' || preferencia.tipo === 'personalizado')) {
                         // Primero, verificar si la fecha actual es un feriado
-                        esUnDiaFeriado(new Date().toISOString().split(\'T\')[0])
+                        esUnDiaFeriado(new Date().toISOString().split('T')[0])
                             .then(esFeriado => {
                                 if (esFeriado) {
-                                    mostrarAlerta(\'Hoy es un día feriado, el registro automático está deshabilitado.\', \'info\');
+                                    mostrarAlerta('Hoy es un día feriado, el registro automático está deshabilitado.', 'info');
                                 } else {
                                     // Si no es feriado, intentar registro automático
                                     registrarAsistenciaAutomatica(
@@ -330,23 +377,23 @@
                                         currentUser.email
                                     ).then(resultado => {
                                         if (resultado.exito) {
-                                            mostrarAlerta(resultado.mensaje, \'success\');
+                                            mostrarAlerta(resultado.mensaje, 'success');
                                             cargarHistorial(); // Recargar historial después de registro automático
-                                        } else if (resultado.mensaje !== \'Ya está registrado para hoy\' && resultado.mensaje !== \'No debe registrarse hoy según su configuración\') {
+                                        } else if (resultado.mensaje !== 'Ya está registrado para hoy' && resultado.mensaje !== 'No debe registrarse hoy según su configuración') {
                                             // Mostrar otros mensajes de error, excepto si ya está registrado o no debe registrarse hoy
-                                            mostrarAlerta(resultado.mensaje, \'warning\');
-                                        }\
+                                            mostrarAlerta(resultado.mensaje, 'warning');
+                                        }
                                     }).catch(error => {
-                                        console.error(\'Error en registro automático:\', error);\
-                                        mostrarAlerta(\'Error en el registro automático.\', \'danger\');
+                                        console.error('Error en registro automático:', error);
+                                        mostrarAlerta('Error en el registro automático.', 'danger');
                                     });
-                                }\
-                            })\
-                            .catch(error => {\
-                                console.error(\'Error al verificar día feriado:\', error);\
-                                mostrarAlerta(\'Error al verificar días feriados para registro automático.\', \'danger\');\
-                            });\
-                    }\
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error al verificar día feriado:', error);
+                                mostrarAlerta('Error al verificar días feriados para registro automático.', 'danger');
+                            });
+                    }
 
                     // Cargar menú del día
                     cargarMenuDeHoy();
@@ -432,52 +479,6 @@
                 });
         }
 
-        // Guardar la preferencia de registro
-        function guardarMiPreferenciaRegistro() {
-            const tipoSeleccionado = document.querySelector('input[name="tipoRegistro"]:checked').value;
-            const diasSeleccionados = [];
-            
-            if (tipoSeleccionado === 'personalizado') {
-                // Obtener días seleccionados
-                document.querySelectorAll('.form-check-input[id^="dia-"]:checked').forEach(checkbox => {
-                    diasSeleccionados.push(checkbox.value);
-                });
-                
-                // Validar que hay al menos un día seleccionado
-                if (diasSeleccionados.length === 0) {
-                    mostrarAlerta('Por favor selecciona al menos un día de la semana', 'warning');
-                    return;
-                }
-            }
-            
-            const btnGuardar = document.getElementById('btnGuardarPreferencia');
-            btnGuardar.disabled = true;
-            btnGuardar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
-            
-            guardarPreferenciaRegistro(currentUser.uid, tipoSeleccionado, diasSeleccionados)
-                .then(() => {
-                    mostrarAlerta('¡Preferencia de registro guardada exitosamente!', 'success');
-                    
-                    // Recargar preferencia para actualizar UI
-                    cargarPreferenciaRegistro();
-                    
-                    // Si seleccionó diario, mostrar la tarjeta de registro
-                    if (tipoSeleccionado === 'diario') {
-                        document.getElementById('tarjetaRegistroDiario').style.display = 'block';
-                        verificarRegistroHoy();
-                    } else {
-                        document.getElementById('tarjetaRegistroDiario').style.display = 'none';
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error al guardar preferencia:', error);
-                    mostrarAlerta('Error al guardar la preferencia. Por favor intenta nuevamente.', 'danger');
-                })
-                .finally(() => {
-                    btnGuardar.disabled = false;
-                    btnGuardar.innerHTML = '<i class="fas fa-save"></i> Guardar Preferencia';
-                });
-        }
 
         // Verificar si ya registró asistencia hoy
         function verificarRegistroHoy() {
