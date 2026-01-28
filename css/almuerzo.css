@@ -354,3 +354,85 @@ body {
 .border-primary {
     border-color: var(--primary-color) !important;
 }
+
+/* Estilos para las tarjetas de opción de registro */
+.option-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.option-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    border-color: var(--primary-color);
+}
+
+.option-card .form-check-input {
+    position: absolute;
+    opacity: 0;
+}
+
+.option-card .form-check-label {
+    display: block;
+    cursor: pointer;
+    padding: 15px;
+    margin-bottom: 0;
+    border-radius: 10px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.option-card .form-check-input:checked + .form-check-label {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.option-card .form-check-input:checked + .form-check-label .text-muted {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.option-card .form-check-input:checked + .form-check-label i {
+    color: white;
+}
+
+.option-card i {
+    color: var(--primary-color);
+    transition: color 0.3s ease;
+}
+
+/* Estilos para los checkboxes de días personalizados */
+.dia-checkbox {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.dia-checkbox:checked {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.form-check-input:checked[type="checkbox"] {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+}
+
+.form-switch .form-check-input:focus {
+    border-color: rgba(17, 104, 53, 0.5);
+    box-shadow: 0 0 0 0.25rem rgba(17, 104, 53, 0.25);
+}
+
+.form-switch .form-check-input {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23666' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='M6 10l3 3l6-6'/%3e%3c/svg%3e");
+}
+
+.form-switch .form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}

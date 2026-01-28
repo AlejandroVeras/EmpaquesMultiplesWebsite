@@ -100,18 +100,6 @@ function actualizarNombreUsuario(nuevoNombre) {
 }
 
 
-// Función para actualizar el nombre del usuario
-function actualizarNombreUsuario(nuevoNombre) {
-    return auth.currentUser.updateProfile({
-        displayName: nuevoNombre
-    }).then(() => {
-        console.log("Nombre de usuario actualizado correctamente");
-        return nuevoNombre;
-    }).catch((error) => {
-        console.error("Error al actualizar el nombre:", error);
-        throw error;
-    });
-}
 
 // Obtener rol de usuario desde la base de datos
 function getUserRole(uid) {

@@ -93,6 +93,102 @@
             </div>
         </div>
 
+        <!-- Configuración de Preferencia de Registro -->
+        <div class="card fade-in">
+            <div class="card-header">
+                <i class="fas fa-cog"></i> Configuración de Preferencia de Registro
+            </div>
+            <div class="card-body">
+                <h5 class="mb-3 text-center">¿Cómo prefieres registrar tu asistencia al almuerzo?</h5>
+                <p class="text-muted small text-center">Tu preferencia actual: <span id="preferenciaActual" class="fw-bold">Cargando...</span></p>
+
+                <div class="row g-3 mb-4 justify-content-center">
+                    <div class="col-md-4">
+                        <div class="card option-card h-100" id="opcionDiario">
+                            <div class="card-body text-center">
+                                <input class="form-check-input" type="radio" name="tipoRegistro" id="radioDiario" value="diario">
+                                <label class="form-check-label d-block mt-2" for="radioDiario">
+                                    <i class="fas fa-sun fa-2x mb-2"></i>
+                                    <p class="fw-bold">Diario</p>
+                                    <small class="text-muted">Registraré mi asistencia cada día.</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card option-card h-100" id="opcionSemanal">
+                            <div class="card-body text-center">
+                                <input class="form-check-input" type="radio" name="tipoRegistro" id="radioSemanal" value="semanal">
+                                <label class="form-check-label d-block mt-2" for="radioSemanal">
+                                    <i class="fas fa-calendar-week fa-2x mb-2"></i>
+                                    <p class="fw-bold">Semanal (L-V)</p>
+                                    <small class="text-muted">Registraré mi asistencia automáticamente de Lunes a Viernes.</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card option-card h-100" id="opcionPersonalizado">
+                            <div class="card-body text-center">
+                                <input class="form-check-input" type="radio" name="tipoRegistro" id="radioPersonalizado" value="personalizado">
+                                <label class="form-check-label d-block mt-2" for="radioPersonalizado">
+                                    <i class="fas fa-cogs fa-2x mb-2"></i>
+                                    <p class="fw-bold">Personalizado</p>
+                                    <small class="text-muted">Seleccionaré mis días específicos.</small>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="diasContainer" style="display: none;">
+                    <h6 class="mb-3">Selecciona los días para tu registro personalizado:</h6>
+                    <div class="row g-2 justify-content-center mb-3">
+                        <div class="col-4 col-md-2">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="dia-Lunes" value="Lunes">
+                                <label class="form-check-label" for="dia-Lunes">Lunes</label>
+                            </div>
+                        </div>
+                        <div class="col-4 col-md-2">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="dia-Martes" value="Martes">
+                                <label class="form-check-label" for="dia-Martes">Martes</label>
+                            </div>
+                        </div>
+                        <div class="col-4 col-md-2">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="dia-Miércoles" value="Miércoles">
+                                <label class="form-check-label" for="dia-Miércoles">Miércoles</label>
+                            </div>
+                        </div>
+                        <div class="col-4 col-md-2">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="dia-Jueves" value="Jueves">
+                                <label class="form-check-label" for="dia-Jueves">Jueves</label>
+                            </div>
+                        </div>
+                        <div class="col-4 col-md-2">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="dia-Viernes" value="Viernes">
+                                <label class="form-check-label" for="dia-Viernes">Viernes</label>
+                            </div>
+                        </div>
+                        <div class="col-4 col-md-2">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="dia-Sábado" value="Sábado">
+                                <label class="form-check-label" for="dia-Sábado">Sábado</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="btnGuardarPreferencia" class="btn btn-primary mt-3" onclick="guardarMiPreferenciaRegistro()">
+                    <i class="fas fa-save"></i> Guardar Preferencia
+                </button>
+            </div>
+        </div>
+
         <!-- Historial de asistencias -->
         <div class="card fade-in">
             <div class="card-header">
@@ -266,7 +362,6 @@ if (perfilForm) {
     });
 }
 
-// Nueva función para mostrar los días
 
 
 function renderizarDias() {
@@ -591,7 +686,7 @@ async function registrarSeleccionSemanal() {
 document.getElementById('actualizarPerfilForm').addEventListener('submit', function(e) {
     e.preventDefault();
     
-    const nuevoNombre = document.getElementById('nombreUsuario').value.trim();
+    const nuevoNombre = document.getElementById('modalNombreUsuario').value.trim();
     const btnSubmit = this.querySelector('button[type="submit"]');
     const btnTextOriginal = btnSubmit.innerHTML;
     
