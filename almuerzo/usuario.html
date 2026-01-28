@@ -198,32 +198,98 @@
                 });
         }
 
-        // Verificar autenticación al cargar
-        checkAuth(false)
-            .then((user) => {
-                currentUser = user;
-                
-                // Actualizar información del usuario
-                document.getElementById('userEmail').textContent = user.email;
-                
-                // Verificar si el usuario tiene nombre configurado
-                if (!user.displayName) {
-                    // Mostrar modal para pedir nombre
-                    nombreModal = new bootstrap.Modal(document.getElementById('nombreModal'));
-                    nombreModal.show();
-                    
-                    // Configurar evento para guardar nombre
-                    document.getElementById('guardarNombreBtn').addEventListener('click', guardarNombreUsuario);
-                } else {
-                    // Usuario ya tiene nombre, mostrar normalmente
-                    document.getElementById('userName').textContent = user.displayName;
-                    inicializarPagina();
-                }
-            })
-            .catch((error) => {
-                console.error('Error de autenticación:', error);
-            });
+       // Verificar autenticación al cargar
+checkAuth(false)
+    .then((user) => {
+        currentUser = user;
+        document.getElementById('userEmail').textContent = user.email;
+        
+        if (!user.displayName) {
+            nombreModal = new bootstrap.Modal(document.getElementById('nombreModal'));
+            nombreModal.show();
+            document.getElementById('guardarNombreBtn').addEventListener('click', guardarNombreUsuario);
+        } else {
+            document.getElementById('userName').textContent = user.displayName;
+            inicializarPagina();
+        }
+    })
+    .catch((error) => console.error('Error de auth:', error));
 
+function inicializarPagina() {
+    try {
+        // Solo llamamos a lo que realmente existe ahora
+        renderizarDias(); 
+        cargarHistorial();
+        cargarMenuDeHoy();
+        
+        // Eliminamos: actualizarEstadoSistema(), verificarRegistroHoy() 
+        // ya que el registro ahora es por checkboxes.
+    } catch (error) {
+        console.error('Error al inicializar la página:', error);
+    }
+}
+
+// PROTECCIÓN: Solo agrega el listener si el formulario existe
+const perfilForm = document.getElementById('actualizarPerfilForm');
+if (perfilForm) {
+    perfilForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        // ... tu lógica de actualizar nombre ...
+    });
+}
+
+// Nueva función para mostrar los días
+function renderizarDias() {
+    const contenedor = document.getElementById('selectorDiasSemana');
+    if (!contenedor) return; // Detiene el error si no existe el div en el HTML
+
+    const nombresDias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const hoy = new Date();
+    const lunesActual = new Date(hoy.setDate(hoy.getDate() - hoy.getDay() + (hoy.getDay() === 0 ? -6 : 1)));
+
+    obtenerDiasRegistradosEstaSemana(currentUser.uid).then(registrados => {
+        contenedor.innerHTML = '';
+        for (let i = 0; i < 6; i++) {
+            const fechaDia = new Date(lunesActual);
+            fechaDia.setDate(lunesActual.getDate() + i);
+            const fechaISO = fechaDia.toISOString().split('T')[0];
+            const yaRegistrado = registrados.includes(fechaISO);
+
+            contenedor.innerHTML += `
+                <div class="col-6 col-md-4 col-lg-2 mb-2">
+                    <div class="card h-100 ${yaRegistrado ? 'bg-light border-success' : ''}">
+                        <div class="card-body text-center p-2">
+                            <small class="fw-bold d-block">${nombresDias[i]}</small>
+                            <input type="checkbox" class="form-check-input dia-checkbox" 
+                                   value="${fechaISO}" 
+                                   ${yaRegistrado ? 'checked disabled' : ''}>
+                            ${yaRegistrado ? '<div class="text-success small"><i class="fas fa-check"></i></div>' : ''}
+                        </div>
+                    </div>
+                </div>`;
+        }
+    }).catch(err => console.error("Error al cargar días:", err));
+}
+
+async function registrarSeleccionSemanal() {
+    const checkboxes = document.querySelectorAll('.dia-checkbox:checked:not(:disabled)');
+    const diasParaRegistrar = Array.from(checkboxes).map(cb => cb.value);
+
+    if (diasParaRegistrar.length === 0) {
+        mostrarAlerta("Selecciona al menos un día nuevo.", "warning");
+        return;
+    }
+
+    try {
+        await registrarAsistenciaMultiple(currentUser.uid, currentUser.displayName, currentUser.email, diasParaRegistrar);
+        mostrarAlerta("¡Semana actualizada correctamente!", "success");
+        renderizarDias();
+        cargarHistorial();
+    } catch (error) {
+        console.error("Error:", error);
+        mostrarAlerta("Hubo un error al guardar.", "danger");
+    }
+}
         // Función para guardar nombre de usuario
         function guardarNombreUsuario() {
             const nuevoNombre = document.getElementById('modalNombreUsuario').value.trim();

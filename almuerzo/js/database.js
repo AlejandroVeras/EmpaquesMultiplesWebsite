@@ -354,4 +354,56 @@ function obtenerDiasRegistradosEstaSemana(userId) {
             return registrados;
         });
 }
+// Añadir al final de js/database.js
+
+// Obtiene los días que el usuario ya tiene registrados en la semana actual
+function obtenerDiasRegistradosEstaSemana(userId) {
+    const hoy = new Date();
+    // Calcular el lunes de esta semana
+    const lunes = new Date(hoy.setDate(hoy.getDate() - hoy.getDay() + (hoy.getDay() === 0 ? -6 : 1)));
+    lunes.setHours(0,0,0,0);
+    const lunesISO = lunes.toISOString().split('T')[0];
+    
+    // Calcular el domingo de esta semana
+    const domingo = new Date(lunes);
+    domingo.setDate(lunes.getDate() + 6);
+    domingo.setHours(23,59,59,999);
+    const domingoISO = domingo.toISOString().split('T')[0];
+
+    return database.ref('asistencias')
+        .orderByChild('userId')
+        .equalTo(userId)
+        .once('value')
+        .then(snap => {
+            const registrados = [];
+            snap.forEach(child => {
+                const data = child.val();
+                if (data.fecha >= lunesISO && data.fecha <= domingoISO) {
+                    registrados.push(data.fecha);
+                }
+            });
+            return registrados;
+        });
+}
+
+// Guarda múltiples registros a la vez
+async function registrarAsistenciaMultiple(userId, nombre, email, diasSeleccionados) {
+    const batchUpdates = {};
+    const horaString = new Date().toTimeString().split(' ')[0];
+    const timestamp = new Date().getTime();
+
+    diasSeleccionados.forEach(fecha => {
+        const nuevaRef = database.ref('asistencias').push();
+        batchUpdates[`asistencias/${nuevaRef.key}`] = {
+            userId: userId,
+            nombre: nombre,
+            email: email,
+            fecha: fecha,
+            hora: horaString,
+            timestamp: timestamp
+        };
+    });
+
+    return database.ref().update(batchUpdates);
+}
 }
