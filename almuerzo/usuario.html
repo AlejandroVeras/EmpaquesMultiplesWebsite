@@ -214,17 +214,47 @@ checkAuth(false)
     .catch((error) => console.error('Error de auth:', error));
 
 function inicializarPagina() {
-    try {
-        // Solo llamamos a lo que realmente existe ahora
-        renderizarDias(); 
-        cargarHistorial();
-        cargarMenuDeHoy();
-        
-        // Eliminamos: actualizarEstadoSistema(), verificarRegistroHoy() 
-        // ya que el registro ahora es por checkboxes.
-    } catch (error) {
-        console.error('Error al inicializar la página:', error);
-    }
+    cargarPreferenciaRegistro()
+        .then((preferencia) => {
+            renderizarDias(); 
+            cargarHistorial();
+            cargarMenuDeHoy();
+            verificarRegistroHoy();
+
+            if (preferencia && (preferencia.tipo === 'semanal' || preferencia.tipo === 'personalizado')) {
+                esUnDiaFeriado(new Date().toISOString().split('T')[0])
+                    .then(esFeriado => {
+                        if (esFeriado) {
+                            mostrarAlerta('Hoy es un día feriado, el registro automático está deshabilitado.', 'info');
+                        } else {
+                            registrarAsistenciaAutomatica(
+                                currentUser.uid,
+                                currentUser.displayName,
+                                currentUser.email
+                            ).then(resultado => {
+                                if (resultado.exito) {
+                                    mostrarAlerta(resultado.mensaje, 'success');
+                                    cargarHistorial();
+                                } else if (resultado.mensaje !== 'Ya está registrado para hoy' && resultado.mensaje !== 'No debe registrarse hoy según su configuración') {
+                                    mostrarAlerta(resultado.mensaje, 'warning');
+                                }
+                            }).catch(error => {
+                                console.error('Error en registro automático:', error);
+                                mostrarAlerta('Error en el registro automático.', 'danger');
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error al verificar día feriado:', error);
+                        mostrarAlerta('Error al verificar días feriados para registro automático.', 'danger');
+                    });
+            }
+            configurarOpcionesRegistro();
+        })
+        .catch(error => {
+            console.error('Error al inicializar la página:', error);
+            mostrarAlerta('Error al cargar la configuración inicial.', 'danger');
+        });
 }
 
 // PROTECCIÓN: Solo agrega el listener si el formulario existe
@@ -237,16 +267,20 @@ if (perfilForm) {
 }
 
 // Nueva función para mostrar los días
+
+
 function renderizarDias() {
     const contenedor = document.getElementById('selectorDiasSemana');
-    if (!contenedor) return; // Detiene el error si no existe el div en el HTML
+    if (!contenedor) return; // Evita el error si el elemento no existe
 
     const nombresDias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const hoy = new Date();
+    // Obtener el lunes de la semana actual
     const lunesActual = new Date(hoy.setDate(hoy.getDate() - hoy.getDay() + (hoy.getDay() === 0 ? -6 : 1)));
 
     obtenerDiasRegistradosEstaSemana(currentUser.uid).then(registrados => {
         contenedor.innerHTML = '';
+        
         for (let i = 0; i < 6; i++) {
             const fechaDia = new Date(lunesActual);
             fechaDia.setDate(lunesActual.getDate() + i);
@@ -254,17 +288,20 @@ function renderizarDias() {
             const yaRegistrado = registrados.includes(fechaISO);
 
             contenedor.innerHTML += `
-                <div class="col-6 col-md-4 col-lg-2 mb-2">
-                    <div class="card h-100 ${yaRegistrado ? 'bg-light border-success' : ''}">
+                <div class="col-6 col-md-4 col-lg-2 mb-3">
+                    <div class="card h-100 ${yaRegistrado ? 'bg-light' : ''}">
                         <div class="card-body text-center p-2">
-                            <small class="fw-bold d-block">${nombresDias[i]}</small>
+                            <label class="fw-bold d-block">${nombresDias[i]}</label>
+                            <small class="text-muted d-block mb-2">${fechaISO.split('-').reverse().slice(0,2).join('/')}</small>
                             <input type="checkbox" class="form-check-input dia-checkbox" 
                                    value="${fechaISO}" 
-                                   ${yaRegistrado ? 'checked disabled' : ''}>
-                            ${yaRegistrado ? '<div class="text-success small"><i class="fas fa-check"></i></div>' : ''}
+                                   ${yaRegistrado ? 'checked disabled' : ''} 
+                                   style="width: 20px; height: 20px;">
+                            ${yaRegistrado ? '<div class="badge bg-success d-block mt-2">Registrado</div>' : ''}
                         </div>
                     </div>
-                </div>`;
+                </div>
+            `;
         }
     }).catch(err => console.error("Error al cargar días:", err));
 }
@@ -336,60 +373,6 @@ async function registrarSeleccionSemanal() {
             guardarNombreUsuario();
         });
 
-        // Función para inicializar la página una vez configurado el nombre
-        function inicializarPagina() {
-            // Cargar preferencia de registro y luego proceder con la lógica automática
-            cargarPreferenciaRegistro()
-                .then((preferencia) => {
-                    // Cargar historial
-                    cargarHistorial();
-
-                    // Verificar si ya registró hoy (solo para modo diario)
-                    verificarRegistroHoy();
-
-                    // Intentar registro automático para preferencias semanal/personalizado
-                    if (preferencia && (preferencia.tipo === 'semanal' || preferencia.tipo === 'personalizado')) {
-                        // Primero, verificar si la fecha actual es un feriado
-                        esUnDiaFeriado(new Date().toISOString().split('T')[0])
-                            .then(esFeriado => {
-                                if (esFeriado) {
-                                    mostrarAlerta('Hoy es un día feriado, el registro automático está deshabilitado.', 'info');
-                                } else {
-                                    // Si no es feriado, intentar registro automático
-                                    registrarAsistenciaAutomatica(
-                                        currentUser.uid,
-                                        currentUser.displayName,
-                                        currentUser.email
-                                    ).then(resultado => {
-                                        if (resultado.exito) {
-                                            mostrarAlerta(resultado.mensaje, 'success');
-                                            cargarHistorial(); // Recargar historial después de registro automático
-                                        } else if (resultado.mensaje !== 'Ya está registrado para hoy' && resultado.mensaje !== 'No debe registrarse hoy según su configuración') {
-                                            // Mostrar otros mensajes de error, excepto si ya está registrado o no debe registrarse hoy
-                                            mostrarAlerta(resultado.mensaje, 'warning');
-                                        }
-                                    }).catch(error => {
-                                        console.error('Error en registro automático:', error);
-                                        mostrarAlerta('Error en el registro automático.', 'danger');
-                                    });
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error al verificar día feriado:', error);
-                                mostrarAlerta('Error al verificar días feriados para registro automático.', 'danger');
-                            });
-                    }
-
-                    // Cargar menú del día
-                    cargarMenuDeHoy();
-
-                    // Configurar listeners para opciones de registro
-                    configurarOpcionesRegistro();
-                })
-                .catch(error => {
-                    console.error('Error al inicializar la página:', error);
-                    mostrarAlerta('Error al cargar la configuración inicial.', 'danger');                });
-        }
 
         // Configurar los listeners para las opciones de registro
         function configurarOpcionesRegistro() {
@@ -640,127 +623,9 @@ document.getElementById('actualizarPerfilForm').addEventListener('submit', funct
         });
 });
 // Función para inicializar la página una vez configurado el nombre
-function inicializarPagina() {
-    try {
-        // 1. Cargar el selector de días de la semana
-        renderizarDias(); 
 
-        // 2. Cargar historial
-        cargarHistorial();
-
-        // 3. Cargar menú del día
-        cargarMenuDeHoy();
-        
-        // Eliminamos las llamadas a 'actualizarEstadoSistema' y 'verificarRegistroHoy' 
-        // si ya no usamos el botón único de registro.
-    } catch (error) {
-        console.error('Error al inicializar la página:', error);
-    }
-}
-
-// Corregir el listener del perfil (Línea 270)
-const perfilForm = document.getElementById('actualizarPerfilForm');
-if (perfilForm) {
-    perfilForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        // ... resto de tu lógica de actualización de perfil
-    });
-}
 
 // Función para renderizar los días (basada en la actualización semanal)
-function renderizarDias() {
-    const contenedor = document.getElementById('selectorDiasSemana');
-    if (!contenedor) return; // Evita el error si el elemento no existe
-
-    const nombresDias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-    const hoy = new Date();
-    // Obtener el lunes de la semana actual
-    const lunesActual = new Date(hoy.setDate(hoy.getDate() - hoy.getDay() + (hoy.getDay() === 0 ? -6 : 1)));
-
-    obtenerDiasRegistradosEstaSemana(currentUser.uid).then(registrados => {
-        contenedor.innerHTML = '';
-        
-        for (let i = 0; i < 6; i++) {
-            const fechaDia = new Date(lunesActual);
-            fechaDia.setDate(lunesActual.getDate() + i);
-            const fechaISO = fechaDia.toISOString().split('T')[0];
-            const yaRegistrado = registrados.includes(fechaISO);
-
-            contenedor.innerHTML += `
-                <div class="col-6 col-md-4 col-lg-2 mb-3">
-                    <div class="card h-100 ${yaRegistrado ? 'bg-light' : ''}">
-                        <div class="card-body text-center p-2">
-                            <label class="fw-bold d-block">${nombresDias[i]}</label>
-                            <small class="text-muted d-block mb-2">${fechaISO.split('-').reverse().slice(0,2).join('/')}</small>
-                            <input type="checkbox" class="form-check-input dia-checkbox" 
-                                   value="${fechaISO}" 
-                                   ${yaRegistrado ? 'checked disabled' : ''} 
-                                   style="width: 20px; height: 20px;">
-                            ${yaRegistrado ? '<div class="badge bg-success d-block mt-2">Registrado</div>' : ''}
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-    }).catch(err => console.error("Error al cargar días:", err));
-
-    let currentUser = null; // Declarar solo una vez al inicio
-
-// Lógica de Autenticación
-checkAuth(false)
-    .then((user) => {
-        currentUser = user;
-        document.getElementById('userEmail').textContent = user.email;
-        
-        if (!user.displayName) {
-            nombreModal = new bootstrap.Modal(document.getElementById('nombreModal'));
-            nombreModal.show();
-            document.getElementById('guardarNombreBtn').onclick = guardarNombreUsuario;
-        } else {
-            document.getElementById('userName').textContent = user.displayName;
-            inicializarPagina();
-        }
-    });
-
-function inicializarPagina() {
-    renderizarDias(); 
-    cargarHistorial();
-    cargarMenuDeHoy();
-}
-
-// Registro Semanal (Asegúrate de tener el div id="selectorDiasSemana" en tu HTML)
-function renderizarDias() {
-    const contenedor = document.getElementById('selectorDiasSemana');
-    if (!contenedor) return;
-
-    const nombresDias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-    const hoy = new Date();
-    // Ajuste para obtener el lunes de la semana actual correctamente
-    const lunesActual = new Date(hoy.setDate(hoy.getDate() - hoy.getDay() + (hoy.getDay() === 0 ? -6 : 1)));
-
-    obtenerDiasRegistradosEstaSemana(currentUser.uid).then(registrados => {
-        contenedor.innerHTML = '';
-        for (let i = 0; i < 6; i++) {
-            const fechaDia = new Date(lunesActual);
-            fechaDia.setDate(lunesActual.getDate() + i);
-            const fechaISO = fechaDia.toISOString().split('T')[0];
-            const yaRegistrado = registrados.includes(fechaISO);
-
-            contenedor.innerHTML += `
-                <div class="col-6 col-md-4 col-lg-2 mb-2">
-                    <div class="card h-100 ${yaRegistrado ? 'bg-light border-success' : ''}">
-                        <div class="card-body text-center p-2">
-                            <small class="fw-bold d-block">${nombresDias[i]}</small>
-                            <input type="checkbox" class="form-check-input dia-checkbox" 
-                                   value="${fechaISO}" 
-                                   ${yaRegistrado ? 'checked disabled' : ''}>
-                            ${yaRegistrado ? '<div class="text-success small"><i class="fas fa-check"></i></div>' : ''}
-                        </div>
-                    </div>
-                </div>`;
-        }
-    });
-}
     </script>
     <!-- Modal para solicitar nombre -->
 <div class="modal fade" id="nombreModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="nombreModalLabel" aria-hidden="true">
