@@ -62,13 +62,11 @@
         <h5 class="mb-3 text-center">Selecciona los días que almorzarás esta semana</h5>
         <p class="text-muted small text-center">Nota: Una vez registrado un día, no podrás eliminarlo.</p>
         
-        <div class="row g-2 justify-content-center mb-4" id="selectorDiasSemana">
-            </div>
-
-        <div class="text-center">
-            <button id="btnRegistrarSemana" class="btn btn-primary btn-lg" onclick="registrarSeleccionSemanal()">
-                <i class="fas fa-save"></i> Confirmar Registro Semanal
-            </button>
+<div class="row g-2 justify-content-center mb-3" id="selectorDiasSemana">
+    </div>
+<button id="btnRegistrarSemana" class="btn btn-primary" onclick="registrarSeleccionSemanal()">
+    Confirmar Registro Semanal
+</button>
         </div>
     </div>
 </div>
@@ -641,8 +639,7 @@ document.getElementById('actualizarPerfilForm').addEventListener('submit', funct
             btnSubmit.innerHTML = btnTextOriginal;
         });
 });
-// ... (dentro de tu bloque <script> en usuario.html)
-
+// Función para inicializar la página una vez configurado el nombre
 function inicializarPagina() {
     try {
         // 1. Cargar el selector de días de la semana
@@ -707,6 +704,62 @@ function renderizarDias() {
         }
     }).catch(err => console.error("Error al cargar días:", err));
 
+    let currentUser = null; // Declarar solo una vez al inicio
+
+// Lógica de Autenticación
+checkAuth(false)
+    .then((user) => {
+        currentUser = user;
+        document.getElementById('userEmail').textContent = user.email;
+        
+        if (!user.displayName) {
+            nombreModal = new bootstrap.Modal(document.getElementById('nombreModal'));
+            nombreModal.show();
+            document.getElementById('guardarNombreBtn').onclick = guardarNombreUsuario;
+        } else {
+            document.getElementById('userName').textContent = user.displayName;
+            inicializarPagina();
+        }
+    });
+
+function inicializarPagina() {
+    renderizarDias(); 
+    cargarHistorial();
+    cargarMenuDeHoy();
+}
+
+// Registro Semanal (Asegúrate de tener el div id="selectorDiasSemana" en tu HTML)
+function renderizarDias() {
+    const contenedor = document.getElementById('selectorDiasSemana');
+    if (!contenedor) return;
+
+    const nombresDias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const hoy = new Date();
+    // Ajuste para obtener el lunes de la semana actual correctamente
+    const lunesActual = new Date(hoy.setDate(hoy.getDate() - hoy.getDay() + (hoy.getDay() === 0 ? -6 : 1)));
+
+    obtenerDiasRegistradosEstaSemana(currentUser.uid).then(registrados => {
+        contenedor.innerHTML = '';
+        for (let i = 0; i < 6; i++) {
+            const fechaDia = new Date(lunesActual);
+            fechaDia.setDate(lunesActual.getDate() + i);
+            const fechaISO = fechaDia.toISOString().split('T')[0];
+            const yaRegistrado = registrados.includes(fechaISO);
+
+            contenedor.innerHTML += `
+                <div class="col-6 col-md-4 col-lg-2 mb-2">
+                    <div class="card h-100 ${yaRegistrado ? 'bg-light border-success' : ''}">
+                        <div class="card-body text-center p-2">
+                            <small class="fw-bold d-block">${nombresDias[i]}</small>
+                            <input type="checkbox" class="form-check-input dia-checkbox" 
+                                   value="${fechaISO}" 
+                                   ${yaRegistrado ? 'checked disabled' : ''}>
+                            ${yaRegistrado ? '<div class="text-success small"><i class="fas fa-check"></i></div>' : ''}
+                        </div>
+                    </div>
+                </div>`;
+        }
+    });
 }
     </script>
     <!-- Modal para solicitar nombre -->
