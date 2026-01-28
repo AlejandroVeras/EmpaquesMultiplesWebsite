@@ -1,3 +1,18 @@
+import { checkAuth, actualizarNombreUsuario, logout } from './auth.js';
+import { 
+    guardarPreferenciaRegistro, 
+    obtenerPreferenciaRegistro, 
+    obtenerDescripcionPreferencia, 
+    esUnDiaFeriado, 
+    registrarAsistenciaAutomatica, 
+    obtenerDiasRegistradosEstaSemana, 
+    registrarAsistenciaMultiple,
+    verificarAsistenciaHoy,
+    registrarAsistencia,
+    obtenerAsistenciasUsuario,
+    obtenerMenuDeHoy
+} from './database.js';
+
 let currentUser = null;
 let nombreModal;
 let preferenciaActual = null;
