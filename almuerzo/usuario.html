@@ -575,12 +575,44 @@ document.getElementById('actualizarPerfilForm').addEventListener('submit', funct
             btnSubmit.innerHTML = btnTextOriginal;
         });
 });
-// Lógica para generar los días de la semana actual
+// ... (dentro de tu bloque <script> en usuario.html)
+
+function inicializarPagina() {
+    try {
+        // 1. Cargar el selector de días de la semana
+        renderizarDias(); 
+
+        // 2. Cargar historial
+        cargarHistorial();
+
+        // 3. Cargar menú del día
+        cargarMenuDeHoy();
+        
+        // Eliminamos las llamadas a 'actualizarEstadoSistema' y 'verificarRegistroHoy' 
+        // si ya no usamos el botón único de registro.
+    } catch (error) {
+        console.error('Error al inicializar la página:', error);
+    }
+}
+
+// Corregir el listener del perfil (Línea 270)
+const perfilForm = document.getElementById('actualizarPerfilForm');
+if (perfilForm) {
+    perfilForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        // ... resto de tu lógica de actualización de perfil
+    });
+}
+
+// Función para renderizar los días (basada en la actualización semanal)
 function renderizarDias() {
     const contenedor = document.getElementById('selectorDiasSemana');
+    if (!contenedor) return; // Evita el error si el elemento no existe
+
     const nombresDias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const hoy = new Date();
-    const lunesActual = new Date(hoy.setDate(hoy.getDate() - hoy.getDay() + 1));
+    // Obtener el lunes de la semana actual
+    const lunesActual = new Date(hoy.setDate(hoy.getDate() - hoy.getDay() + (hoy.getDay() === 0 ? -6 : 1)));
 
     obtenerDiasRegistradosEstaSemana(currentUser.uid).then(registrados => {
         contenedor.innerHTML = '';
@@ -592,39 +624,23 @@ function renderizarDias() {
             const yaRegistrado = registrados.includes(fechaISO);
 
             contenedor.innerHTML += `
-                <div class="col-6 col-md-2">
-                    <div class="d-flex flex-column align-items-center p-3 border rounded ${yaRegistrado ? 'bg-light' : ''}">
-                        <label class="fw-bold">${nombresDias[i]}</label>
-                        <small class="text-muted mb-2">${fechaISO.split('-').reverse().slice(0,2).join('/')}</small>
-                        <input type="checkbox" class="form-check-input dia-checkbox" 
-                               value="${fechaISO}" 
-                               ${yaRegistrado ? 'checked disabled' : ''} 
-                               style="width: 25px; height: 25px;">
-                        ${yaRegistrado ? '<span class="badge bg-success mt-1">Listo</span>' : ''}
+                <div class="col-6 col-md-4 col-lg-2 mb-3">
+                    <div class="card h-100 ${yaRegistrado ? 'bg-light' : ''}">
+                        <div class="card-body text-center p-2">
+                            <label class="fw-bold d-block">${nombresDias[i]}</label>
+                            <small class="text-muted d-block mb-2">${fechaISO.split('-').reverse().slice(0,2).join('/')}</small>
+                            <input type="checkbox" class="form-check-input dia-checkbox" 
+                                   value="${fechaISO}" 
+                                   ${yaRegistrado ? 'checked disabled' : ''} 
+                                   style="width: 20px; height: 20px;">
+                            ${yaRegistrado ? '<div class="badge bg-success d-block mt-2">Registrado</div>' : ''}
+                        </div>
                     </div>
                 </div>
             `;
         }
-    });
-}
+    }).catch(err => console.error("Error al cargar días:", err));
 
-function registrarSeleccionSemanal() {
-    const checkboxes = document.querySelectorAll('.dia-checkbox:checked:not(:disabled)');
-    const diasParaRegistrar = Array.from(checkboxes).map(cb => cb.value);
-
-    if (diasParaRegistrar.length === 0) {
-        alert("Selecciona al menos un nuevo día para registrar.");
-        return;
-    }
-
-    if (confirm(`Vas a registrar ${diasParaRegistrar.length} día(s). No podrás eliminarlos después. ¿Continuar?`)) {
-        registrarAsistenciaMultiple(currentUser.uid, currentUser.displayName, currentUser.email, diasParaRegistrar)
-            .then(() => {
-                alert("¡Registro exitoso!");
-                renderizarDias(); // Refrescar vista
-                cargarHistorial(); //
-            });
-    }
 }
     </script>
     <!-- Modal para solicitar nombre -->
