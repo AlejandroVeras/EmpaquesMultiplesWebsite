@@ -203,6 +203,13 @@ function renderizarDiasSemana() {
         })
         .then(dias => {
             dias.forEach(({ fecha, index, esFeriado, yaRegistrado, esPasado }) => {
+                // --- NUEVO LÓGICA DE HORA ---
+                const hoyStr = new Date().toISOString().split('T')[0];
+                const esHoy = fecha === hoyStr;
+                const horaActual = new Date().getHours();
+                const esTarde = esHoy && horaActual >= 10;
+                // ---------------------------
+
                 const col = document.createElement('div');
                 col.className = 'col-12 col-sm-6 col-md-4 col-lg-2 mb-3';
                 
@@ -213,31 +220,31 @@ function renderizarDiasSemana() {
                 let contenido = '';
                 
                 if (esFeriado) {
+                    // ... (código existente de feriado) ...
                     colorClass = 'bg-warning text-dark';
                     contenido = `
                         <div class="fw-bold mb-2">${nombresDias[index]}</div>
                         <div class="small mb-2">${formatearFechaCorta(fecha)}</div>
-                        <div class="badge bg-danger w-100">
-                            <i class="fas fa-calendar-times"></i> Feriado
-                        </div>
+                        <div class="badge bg-danger w-100"><i class="fas fa-calendar-times"></i> Feriado</div>
                     `;
                 } else if (yaRegistrado) {
+                    // ... (código existente de registrado) ...
                     colorClass = 'bg-success text-white';
                     contenido = `
                         <div class="fw-bold mb-2">${nombresDias[index]}</div>
                         <div class="small mb-2">${formatearFechaCorta(fecha)}</div>
-                        <div class="badge bg-light text-success w-100">
-                            <i class="fas fa-check"></i> Registrado
-                        </div>
+                        <div class="badge bg-light text-success w-100"><i class="fas fa-check"></i> Registrado</div>
                     `;
-                } else if (esPasado) {
+                } else if (esPasado || esTarde) { // <-- CAMBIO AQUÍ: Agregamos "|| esTarde"
                     colorClass = 'bg-light text-muted';
+                    let textoBadge = esPasado ? 'Pasado' : 'Cerrado (10am)'; // Mensaje diferente si es por hora
                     contenido = `
                         <div class="fw-bold mb-2">${nombresDias[index]}</div>
                         <div class="small mb-2">${formatearFechaCorta(fecha)}</div>
-                        <div class="badge bg-secondary w-100">Pasado</div>
+                        <div class="badge bg-secondary w-100">${textoBadge}</div>
                     `;
                 } else {
+                    // ... (código existente para días disponibles, ej. MAÑANA) ...
                     contenido = `
                         <div class="fw-bold mb-2">${nombresDias[index]}</div>
                         <div class="small mb-2">${formatearFechaCorta(fecha)}</div>
@@ -321,10 +328,25 @@ function renderizarCalendarioMes() {
                 const esPasado = fecha < fechaActual;
                 const yaRegistrado = registrados.has(fechaString);
                 
+                // --- NUEVO: VALIDACIÓN ---
+                const hoyStr = new Date().toISOString().split('T')[0];
+                const esHoy = fechaString === hoyStr;
+                const horaActual = new Date().getHours();
+                const esTarde = esHoy && horaActual >= 10;
+                // ------------------------
+
                 const diaDiv = document.createElement('div');
                 diaDiv.className = 'dia-mes';
                 diaDiv.textContent = dia;
                 
+                if (esDomingo) {
+                    // ...
+                } else if (esTarde) { // <-- AGREGAR ESTA CONDICIÓN
+                    diaDiv.classList.add('disabled');
+                    diaDiv.title = 'Registro cerrado por hoy (10:00 AM)';
+                    diaDiv.style.backgroundColor = '#e9ecef';
+                }
+
                 // Aplicar estilos según el caso
                 if (esDomingo) {
                     diaDiv.classList.add('domingo', 'disabled');
@@ -492,6 +514,13 @@ function cargarPreferenciaRegistro() {
 }
 
 function ejecutarRegistroAutomatico() {
+    // --- NUEVO: VALIDACIÓN ---
+    if (new Date().getHours() >= 10) {
+        console.log("Registro automático omitido: pasaron las 10:00 AM");
+        return; 
+    }
+    // -------------------------
+
     const hoy = new Date().toISOString().split('T')[0];
     
     esUnDiaFeriado(hoy)
@@ -538,6 +567,17 @@ function verificarRegistroHoy() {
 }
 
 function registrarMiAsistencia() {
+
+    // --- VALIDACIÓN DE HORA (10:00 AM) ---
+    const ahora = new Date();
+    if (ahora.getHours() >= 10) { // Si son las 10:00 AM o más
+        const btnRegistrar = document.getElementById('btnRegistrar');
+        btnRegistrar.innerHTML = '<i class="fas fa-clock"></i> Registro cerrado';
+        btnRegistrar.classList.add('btn-secondary');
+        mostrarAlerta('El registro para el día de hoy cierra a las 10:00 AM.', 'warning');
+        return; // Detiene la función aquí
+    }
+    // --------------------------------------------
     const btnRegistrar = document.getElementById('btnRegistrar');
     
     btnRegistrar.disabled = true;
