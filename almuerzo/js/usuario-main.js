@@ -557,13 +557,30 @@ function verificarRegistroHoy() {
     verificarAsistenciaHoy(currentUser.uid)
         .then((yaRegistrado) => {
             const btnRegistrar = document.getElementById('btnRegistrar');
+            const horaActual = new Date().getHours(); // Obtener la hora actual (0-23)
             
+            // Caso 1: Ya se registró hoy
             if (yaRegistrado) {
                 btnRegistrar.disabled = true;
                 btnRegistrar.innerHTML = '<i class="fas fa-check-double"></i> Ya registraste tu asistencia hoy';
-                btnRegistrar.classList.remove('btn-primary');
+                btnRegistrar.classList.remove('btn-primary', 'btn-secondary');
                 btnRegistrar.classList.add('btn-success');
                 mostrarAlerta('Ya has registrado tu asistencia para hoy.', 'info');
+            } 
+            // Caso 2: No se ha registrado, pero ya pasó la hora límite (10:00 AM)
+            else if (horaActual >= 10) {
+                btnRegistrar.disabled = true;
+                btnRegistrar.innerHTML = '<i class="fas fa-clock"></i> Registro cerrado (10:00 AM)';
+                btnRegistrar.classList.remove('btn-primary', 'btn-success');
+                btnRegistrar.classList.add('btn-secondary'); // Color gris
+                mostrarAlerta('El registro diario cierra a las 10:00 AM.', 'warning');
+            }
+            // Caso 3: Está a tiempo y no se ha registrado (Botón normal)
+            else {
+                btnRegistrar.disabled = false;
+                btnRegistrar.innerHTML = '<i class="fas fa-check-circle"></i> Registrar Asistencia';
+                btnRegistrar.classList.remove('btn-success', 'btn-secondary');
+                btnRegistrar.classList.add('btn-primary');
             }
         });
 }
