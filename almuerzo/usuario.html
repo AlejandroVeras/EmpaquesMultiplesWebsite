@@ -158,7 +158,7 @@
                 <span class="badge bg-light text-dark" id="preferenciaActual">Sin configurar</span>
             </div>
             <div class="card-body">
-                <h5 class="mb-4">¿Cómo deseas registrar tu asistencia?</h5>
+                <h5 class="mb-4">¿Cómo deseas registrar tu almuerzo?</h5>
                 
                 <div class="row g-3 mb-4">
                     <!-- Opción: Registro Diario Manual -->
@@ -252,18 +252,18 @@
         <!-- Tarjeta de Registro Diario (solo visible si seleccionó registro diario) -->
         <div class="card fade-in" id="tarjetaRegistroDiario" style="display: none;">
             <div class="card-header">
-                <i class="fas fa-utensils"></i> Registro de Asistencia del Día
+                <i class="fas fa-utensils"></i> Registro de Almuerzo del Día
             </div>
             <div class="card-body text-center">
                 <h5 class="mb-4">¿Vas a almorzar hoy en la empresa?</h5>
-                <p class="text-muted mb-4">Registra tu asistencia presionando el botón de abajo.</p>
+                <p class="text-muted mb-4">Registra tu almuerzo presionando el botón de abajo.</p>
                 
                 <button
                     id="btnRegistrar"
                     class="btn btn-primary btn-lg btn-registrar"
                     onclick="registrarMiAsistencia()"
                 >
-                    <i class="fas fa-check-circle"></i> Registrar Asistencia
+                    <i class="fas fa-check-circle"></i> Registrar Almuerzo
                 </button>
                 
                     <p class="text-muted small mt-3" id="mensajeAyudaRegistro">
@@ -313,7 +313,7 @@
         <!-- Historial de asistencias -->
         <div class="card fade-in">
             <div class="card-header">
-                <i class="fas fa-history"></i> Mi Historial de Asistencias
+                <i class="fas fa-history"></i> Mi Historial de Almuerzos
             </div>
             <div class="card-body">
                 <div id="loadingHistorial" class="text-center">
