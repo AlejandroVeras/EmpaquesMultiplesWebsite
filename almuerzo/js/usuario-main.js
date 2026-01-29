@@ -557,64 +557,94 @@ function verificarRegistroHoy() {
     verificarAsistenciaHoy(currentUser.uid)
         .then((yaRegistrado) => {
             const btnRegistrar = document.getElementById('btnRegistrar');
-            const horaActual = new Date().getHours(); // Obtener la hora actual (0-23)
+            const mensajeAyuda = document.getElementById('mensajeAyudaRegistro');
+            const horaActual = new Date().getHours();
             
-            // Caso 1: Ya se registró hoy
+            // CASO 1: Ya registrado
             if (yaRegistrado) {
                 btnRegistrar.disabled = true;
                 btnRegistrar.innerHTML = '<i class="fas fa-check-double"></i> Ya registraste tu asistencia hoy';
-                btnRegistrar.classList.remove('btn-primary', 'btn-secondary');
-                btnRegistrar.classList.add('btn-success');
+                btnRegistrar.className = 'btn btn-success btn-lg btn-registrar'; // Resetea clases y pone verde
                 mostrarAlerta('Ya has registrado tu asistencia para hoy.', 'info');
+                
+                if(mensajeAyuda) {
+                    mensajeAyuda.innerHTML = '<i class="fas fa-check"></i> Asistencia confirmada para hoy.';
+                    mensajeAyuda.className = 'text-success small mt-3';
+                }
             } 
-            // Caso 2: No se ha registrado, pero ya pasó la hora límite (10:00 AM)
+            // CASO 2: DEMASIADO TEMPRANO (Antes de las 7:00 AM)
+            else if (horaActual < 7) {
+                btnRegistrar.disabled = true;
+                btnRegistrar.innerHTML = '<i class="fas fa-coffee"></i> Aún no abre (7:00 AM)';
+                btnRegistrar.className = 'btn btn-secondary btn-lg btn-registrar'; // Gris
+                
+                if(mensajeAyuda) {
+                    mensajeAyuda.innerHTML = '<i class="fas fa-clock"></i> El registro abre a las 7:00 AM.';
+                    mensajeAyuda.className = 'text-warning small mt-3'; // Amarillo advertencia
+                }
+            }
+            // CASO 3: DEMASIADO TARDE (Después de las 10:00 AM)
             else if (horaActual >= 10) {
                 btnRegistrar.disabled = true;
-                btnRegistrar.innerHTML = '<i class="fas fa-clock"></i> Registro cerrado (10:00 AM)';
-                btnRegistrar.classList.remove('btn-primary', 'btn-success');
-                btnRegistrar.classList.add('btn-secondary'); // Color gris
+                btnRegistrar.innerHTML = '<i class="fas fa-store-slash"></i> Registro cerrado (10:00 AM)';
+                btnRegistrar.className = 'btn btn-secondary btn-lg btn-registrar'; // Gris
                 mostrarAlerta('El registro diario cierra a las 10:00 AM.', 'warning');
+                
+                if(mensajeAyuda) {
+                    mensajeAyuda.innerHTML = '<i class="fas fa-exclamation-circle"></i> El registro estuvo abierto de 7:00 AM a 10:00 AM.';
+                    mensajeAyuda.className = 'text-danger small mt-3'; // Rojo error
+                }
             }
-            // Caso 3: Está a tiempo y no se ha registrado (Botón normal)
+            // CASO 4: ABIERTO (Entre 7:00 AM y 9:59 AM)
             else {
                 btnRegistrar.disabled = false;
                 btnRegistrar.innerHTML = '<i class="fas fa-check-circle"></i> Registrar Asistencia';
-                btnRegistrar.classList.remove('btn-success', 'btn-secondary');
-                btnRegistrar.classList.add('btn-primary');
+                btnRegistrar.className = 'btn btn-primary btn-lg btn-registrar'; // Verde principal
+                
+                if(mensajeAyuda) {
+                    mensajeAyuda.innerHTML = '<i class="fas fa-info-circle"></i> Solo puedes registrarte una vez por día';
+                    mensajeAyuda.className = 'text-muted small mt-3';
+                }
             }
         });
 }
 
 function registrarMiAsistencia() {
 
-    // --- VALIDACIÓN DE HORA (10:00 AM) ---
-    const ahora = new Date();
-    if (ahora.getHours() >= 10) { // Si son las 10:00 AM o más
-        const btnRegistrar = document.getElementById('btnRegistrar');
-        btnRegistrar.innerHTML = '<i class="fas fa-clock"></i> Registro cerrado';
-        btnRegistrar.classList.add('btn-secondary');
-        mostrarAlerta('El registro para el día de hoy cierra a las 10:00 AM.', 'warning');
-        return; // Detiene la función aquí
+  // --- VALIDACIÓN DE HORARIO REAL (7-10) ---
+    const hora = new Date().getHours();
+    
+    if (hora < 7) {
+        mostrarAlerta('¡Es muy temprano! El registro comienza a las 7:00 AM.', 'warning');
+        return; // Detiene el proceso
     }
-    // --------------------------------------------
+    
+    if (hora >= 10) {
+        mostrarAlerta('El registro para el día de hoy cerró a las 10:00 AM.', 'warning');
+        // Actualizamos visualmente por si acaso
+        const btn = document.getElementById('btnRegistrar');
+        if(btn) {
+            btn.innerHTML = '<i class="fas fa-store-slash"></i> Registro cerrado';
+            btn.disabled = true;
+            btn.classList.add('btn-secondary');
+        }
+        return; // Detiene el proceso
+    }
+    // -----------------------------------------
+
     const btnRegistrar = document.getElementById('btnRegistrar');
     
     btnRegistrar.disabled = true;
     btnRegistrar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
     
+    // ... (El resto de la función sigue igual: registrarAsistencia(...) .then(...) etc.)
     registrarAsistencia(currentUser.uid, currentUser.displayName, currentUser.email)
         .then(() => {
-            btnRegistrar.innerHTML = '<i class="fas fa-check-double"></i> Ya registraste tu asistencia hoy';
-            btnRegistrar.classList.remove('btn-primary');
-            btnRegistrar.classList.add('btn-success');
-            mostrarAlerta('¡Asistencia registrada exitosamente!', 'success');
-            cargarHistorial();
+            // ... código de éxito ...
+            verificarRegistroHoy(); // Recargamos para actualizar estado
         })
         .catch((error) => {
-            console.error('Error al registrar:', error);
-            mostrarAlerta('Error al registrar la asistencia. Por favor, intenta nuevamente.', 'danger');
-            btnRegistrar.disabled = false;
-            btnRegistrar.innerHTML = '<i class="fas fa-check-circle"></i> Registrar Asistencia';
+             // ... código de error ...
         });
 }
 
