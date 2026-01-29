@@ -87,7 +87,7 @@ function configurarOpcionesRegistro() {
         });
     });
     
-    // Click en las tarjetas de opción
+// Click en las tarjetas de opción
     opcionDiario.addEventListener('click', () => {
         document.getElementById('radioDiario').checked = true;
         actualizarVisibilidadTarjetas('diario');
@@ -98,20 +98,14 @@ function configurarOpcionesRegistro() {
         document.getElementById('radioSemanal').checked = true;
         actualizarVisibilidadTarjetas('semanal');
         actualizarSeleccionVisual();
-        renderizarDiasSemana();
+        // BORRAR ESTA LÍNEA: renderizarDiasSemana();  <-- ¡Esta es la culpable!
     });
     
     opcionMensual.addEventListener('click', () => {
         document.getElementById('radioMensual').checked = true;
         actualizarVisibilidadTarjetas('mensual');
         actualizarSeleccionVisual();
-        renderizarCalendarioMes();
-    });
-    
-    opcionPersonalizado.addEventListener('click', () => {
-        document.getElementById('radioPersonalizado').checked = true;
-        actualizarVisibilidadTarjetas('personalizado');
-        actualizarSeleccionVisual();
+        // BORRAR ESTA LÍNEA: renderizarCalendarioMes(); <-- ¡Esta también duplica el mes!
     });
 }
 
