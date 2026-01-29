@@ -1,4 +1,4 @@
-// database.js - Operaciones de base de datos
+// database.js - Operaciones de base de datos (VERSIÓN FINAL - LUNES A VIERNES)
 
 // Registrar asistencia al almuerzo
 function registrarAsistencia(userId, nombre, email) {
@@ -19,7 +19,7 @@ function registrarAsistencia(userId, nombre, email) {
 }
 
 // =====================
-// NUEVAS FUNCIONES PARA REGISTRO MÚLTIPLE
+// FUNCIONES PARA REGISTRO MÚLTIPLE
 // =====================
 
 // Registrar múltiples días de asistencia (excluye feriados automáticamente)
@@ -62,7 +62,7 @@ async function registrarAsistenciaMultiple(userId, nombre, email, fechasArray) {
     };
 }
 
-// Obtener fechas de días laborales de la semana actual (Lunes a Viernes)
+// CORREGIDO: Obtener fechas de días laborales de la semana actual (SOLO Lunes a Viernes)
 function obtenerDiasLaboralesSemana() {
     const hoy = new Date();
     const diaSemana = hoy.getDay(); // 0 = Domingo, 6 = Sábado
@@ -71,10 +71,11 @@ function obtenerDiasLaboralesSemana() {
     const lunes = new Date(hoy);
     const diff = hoy.getDate() - diaSemana + (diaSemana === 0 ? -6 : 1);
     lunes.setDate(diff);
+    lunes.setHours(0, 0, 0, 0);
     
     const diasLaborales = [];
     
-    // Generar fechas de Lunes a Viernes (5 días)
+    // Generar fechas de Lunes a Viernes (5 días) - SOLO DÍAS LABORALES
     for (let i = 0; i < 5; i++) {
         const dia = new Date(lunes);
         dia.setDate(lunes.getDate() + i);
@@ -84,7 +85,7 @@ function obtenerDiasLaboralesSemana() {
     return diasLaborales;
 }
 
-// Obtener fechas de días laborales del mes actual (Lunes a Viernes)
+// Obtener fechas de días laborales del mes actual (SOLO Lunes a Viernes)
 function obtenerDiasLaboralesMes() {
     const hoy = new Date();
     const año = hoy.getFullYear();
@@ -95,9 +96,9 @@ function obtenerDiasLaboralesMes() {
     
     const diasLaborales = [];
     
-    for (let dia = primerDia; dia <= ultimoDia; dia.setDate(dia.getDate() + 1)) {
+    for (let dia = new Date(primerDia); dia <= ultimoDia; dia.setDate(dia.getDate() + 1)) {
         const diaSemana = dia.getDay();
-        // Excluir domingos (0) y sábados (6) - Solo Lunes a Viernes
+        // Excluir domingos (0) y sábados (6) - SOLO Lunes a Viernes
         if (diaSemana !== 0 && diaSemana !== 6) {
             diasLaborales.push(new Date(dia).toISOString().split('T')[0]);
         }
@@ -127,8 +128,10 @@ function verificarDiasRegistrados(userId, fechasArray) {
 // Obtener días registrados de la semana actual
 function obtenerDiasRegistradosEstaSemana(userId) {
     const diasSemana = obtenerDiasLaboralesSemana();
-    const fechaInicio = diasSemana[0];
-    const fechaFin = diasSemana[diasSemana.length - 1];
+    
+    if (!userId) {
+        return Promise.resolve([]);
+    }
     
     return database.ref('asistencias')
         .orderByChild('userId')
@@ -138,11 +141,16 @@ function obtenerDiasRegistradosEstaSemana(userId) {
             const diasRegistrados = [];
             snapshot.forEach((childSnapshot) => {
                 const asistencia = childSnapshot.val();
-                if (asistencia.fecha >= fechaInicio && asistencia.fecha <= fechaFin) {
+                // Solo agregar si está en el rango de la semana actual
+                if (diasSemana.includes(asistencia.fecha)) {
                     diasRegistrados.push(asistencia.fecha);
                 }
             });
             return diasRegistrados;
+        })
+        .catch((error) => {
+            console.error('Error al obtener días registrados:', error);
+            return [];
         });
 }
 
@@ -154,7 +162,7 @@ function obtenerDiasRegistradosEstaSemana(userId) {
 function guardarPreferenciaRegistro(userId, tipoRegistro, diasSeleccionados = []) {
     return database.ref('preferencias/' + userId).set({
         tipo: tipoRegistro, // 'diario', 'semanal', 'mensual', 'personalizado'
-        diasSeleccionados: diasSeleccionados, // Array de días de la semana para personalizado
+        diasSeleccionados: diasSeleccionados, // Array de días de la semana (1=Lunes, 5=Viernes)
         fechaActualizacion: new Date().toISOString()
     });
 }
@@ -163,7 +171,11 @@ function guardarPreferenciaRegistro(userId, tipoRegistro, diasSeleccionados = []
 function obtenerPreferenciaRegistro(userId) {
     return database.ref('preferencias/' + userId)
         .once('value')
-        .then((snapshot) => snapshot.val());
+        .then((snapshot) => snapshot.val())
+        .catch((error) => {
+            console.error('Error al obtener preferencia:', error);
+            return null;
+        });
 }
 
 // Función para obtener descripción legible de la preferencia
@@ -178,14 +190,11 @@ function obtenerDescripcionPreferencia(preferencia) {
         case 'mensual':
             return 'Registro automático todo el mes (Lun-Vie)';
         case 'personalizado':
-            const dias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
-            const diasNombres = preferencia.diasSeleccionados.map(d => {
-                const fecha = new Date(d + 'T00:00:00');
-                const diaIndex = fecha.getDay();
-                // Convertir día de la semana a índice del array (0=Lun, 4=Vie)
-                return dias[diaIndex === 0 ? 6 : diaIndex - 1];
-            });
-            return `Días personalizados: ${diasNombres.join(', ')}`;
+            const diasNombres = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
+            const dias = preferencia.diasSeleccionados
+                .map(d => diasNombres[d - 1])
+                .filter(Boolean);
+            return `Días personalizados: ${dias.join(', ')}`;
         default:
             return 'Configuración desconocida';
     }
@@ -197,38 +206,19 @@ function obtenerDescripcionPreferencia(preferencia) {
 
 // Verificar si es un día feriado en República Dominicana
 function esUnDiaFeriado(fecha) {
-    // Lista oficial de días feriados en República Dominicana 2025
-    // Incluye feriados fijos y móviles
-    const feriados2025 = [
-        '2025-01-01', // Año Nuevo
-        '2025-01-06', // Día de los Santos Reyes (Epifanía)
-        '2025-01-21', // Día de Nuestra Señora de la Altagracia
-        '2025-01-26', // Día de Duarte
-        '2025-02-27', // Día de la Independencia Nacional
-        '2025-04-18', // Viernes Santo
-        '2025-05-01', // Día del Trabajo
-        '2025-06-19', // Corpus Christi
-        '2025-08-16', // Día de la Restauración
-        '2025-09-24', // Día de Nuestra Señora de las Mercedes
-        '2025-11-06', // Día de la Constitución
-        '2025-12-25', // Navidad
-        
-        // Agregar aquí más feriados cuando se conozcan para 2026
-        '2026-01-01', // Año Nuevo 2026
-        '2026-01-06', // Día de los Santos Reyes 2026
-        '2026-01-21', // Día de Nuestra Señora de la Altagracia 2026
-        '2026-01-26', // Día de Duarte 2026
-        '2026-02-27', // Día de la Independencia Nacional 2026
-        '2026-04-03', // Viernes Santo 2026
-        '2026-05-01', // Día del Trabajo 2026
-        '2026-06-04', // Corpus Christi 2026
-        '2026-08-16', // Día de la Restauración 2026
-        '2026-09-24', // Día de Nuestra Señora de las Mercedes 2026
-        '2026-11-06', // Día de la Constitución 2026
-        '2026-12-25'  // Navidad 2026
+    // Lista oficial de días feriados en República Dominicana 2025-2026
+    const feriados = [
+        // 2025
+        '2025-01-01', '2025-01-06', '2025-01-21', '2025-01-26',
+        '2025-02-27', '2025-04-18', '2025-05-01', '2025-06-19',
+        '2025-08-16', '2025-09-24', '2025-11-06', '2025-12-25',
+        // 2026
+        '2026-01-01', '2026-01-06', '2026-01-21', '2026-01-26',
+        '2026-02-27', '2026-04-03', '2026-05-01', '2026-06-04',
+        '2026-08-16', '2026-09-24', '2026-11-06', '2026-12-25'
     ];
     
-    return Promise.resolve(feriados2025.includes(fecha));
+    return Promise.resolve(feriados.includes(fecha));
 }
 
 // Filtrar días feriados de un array de fechas
@@ -254,11 +244,17 @@ function registrarAsistenciaAutomatica(userId, nombre, email) {
             }
             
             const hoy = new Date().toISOString().split('T')[0];
+            const diaHoy = new Date().getDay(); // 0=Domingo, 1=Lunes, ..., 6=Sábado
             
             return esUnDiaFeriado(hoy)
                 .then((esFeriado) => {
                     if (esFeriado) {
                         return { exito: false, mensaje: 'Hoy es un día feriado' };
+                    }
+                    
+                    // Domingo y Sábado siempre están cerrados
+                    if (diaHoy === 0 || diaHoy === 6) {
+                        return { exito: false, mensaje: 'Hoy es fin de semana (cerrado)' };
                     }
                     
                     return verificarAsistenciaHoy(userId)
@@ -270,10 +266,12 @@ function registrarAsistenciaAutomatica(userId, nombre, email) {
                             let debeRegistrar = false;
                             
                             if (preferencia.tipo === 'semanal' || preferencia.tipo === 'mensual') {
+                                // Semanal/Mensual: registrar solo Lunes a Viernes
                                 debeRegistrar = true;
                             } else if (preferencia.tipo === 'personalizado') {
                                 // Verificar si hoy está en los días seleccionados
-                                debeRegistrar = preferencia.diasSeleccionados.includes(hoy);
+                                // Los días se guardan como números: 1=Lunes, 2=Martes, ..., 5=Viernes
+                                debeRegistrar = preferencia.diasSeleccionados.includes(diaHoy);
                             }
                             
                             if (debeRegistrar) {
@@ -290,6 +288,10 @@ function registrarAsistenciaAutomatica(userId, nombre, email) {
                             }
                         });
                 });
+        })
+        .catch((error) => {
+            console.error('Error en registro automático:', error);
+            return { exito: false, mensaje: 'Error en registro automático' };
         });
 }
 

@@ -1,4 +1,4 @@
-// usuario-main.js - Lógica principal de la página de usuario
+// usuario-main.js - Lógica principal de la página de usuario (VERSIÓN FINAL - LUNES A VIERNES)
 
 let currentUser = null;
 let nombreModal;
@@ -156,7 +156,7 @@ function actualizarVisibilidadTarjetas(tipo) {
 }
 
 // =====================
-// SELECTORES DE DÍAS
+// SELECTORES DE DÍAS (SOLO LUNES A VIERNES)
 // =====================
 
 function configurarSelectoresDias() {
@@ -174,62 +174,100 @@ function configurarSelectoresDias() {
 }
 
 // =====================
-// RENDERIZADO DE SEMANA
+// RENDERIZADO DE SEMANA (SOLO LUNES A VIERNES)
 // =====================
 
 function renderizarDiasSemana() {
     const contenedor = document.getElementById('selectorDiasSemana');
     const nombresDias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'];
     
-    obtenerDiasLaboralesSemana()
-        .then(diasSemana => {
-            return obtenerDiasRegistradosEstaSemana(currentUser.uid)
-                .then(registrados => ({ diasSemana, registrados }));
-        })
-        .then(({ diasSemana, registrados }) => {
+    // Mostrar indicador de carga
+    contenedor.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary" role="status"></div></div>';
+    
+    const diasSemana = obtenerDiasLaboralesSemana(); // Devuelve 5 días: Lun-Vie
+    
+    // Obtener días ya registrados y procesar todo
+    obtenerDiasRegistradosEstaSemana(currentUser.uid)
+        .then(registrados => {
             contenedor.innerHTML = '';
             
-            diasSemana.forEach((fecha, index) => {
-                const yaRegistrado = registrados.includes(fecha);
-                const fechaObj = new Date(fecha + 'T00:00:00');
-                const esPasado = fechaObj < new Date().setHours(0, 0, 0, 0);
-                
-                // Verificar si es feriado
-                esUnDiaFeriado(fecha).then(esFeriado => {
-                    const card = document.createElement('div');
-                    card.className = 'card h-100';
+            // Procesar cada día de forma asíncrona
+            const promesas = diasSemana.map((fecha, index) => {
+                return esUnDiaFeriado(fecha).then(esFeriado => {
+                    const yaRegistrado = registrados.includes(fecha);
+                    const fechaObj = new Date(fecha + 'T00:00:00');
+                    const hoy = new Date();
+                    hoy.setHours(0, 0, 0, 0);
+                    const esPasado = fechaObj < hoy;
                     
-                    if (esFeriado) {
-                        card.classList.add('bg-warning', 'text-dark');
-                    } else if (yaRegistrado) {
-                        card.classList.add('bg-success', 'text-white');
-                    }
-                    
-                    card.innerHTML = `
-                        <div class="card-body text-center p-3">
-                            <div class="fw-bold mb-2">${nombresDias[index]}</div>
-                            <div class="small mb-2">${formatearFechaCorta(fecha)}</div>
-                            ${esFeriado ? 
-                                '<div class="badge bg-danger w-100"><i class="fas fa-calendar-times"></i> Feriado</div>' :
-                                yaRegistrado ? 
-                                '<div class="badge bg-light text-success w-100"><i class="fas fa-check"></i> Registrado</div>' :
-                                esPasado ?
-                                '<div class="badge bg-secondary w-100">Pasado</div>' :
-                                `<input type="checkbox" class="form-check-input dia-semana-checkbox" 
-                                        value="${fecha}" style="width: 20px; height: 20px;">`
-                            }
-                        </div>
-                    `;
-                    
-                    contenedor.appendChild(card);
+                    return { fecha, index, esFeriado, yaRegistrado, esPasado };
                 });
             });
+            
+            // Esperar todas las promesas y renderizar
+            return Promise.all(promesas);
         })
-        .catch(err => console.error("Error al cargar días de la semana:", err));
+        .then(dias => {
+            dias.forEach(({ fecha, index, esFeriado, yaRegistrado, esPasado }) => {
+                const col = document.createElement('div');
+                col.className = 'col-12 col-sm-6 col-md-4 col-lg-2 mb-3';
+                
+                const card = document.createElement('div');
+                card.className = 'card h-100';
+                
+                let colorClass = '';
+                let contenido = '';
+                
+                if (esFeriado) {
+                    colorClass = 'bg-warning text-dark';
+                    contenido = `
+                        <div class="fw-bold mb-2">${nombresDias[index]}</div>
+                        <div class="small mb-2">${formatearFechaCorta(fecha)}</div>
+                        <div class="badge bg-danger w-100">
+                            <i class="fas fa-calendar-times"></i> Feriado
+                        </div>
+                    `;
+                } else if (yaRegistrado) {
+                    colorClass = 'bg-success text-white';
+                    contenido = `
+                        <div class="fw-bold mb-2">${nombresDias[index]}</div>
+                        <div class="small mb-2">${formatearFechaCorta(fecha)}</div>
+                        <div class="badge bg-light text-success w-100">
+                            <i class="fas fa-check"></i> Registrado
+                        </div>
+                    `;
+                } else if (esPasado) {
+                    colorClass = 'bg-light text-muted';
+                    contenido = `
+                        <div class="fw-bold mb-2">${nombresDias[index]}</div>
+                        <div class="small mb-2">${formatearFechaCorta(fecha)}</div>
+                        <div class="badge bg-secondary w-100">Pasado</div>
+                    `;
+                } else {
+                    contenido = `
+                        <div class="fw-bold mb-2">${nombresDias[index]}</div>
+                        <div class="small mb-2">${formatearFechaCorta(fecha)}</div>
+                        <div class="form-check d-flex justify-content-center">
+                            <input type="checkbox" class="form-check-input dia-semana-checkbox" 
+                                   value="${fecha}" style="width: 24px; height: 24px; cursor: pointer;">
+                        </div>
+                    `;
+                }
+                
+                card.className += ' ' + colorClass;
+                card.innerHTML = `<div class="card-body text-center p-3">${contenido}</div>`;
+                col.appendChild(card);
+                contenedor.appendChild(col);
+            });
+        })
+        .catch(err => {
+            console.error("Error al cargar días de la semana:", err);
+            contenedor.innerHTML = '<div class="alert alert-danger">Error al cargar días de la semana</div>';
+        });
 }
 
 // =====================
-// RENDERIZADO DE MES
+// RENDERIZADO DE MES (SOLO LUNES A VIERNES)
 // =====================
 
 function renderizarCalendarioMes() {
@@ -242,18 +280,26 @@ function renderizarCalendarioMes() {
     const ultimoDia = new Date(año, mes + 1, 0);
     const diasMes = ultimoDia.getDate();
     
+    // Mostrar indicador de carga
+    contenedor.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div><p class="mt-2">Cargando calendario...</p></div>';
+    
+    // Limpiar selección previa
+    diasSeleccionadosMes.clear();
+    
     // Obtener días ya registrados
     obtenerAsistenciasUsuario(currentUser.uid)
         .then(asistencias => {
             const registrados = new Set(asistencias.map(a => a.fecha));
             
+            // Limpiar y preparar contenedor
             contenedor.innerHTML = '';
+            contenedor.className = 'calendario-mes';
             
             // Cabecera con días de la semana
             const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
             diasSemana.forEach(dia => {
                 const header = document.createElement('div');
-                header.className = 'text-center fw-bold small p-2';
+                header.className = 'text-center fw-bold small p-2 bg-light border';
                 header.textContent = dia;
                 contenedor.appendChild(header);
             });
@@ -262,8 +308,12 @@ function renderizarCalendarioMes() {
             const primerDiaSemana = primerDia.getDay();
             for (let i = 0; i < primerDiaSemana; i++) {
                 const vacio = document.createElement('div');
+                vacio.className = 'border';
                 contenedor.appendChild(vacio);
             }
+            
+            // Array de promesas para verificar feriados
+            const promesasDias = [];
             
             // Días del mes
             for (let dia = 1; dia <= diasMes; dia++) {
@@ -272,38 +322,41 @@ function renderizarCalendarioMes() {
                 const diaSemana = fecha.getDay();
                 const esDomingo = diaSemana === 0;
                 const esSabado = diaSemana === 6;
-                const esPasado = fecha < new Date().setHours(0, 0, 0, 0);
+                const fechaActual = new Date();
+                fechaActual.setHours(0, 0, 0, 0);
+                const esPasado = fecha < fechaActual;
                 const yaRegistrado = registrados.has(fechaString);
                 
                 const diaDiv = document.createElement('div');
                 diaDiv.className = 'dia-mes';
                 diaDiv.textContent = dia;
                 
-                // Verificar si es feriado
-                esUnDiaFeriado(fechaString).then(esFeriado => {
-                    if (esFeriado && !yaRegistrado) {
-                        diaDiv.classList.add('disabled');
-                        diaDiv.style.backgroundColor = '#ffc107';
-                        diaDiv.style.color = '#000';
-                        diaDiv.title = 'Día feriado';
-                    }
-                });
-                
-                if (esDomingo || esSabado) {
-                    if (esDomingo) {
-                        diaDiv.classList.add('domingo', 'disabled');
-                    } else {
-                        diaDiv.classList.add('sabado', 'disabled');
-                    }
-                } else if (esPasado && !yaRegistrado) {
-                    diaDiv.classList.add('disabled');
+                // Aplicar estilos según el caso
+                if (esDomingo) {
+                    diaDiv.classList.add('domingo', 'disabled');
+                    diaDiv.title = 'Domingo - Cerrado';
+                } else if (esSabado) {
+                    diaDiv.classList.add('sabado', 'disabled');
+                    diaDiv.title = 'Sábado - Cerrado';
                 } else if (yaRegistrado) {
                     diaDiv.classList.add('registrado');
+                    diaDiv.title = 'Ya registrado';
+                } else if (esPasado) {
+                    diaDiv.classList.add('disabled');
+                    diaDiv.title = 'Fecha pasada';
                 } else {
-                    diaDiv.dataset.fecha = fechaString;
-                    diaDiv.addEventListener('click', function() {
-                        esUnDiaFeriado(fechaString).then(esFeriado => {
-                            if (!esFeriado) {
+                    // Verificar si es feriado de forma asíncrona
+                    const promesa = esUnDiaFeriado(fechaString).then(esFeriado => {
+                        if (esFeriado) {
+                            diaDiv.classList.add('disabled');
+                            diaDiv.style.backgroundColor = '#ffc107';
+                            diaDiv.style.color = '#000';
+                            diaDiv.title = 'Día feriado';
+                        } else {
+                            // Día disponible para selección
+                            diaDiv.dataset.fecha = fechaString;
+                            diaDiv.style.cursor = 'pointer';
+                            diaDiv.addEventListener('click', function() {
                                 if (diasSeleccionadosMes.has(fechaString)) {
                                     diasSeleccionadosMes.delete(fechaString);
                                     this.classList.remove('selected');
@@ -311,18 +364,26 @@ function renderizarCalendarioMes() {
                                     diasSeleccionadosMes.add(fechaString);
                                     this.classList.add('selected');
                                 }
-                            }
-                        });
+                            });
+                        }
                     });
+                    promesasDias.push(promesa);
                 }
                 
                 contenedor.appendChild(diaDiv);
             }
+            
+            // Esperar a que todas las verificaciones de feriados terminen
+            return Promise.all(promesasDias);
+        })
+        .catch(error => {
+            console.error('Error al renderizar calendario:', error);
+            contenedor.innerHTML = '<div class="alert alert-danger">Error al cargar el calendario</div>';
         });
 }
 
 // =====================
-// GUARDAR PREFERENCIA
+// GUARDAR PREFERENCIA (SOLO LUNES A VIERNES)
 // =====================
 
 function guardarMiPreferenciaRegistro() {
@@ -338,7 +399,18 @@ function guardarMiPreferenciaRegistro() {
     
     if (tipo === 'personalizado') {
         const checkboxes = document.querySelectorAll('.dia-selector input[type="checkbox"]:checked');
-        diasSeleccionados = Array.from(checkboxes).map(cb => cb.value);
+        // Guardar como números de día de semana (1=Lunes, 5=Viernes)
+        const mapaDias = {
+            'lunes': 1,
+            'martes': 2,
+            'miercoles': 3,
+            'jueves': 4,
+            'viernes': 5
+        };
+        
+        diasSeleccionados = Array.from(checkboxes)
+            .map(cb => mapaDias[cb.value])
+            .filter(Boolean);
         
         if (diasSeleccionados.length === 0) {
             mostrarAlerta('Por favor selecciona al menos un día de la semana', 'warning');
@@ -389,18 +461,30 @@ function cargarPreferenciaRegistro() {
                     actualizarVisibilidadTarjetas(preferencia.tipo);
                     
                     if (preferencia.tipo === 'personalizado') {
-                        preferencia.diasSeleccionados.forEach(dia => {
-                            const checkbox = document.getElementById(`dia-${dia}`);
-                            if (checkbox) {
-                                checkbox.checked = true;
-                                checkbox.closest('.dia-selector').classList.add('selected');
+                        // Mapeo inverso de números a nombres de días
+                        const mapaInverso = {
+                            1: 'lunes',
+                            2: 'martes',
+                            3: 'miercoles',
+                            4: 'jueves',
+                            5: 'viernes'
+                        };
+                        
+                        preferencia.diasSeleccionados.forEach(numeroDia => {
+                            const nombreDia = mapaInverso[numeroDia];
+                            if (nombreDia) {
+                                const checkbox = document.getElementById(`dia-${nombreDia}`);
+                                if (checkbox) {
+                                    checkbox.checked = true;
+                                    checkbox.closest('.dia-selector').classList.add('selected');
+                                }
                             }
                         });
                     }
                 }
                 
                 // Si tiene preferencia automática, ejecutar registro automático
-                if (preferencia.tipo === 'semanal' || preferencia.tipo === 'mensual') {
+                if (preferencia.tipo !== 'diario') {
                     ejecutarRegistroAutomatico();
                 }
             } else {
@@ -414,11 +498,13 @@ function cargarPreferenciaRegistro() {
 }
 
 function ejecutarRegistroAutomatico() {
-    esUnDiaFeriado(new Date().toISOString().split('T')[0])
+    const hoy = new Date().toISOString().split('T')[0];
+    
+    esUnDiaFeriado(hoy)
         .then(esFeriado => {
             if (esFeriado) {
                 mostrarAlerta('Hoy es un día feriado, el registro automático está deshabilitado.', 'info');
-                return;
+                return Promise.resolve(null);
             }
             
             return registrarAsistenciaAutomatica(
@@ -493,6 +579,7 @@ function registrarSeleccionSemanal() {
     }
     
     const btn = event.target;
+    const originalHTML = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
     
@@ -516,12 +603,12 @@ function registrarSeleccionSemanal() {
             if (error.message === 'Todos los días seleccionados son feriados') {
                 mostrarAlerta("Todos los días seleccionados son feriados. No se registró ninguna asistencia.", "warning");
             } else {
-                mostrarAlerta("Hubo un error al guardar.", "danger");
+                mostrarAlerta("Hubo un error al guardar: " + error.message, "danger");
             }
         })
         .finally(() => {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-calendar-check"></i> Registrar Semana';
+            btn.innerHTML = originalHTML;
         });
 }
 
@@ -538,6 +625,7 @@ function registrarSeleccionMensual() {
     }
     
     const btn = event.target;
+    const originalHTML = btn.innerHTML;
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
     
@@ -562,12 +650,12 @@ function registrarSeleccionMensual() {
             if (error.message === 'Todos los días seleccionados son feriados') {
                 mostrarAlerta("Todos los días seleccionados son feriados. No se registró ninguna asistencia.", "warning");
             } else {
-                mostrarAlerta("Hubo un error al guardar.", "danger");
+                mostrarAlerta("Hubo un error al guardar: " + error.message, "danger");
             }
         })
         .finally(() => {
             btn.disabled = false;
-            btn.innerHTML = '<i class="fas fa-calendar-check"></i> Registrar Días Seleccionados';
+            btn.innerHTML = originalHTML;
         });
 }
 
