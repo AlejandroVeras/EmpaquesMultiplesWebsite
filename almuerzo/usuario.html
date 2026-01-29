@@ -17,6 +17,101 @@
     
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/almuerzo.css">
+    
+    <style>
+        .opcion-registro {
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #dee2e6;
+        }
+        
+        .opcion-registro:hover {
+            border-color: #116835;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(17, 104, 53, 0.2);
+        }
+        
+        .opcion-registro.active {
+            border-color: #116835;
+            background-color: #f0f8f4;
+        }
+        
+        .dia-selector {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .dia-selector:hover {
+            background-color: #f0f8f4;
+        }
+        
+        .dia-selector.selected {
+            background-color: #116835;
+            color: white;
+        }
+        
+        .dia-selector.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .semana-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+        
+        .calendario-mes {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        
+        .dia-mes {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .dia-mes:hover:not(.disabled):not(.registrado) {
+            background-color: #f0f8f4;
+            border-color: #116835;
+        }
+        
+        .dia-mes.selected {
+            background-color: #116835;
+            color: white;
+            border-color: #116835;
+        }
+        
+        .dia-mes.registrado {
+            background-color: #28a745;
+            color: white;
+            border-color: #28a745;
+            cursor: default;
+        }
+        
+        .dia-mes.disabled {
+            background-color: #f8f9fa;
+            color: #adb5bd;
+            cursor: not-allowed;
+        }
+        
+        .dia-mes.domingo {
+            background-color: #ffe6e6;
+            color: #721c24;
+        }
+        
+        .dia-mes.sabado {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+    </style>
 </head>
 <body>
     <!-- Header -->
@@ -54,23 +149,127 @@
             </div>
         </div>
 
-        <!-- Tarjeta de registro -->
+        <!-- Tarjeta de Configuración de Registro -->
         <div class="card fade-in">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>
+                    <i class="fas fa-cog"></i> Configuración de Registro
+                </span>
+                <span class="badge bg-light text-dark" id="preferenciaActual">Sin configurar</span>
+            </div>
+            <div class="card-body">
+                <h5 class="mb-4">¿Cómo deseas registrar tu asistencia?</h5>
+                
+                <div class="row g-3 mb-4">
+                    <!-- Opción: Registro Diario Manual -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card opcion-registro h-100" id="opcionDiario">
+                            <div class="card-body text-center">
+                                <i class="fas fa-calendar-day fa-3x mb-3 text-primary"></i>
+                                <h6>Registro Diario</h6>
+                                <p class="small text-muted">Registro manual cada día</p>
+                                <input type="radio" name="tipoRegistro" value="diario" id="radioDiario" class="form-check-input d-none">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Opción: Semana Completa -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card opcion-registro h-100" id="opcionSemanal">
+                            <div class="card-body text-center">
+                                <i class="fas fa-calendar-week fa-3x mb-3 text-success"></i>
+                                <h6>Semana Completa</h6>
+                                <p class="small text-muted">Lunes a Viernes automático</p>
+                                <input type="radio" name="tipoRegistro" value="semanal" id="radioSemanal" class="form-check-input d-none">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Opción: Mes Completo -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card opcion-registro h-100" id="opcionMensual">
+                            <div class="card-body text-center">
+                                <i class="fas fa-calendar-alt fa-3x mb-3 text-info"></i>
+                                <h6>Mes Completo</h6>
+                                <p class="small text-muted">Todo el mes automático</p>
+                                <input type="radio" name="tipoRegistro" value="mensual" id="radioMensual" class="form-check-input d-none">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Opción: Días Personalizados -->
+                    <div class="col-md-6 col-lg-3">
+                        <div class="card opcion-registro h-100" id="opcionPersonalizado">
+                            <div class="card-body text-center">
+                                <i class="fas fa-calendar-check fa-3x mb-3 text-warning"></i>
+                                <h6>Personalizado</h6>
+                                <p class="small text-muted">Selecciona días específicos</p>
+                                <input type="radio" name="tipoRegistro" value="personalizado" id="radioPersonalizado" class="form-check-input d-none">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Selector de días personalizados -->
+                <div id="diasContainer" style="display: none;">
+                    <hr class="my-4">
+                    <h6 class="mb-3">Selecciona los días de la semana:</h6>
+                    <div class="row g-2">
+                        <div class="col-4 col-md-2">
+                            <div class="card dia-selector text-center p-3">
+                                <input type="checkbox" class="form-check-input d-none" id="dia-lunes" value="lunes">
+                                <i class="fas fa-calendar-day fa-2x mb-2"></i>
+                                <div class="fw-bold">Lunes</div>
+                            </div>
+                        </div>
+                        <div class="col-4 col-md-2">
+                            <div class="card dia-selector text-center p-3">
+                                <input type="checkbox" class="form-check-input d-none" id="dia-martes" value="martes">
+                                <i class="fas fa-calendar-day fa-2x mb-2"></i>
+                                <div class="fw-bold">Martes</div>
+                            </div>
+                        </div>
+                        <div class="col-4 col-md-2">
+                            <div class="card dia-selector text-center p-3">
+                                <input type="checkbox" class="form-check-input d-none" id="dia-miercoles" value="miercoles">
+                                <i class="fas fa-calendar-day fa-2x mb-2"></i>
+                                <div class="fw-bold">Miércoles</div>
+                            </div>
+                        </div>
+                        <div class="col-4 col-md-2">
+                            <div class="card dia-selector text-center p-3">
+                                <input type="checkbox" class="form-check-input d-none" id="dia-jueves" value="jueves">
+                                <i class="fas fa-calendar-day fa-2x mb-2"></i>
+                                <div class="fw-bold">Jueves</div>
+                            </div>
+                        </div>
+                        <div class="col-4 col-md-2">
+                            <div class="card dia-selector text-center p-3">
+                                <input type="checkbox" class="form-check-input d-none" id="dia-viernes" value="viernes">
+                                <i class="fas fa-calendar-day fa-2x mb-2"></i>
+                                <div class="fw-bold">Viernes</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button class="btn btn-primary btn-lg" onclick="guardarMiPreferenciaRegistro()" id="btnGuardarPreferencia">
+                        <i class="fas fa-save"></i> Guardar Preferencia
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tarjeta de Registro Diario (solo visible si seleccionó registro diario) -->
+        <div class="card fade-in" id="tarjetaRegistroDiario" style="display: none;">
             <div class="card-header">
-                <i class="fas fa-utensils"></i> Registro de Asistencia al Almuerzo
-                <span id="estadoSistema" class="badge ms-2"></span>
+                <i class="fas fa-utensils"></i> Registro de Asistencia del Día
             </div>
             <div class="card-body text-center">
                 <h5 class="mb-4">¿Vas a almorzar hoy en la empresa?</h5>
                 <p class="text-muted mb-4">Registra tu asistencia presionando el botón de abajo.</p>
-
-                <!-- Indicador de horario -->
-                <div id="infoHorario" class="alert alert-info mb-4" style="display: none;">
-                    <i class="fas fa-clock"></i>
-                    <strong>Horario de registro:</strong> 7:00 AM - 10:00 AM
-                    <br><small id="proximoHorarioTexto"></small>
-                </div>
-
+                
                 <button
                     id="btnRegistrar"
                     class="btn btn-primary btn-lg btn-registrar"
@@ -78,10 +277,48 @@
                 >
                     <i class="fas fa-check-circle"></i> Registrar Asistencia
                 </button>
-
+                
                 <p class="text-muted small mt-3">
                     <i class="fas fa-info-circle"></i> Solo puedes registrarte una vez por día
                 </p>
+            </div>
+        </div>
+
+        <!-- Selector de Semana (para registro semanal) -->
+        <div class="card fade-in" id="tarjetaSemanal" style="display: none;">
+            <div class="card-header">
+                <i class="fas fa-calendar-week"></i> Registro Semanal
+            </div>
+            <div class="card-body">
+                <h6 class="mb-3">Selecciona los días de esta semana en que vas a almorzar:</h6>
+                <div id="selectorDiasSemana" class="semana-grid"></div>
+                <div class="text-center mt-4">
+                    <button class="btn btn-success btn-lg" onclick="registrarSeleccionSemanal()">
+                        <i class="fas fa-calendar-check"></i> Registrar Semana
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Selector de Mes (para registro mensual) -->
+        <div class="card fade-in" id="tarjetaMensual" style="display: none;">
+            <div class="card-header">
+                <i class="fas fa-calendar-alt"></i> Registro Mensual
+            </div>
+            <div class="card-body">
+                <h6 class="mb-3">Calendario del mes - Selecciona los días:</h6>
+                <div class="text-center mb-3">
+                    <span class="badge bg-danger me-2"><i class="fas fa-square"></i> Domingo (cerrado)</span>
+                    <span class="badge bg-warning me-2"><i class="fas fa-square"></i> Sábado (cerrado)</span>
+                    <span class="badge bg-success me-2"><i class="fas fa-check"></i> Ya registrado</span>
+                    <span class="badge bg-primary"><i class="fas fa-hand-pointer"></i> Seleccionar</span>
+                </div>
+                <div id="calendarioMes"></div>
+                <div class="text-center mt-4">
+                    <button class="btn btn-success btn-lg" onclick="registrarSeleccionMensual()">
+                        <i class="fas fa-calendar-check"></i> Registrar Días Seleccionados
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -104,6 +341,7 @@
                                     <th>#</th>
                                     <th>Fecha</th>
                                     <th>Hora</th>
+                                    <th>Tipo</th>
                                     <th>Estado</th>
                                 </tr>
                             </thead>
@@ -122,6 +360,32 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal para solicitar nombre -->
+    <div class="modal fade" id="nombreModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">¡Bienvenido(a)!</h5>
+                </div>
+                <div class="modal-body">
+                    <p>Para continuar, por favor ingresa tu nombre completo:</p>
+                    <form id="nombreForm">
+                        <div class="mb-3">
+                            <label for="modalNombreUsuario" class="form-label">Nombre completo</label>
+                            <input type="text" class="form-control" id="modalNombreUsuario" placeholder="Ej. Juan Pérez" required>
+                            <div class="form-text">Este nombre se mostrará en tu perfil y registros.</div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="guardarNombreBtn">
+                        <i class="fas fa-save"></i> Guardar y continuar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -136,392 +400,6 @@
     <script src="js/auth.js"></script>
     <script src="js/database.js"></script>
     
-    <script>
-        let currentUser = null;
-    let nombreModal;
-
-    // Verificar autenticación al cargar
-    checkAuth(false)
-        .then((user) => {
-            currentUser = user;
-            
-            // Actualizar información del usuario
-            document.getElementById('userEmail').textContent = user.email;
-            
-            // Verificar si el usuario tiene nombre configurado
-            if (!user.displayName) {
-                // Mostrar modal para pedir nombre
-                nombreModal = new bootstrap.Modal(document.getElementById('nombreModal'));
-                nombreModal.show();
-                
-                // Configurar evento para guardar nombre
-                document.getElementById('guardarNombreBtn').addEventListener('click', guardarNombreUsuario);
-            } else {
-                // Usuario ya tiene nombre, mostrar normalmente
-                document.getElementById('userName').textContent = user.displayName;
-                inicializarPagina();
-            }
-        })
-        .catch((error) => {
-            console.error('Error de autenticación:', error);
-        });
-
-    // Función para guardar nombre de usuario
-    function guardarNombreUsuario() {
-        const nuevoNombre = document.getElementById('modalNombreUsuario').value.trim();
-        const guardarBtn = document.getElementById('guardarNombreBtn');
-        
-        // Validar entrada
-        if (!nuevoNombre) {
-            // Mostrar mensaje de error en el modal
-            const formControl = document.getElementById('modalNombreUsuario');
-            formControl.classList.add('is-invalid');
-            return;
-        }
-        
-        // Cambiar estado del botón
-        guardarBtn.disabled = true;
-        guardarBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
-        
-        // Actualizar perfil
-        actualizarNombreUsuario(nuevoNombre)
-            .then((nombre) => {
-                // Actualizar nombre en la UI
-                document.getElementById('userName').textContent = nombre;
-                
-                // Cerrar modal
-                nombreModal.hide();
-                
-                // Mostrar mensaje de éxito
-                mostrarAlerta('¡Bienvenido(a), ' + nombre + '! Tu perfil ha sido configurado.', 'success');
-                
-                // Inicializar la página
-                inicializarPagina();
-            })
-            .catch((error) => {
-                console.error('Error al actualizar perfil:', error);
-                mostrarAlerta('Error al guardar el nombre. Por favor intenta nuevamente.', 'danger');
-                
-                // Restaurar botón
-                guardarBtn.disabled = false;
-                guardarBtn.innerHTML = '<i class="fas fa-save"></i> Guardar y continuar';
-            });
-    }
-    
-    // Configurar validación de formulario modal
-    document.getElementById('nombreForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        guardarNombreUsuario();
-    });
-
-    // Función para actualizar el estado visual del sistema
-    function actualizarEstadoSistema() {
-        const estadoSistema = document.getElementById('estadoSistema');
-        const infoHorario = document.getElementById('infoHorario');
-        const proximoHorarioTexto = document.getElementById('proximoHorarioTexto');
-        const btnRegistrar = document.getElementById('btnRegistrar');
-
-        if (validarHorarioRegistro()) {
-            // Sistema abierto
-            estadoSistema.className = 'badge bg-success ms-2';
-            estadoSistema.innerHTML = '<i class="fas fa-check-circle"></i> Sistema Abierto';
-            infoHorario.style.display = 'none';
-            btnRegistrar.style.display = 'block';
-        } else {
-            // Sistema cerrado
-            estadoSistema.className = 'badge bg-danger ms-2';
-            estadoSistema.innerHTML = '<i class="fas fa-times-circle"></i> Sistema Cerrado';
-
-            // Mostrar información de horario
-            infoHorario.style.display = 'block';
-            const proximoHorario = obtenerProximoHorario();
-            const opciones = {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            };
-            proximoHorarioTexto.textContent = `Próxima apertura: ${proximoHorario.toLocaleDateString('es-ES', opciones)}`;
-
-            // Ocultar botón de registro cuando esté cerrado
-            btnRegistrar.style.display = 'none';
-        }
-    }
-
-    // Función para inicializar la página una vez configurado el nombre
-    function inicializarPagina() {
-        // Actualizar estado del sistema
-        actualizarEstadoSistema();
-
-        // Cargar historial
-        cargarHistorial();
-
-        // Verificar si ya registró hoy
-        verificarRegistroHoy();
-
-        // Cargar menú del día
-        cargarMenuDeHoy();
-
-        // Actualizar estado del sistema cada minuto
-        setInterval(actualizarEstadoSistema, 60000);
-    }
-
-    // Verificar si ya registró asistencia hoy
-    function verificarRegistroHoy() {
-        verificarAsistenciaHoy(currentUser.uid)
-            .then((yaRegistrado) => {
-                const btnRegistrar = document.getElementById('btnRegistrar');
-
-                if (yaRegistrado) {
-                    // Ya registró hoy - mostrar como completado
-                    btnRegistrar.disabled = true;
-                    btnRegistrar.innerHTML = '<i class="fas fa-check-double"></i> Ya registraste tu asistencia hoy';
-                    btnRegistrar.classList.remove('btn-primary');
-                    btnRegistrar.classList.add('btn-success');
-                    btnRegistrar.style.display = 'block'; // Mostrar aunque el sistema esté cerrado
-
-                    mostrarAlerta('Ya has registrado tu asistencia para hoy.', 'info');
-                } else {
-                    // No ha registrado hoy - el estado del botón depende del horario
-                    actualizarEstadoSistema();
-                }
-            });
-    }
-
-    // Función para validar horario de registro (7:00 AM - 10:00 AM)
-    function validarHorarioRegistro() {
-        const ahora = new Date();
-        const hora = ahora.getHours();
-        const minutos = ahora.getMinutes();
-
-        // Convertir hora actual a minutos desde medianoche
-        const minutosActuales = hora * 60 + minutos;
-
-        // Horario permitido: 7:00 AM (420 minutos) - 10:00 AM (600 minutos)
-        const horaInicio = 7 * 60; // 7:00 AM en minutos
-        const horaFin = 10 * 60;   // 10:00 AM en minutos
-
-        return minutosActuales >= horaInicio && minutosActuales <= horaFin;
-    }
-
-    // Función para obtener el próximo horario de apertura
-    function obtenerProximoHorario() {
-        const ahora = new Date();
-        const hoy = new Date(ahora);
-        const manana = new Date(ahora);
-        manana.setDate(manana.getDate() + 1);
-
-        // Establecer hora de apertura (7:00 AM)
-        hoy.setHours(7, 0, 0, 0);
-        manana.setHours(7, 0, 0, 0);
-
-        // Si aún no son las 7:00 AM hoy, el próximo horario es hoy a las 7:00 AM
-        if (ahora < hoy) {
-            return hoy;
-        } else {
-            // Si ya pasaron las 7:00 AM hoy, el próximo horario es mañana a las 7:00 AM
-            return manana;
-        }
-    }
-
-    // Registrar asistencia
-    function registrarMiAsistencia() {
-        // Primero verificar si está dentro del horario permitido
-        if (!validarHorarioRegistro()) {
-            const proximoHorario = obtenerProximoHorario();
-            const opciones = {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            };
-            const mensajeHorario = proximoHorario.toLocaleDateString('es-ES', opciones);
-
-            mostrarAlerta(`El sistema de registro está cerrado. El horario de registro es de 7:00 AM a 10:00 AM. El próximo horario de apertura será el ${mensajeHorario}.`, 'warning');
-            return;
-        }
-
-        const btnRegistrar = document.getElementById('btnRegistrar');
-
-        // Deshabilitar botón
-        btnRegistrar.disabled = true;
-        btnRegistrar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
-
-        // Registrar en la base de datos
-        registrarAsistencia(
-            currentUser.uid,
-            currentUser.displayName,
-            currentUser.email
-        )
-        .then(() => {
-            // Éxito
-            btnRegistrar.innerHTML = '<i class="fas fa-check-double"></i> Ya registraste tu asistencia hoy';
-            btnRegistrar.classList.remove('btn-primary');
-            btnRegistrar.classList.add('btn-success');
-
-            mostrarAlerta('¡Asistencia registrada exitosamente!', 'success');
-
-            // Recargar historial
-            cargarHistorial();
-        })
-        .catch((error) => {
-            console.error('Error al registrar:', error);
-            mostrarAlerta('Error al registrar la asistencia. Por favor, intenta nuevamente.', 'danger');
-
-            // Rehabilitar botón
-            btnRegistrar.disabled = false;
-            btnRegistrar.innerHTML = '<i class="fas fa-check-circle"></i> Registrar Asistencia';
-        });
-    }
-        // Cargar historial de asistencias
-        function cargarHistorial() {
-            const loadingHistorial = document.getElementById('loadingHistorial');
-            const historialContainer = document.getElementById('historialContainer');
-            const emptyHistorial = document.getElementById('emptyHistorial');
-            const historialBody = document.getElementById('historialBody');
-            
-            // Mostrar loader
-            loadingHistorial.style.display = 'block';
-            historialContainer.style.display = 'none';
-            emptyHistorial.style.display = 'none';
-            
-            obtenerAsistenciasUsuario(currentUser.uid)
-                .then((asistencias) => {
-                    loadingHistorial.style.display = 'none';
-                    
-                    if (asistencias.length === 0) {
-                        emptyHistorial.style.display = 'block';
-                    } else {
-                        historialContainer.style.display = 'block';
-                        
-                        // Llenar tabla
-                        historialBody.innerHTML = '';
-                        asistencias.forEach((asistencia, index) => {
-                            const row = document.createElement('tr');
-                            row.innerHTML = `
-                                <td>${index + 1}</td>
-                                <td>${formatearFecha(asistencia.fecha)}</td>
-                                <td>${asistencia.hora}</td>
-                                <td><span class="badge bg-success">Registrada</span></td>
-                            `;
-                            historialBody.appendChild(row);
-                        });
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error al cargar historial:', error);
-                    loadingHistorial.style.display = 'none';
-                    mostrarAlerta('Error al cargar el historial.', 'danger');
-                });
-        }
-
-        // Función para formatear fecha
-        function formatearFecha(fechaString) {
-            const fecha = new Date(fechaString + 'T00:00:00');
-            const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
-            return fecha.toLocaleDateString('es-ES', opciones);
-        }
-
-        // Mostrar menú de hoy
-        function cargarMenuDeHoy() {
-            const card = document.getElementById('menuHoyCard');
-            const contenido = document.getElementById('menuHoyContenido');
-            contenido.innerHTML = '<span class="text-muted"><i class="fas fa-spinner fa-spin"></i> Cargando menú...</span>';
-            card.style.display = 'block';
-            obtenerMenuDeHoy()
-                .then(({ dia, descripcion }) => {
-                    if (descripcion && descripcion.trim().length > 0) {
-                        contenido.innerHTML = `<strong>${dia.charAt(0).toUpperCase() + dia.slice(1)}:</strong> ${descripcion}`;
-                    } else {
-                        contenido.innerHTML = '<span class="text-muted">No hay menú publicado para hoy.</span>';
-                    }
-                })
-                .catch(() => {
-                    contenido.innerHTML = '<span class="text-danger">No se pudo cargar el menú de hoy.</span>';
-                });
-        }
-
-        // Función para mostrar alertas
-        function mostrarAlerta(mensaje, tipo) {
-            const alertContainer = document.getElementById('alertContainer');
-            const icono = tipo === 'success' ? 'check-circle' : tipo === 'danger' ? 'exclamation-circle' : 'info-circle';
-            
-            alertContainer.innerHTML = `
-                <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
-                    <i class="fas fa-${icono}"></i> ${mensaje}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            `;
-            
-            // Auto-cerrar después de 5 segundos
-            setTimeout(() => {
-                alertContainer.innerHTML = '';
-            }, 5000);
-        }
-        // Manejar actualización del perfil
-document.getElementById('actualizarPerfilForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const nuevoNombre = document.getElementById('nombreUsuario').value.trim();
-    const btnSubmit = this.querySelector('button[type="submit"]');
-    const btnTextOriginal = btnSubmit.innerHTML;
-    
-    // Validar entrada
-    if (!nuevoNombre) {
-        mostrarAlerta('Por favor ingresa tu nombre completo', 'warning');
-        return;
-    }
-    
-    // Cambiar estado del botón
-    btnSubmit.disabled = true;
-    btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Actualizando...';
-    
-    // Actualizar perfil
-    actualizarNombreUsuario(nuevoNombre)
-        .then((nombre) => {
-            // Actualizar nombre en la UI
-            document.getElementById('userName').textContent = nombre;
-            mostrarAlerta('¡Perfil actualizado correctamente!', 'success');
-        })
-        .catch((error) => {
-            console.error('Error al actualizar perfil:', error);
-            mostrarAlerta('Error al actualizar el perfil. Intenta nuevamente.', 'danger');
-        })
-        .finally(() => {
-            // Restaurar botón
-            btnSubmit.disabled = false;
-            btnSubmit.innerHTML = btnTextOriginal;
-        });
-});
-    </script>
-    <!-- Modal para solicitar nombre -->
-<div class="modal fade" id="nombreModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="nombreModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="nombreModalLabel">¡Bienvenido(a)!</h5>
-      </div>
-      <div class="modal-body">
-        <p>Para continuar, por favor ingresa tu nombre completo:</p>
-        <form id="nombreForm">
-          <div class="mb-3">
-            <label for="modalNombreUsuario" class="form-label">Nombre completo</label>
-            <input type="text" class="form-control" id="modalNombreUsuario" placeholder="Ej. Juan Pérez" required>
-            <div class="form-text">Este nombre se mostrará en tu perfil y registros de asistencia.</div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" id="guardarNombreBtn">
-          <i class="fas fa-save"></i> Guardar y continuar
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+    <script src="js/usuario-main.js"></script>
 </body>
 </html>

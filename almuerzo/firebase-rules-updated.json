@@ -1,0 +1,46 @@
+{
+  "rules": {
+    ".read": "auth != null",
+
+    "asistencias": {
+      ".read": "auth != null",
+      "$id": {
+        ".write": "auth != null && newData.child('userId').val() === auth.uid"
+      }
+    },
+
+    "preferencias": {
+      "$uid": {
+        ".read": "auth != null && ($uid === auth.uid || auth.token.email === 'soporte.it.casaempaques@gmail.com' || root.child('roles').child(auth.uid).val() === 'admin')",
+        ".write": "auth != null && $uid === auth.uid"
+      }
+    },
+
+    "menuSemanal": {
+      ".read": "auth != null",
+      ".write": "auth != null && (auth.token.email === 'soporte.it.casaempaques@gmail.com' || root.child('roles').child(auth.uid).val() === 'admin')"
+    },
+
+    "usernames": {
+      ".read": "auth != null && (auth.token.email === 'soporte.it.casaempaques@gmail.com' || root.child('roles').child(auth.uid).val() === 'admin')",
+      "$username": {
+        ".write": "auth != null && (auth.token.email === 'soporte.it.casaempaques@gmail.com' || root.child('roles').child(auth.uid).val() === 'admin') && !data.exists()"
+      }
+    },
+
+    "roles": {
+      "$uid": {
+        ".read": "auth != null && ($uid === auth.uid || auth.token.email === 'soporte.it.casaempaques@gmail.com' || root.child('roles').child(auth.uid).val() === 'admin')",
+        ".write": "auth != null && (auth.token.email === 'soporte.it.casaempaques@gmail.com' || root.child('roles').child(auth.uid).val() === 'admin')"
+      }
+    },
+
+    "perfiles": {
+      ".read": "auth != null && (auth.token.email === 'soporte.it.casaempaques@gmail.com' || root.child('roles').child(auth.uid).val() === 'admin')",
+      "$uid": {
+        ".read": "auth != null && ($uid === auth.uid || auth.token.email === 'soporte.it.casaempaques@gmail.com' || root.child('roles').child(auth.uid).val() === 'admin')",
+        ".write": "auth != null && (auth.token.email === 'soporte.it.casaempaques@gmail.com' || root.child('roles').child(auth.uid).val() === 'admin')"
+      }
+    }
+  }
+}
