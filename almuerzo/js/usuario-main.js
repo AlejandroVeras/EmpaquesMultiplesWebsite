@@ -328,32 +328,29 @@ function renderizarCalendarioMes() {
                 const esPasado = fecha < fechaActual;
                 const yaRegistrado = registrados.has(fechaString);
                 
-                // --- NUEVO: VALIDACIÓN ---
+                // --- NUEVO LÓGICA DE HORA ---
                 const hoyStr = new Date().toISOString().split('T')[0];
                 const esHoy = fechaString === hoyStr;
                 const horaActual = new Date().getHours();
                 const esTarde = esHoy && horaActual >= 10;
-                // ------------------------
+                // ---------------------------------------------------------------------
 
                 const diaDiv = document.createElement('div');
                 diaDiv.className = 'dia-mes';
                 diaDiv.textContent = dia;
                 
-                if (esDomingo) {
-                    // ...
-                } else if (esTarde) { // <-- AGREGAR ESTA CONDICIÓN
-                    diaDiv.classList.add('disabled');
-                    diaDiv.title = 'Registro cerrado por hoy (10:00 AM)';
-                    diaDiv.style.backgroundColor = '#e9ecef';
-                }
-
-                // Aplicar estilos según el caso
+                // --- ESTRUCTURA DE BLOQUEO CORREGIDA ---
                 if (esDomingo) {
                     diaDiv.classList.add('domingo', 'disabled');
                     diaDiv.title = 'Domingo - Cerrado';
                 } else if (esSabado) {
                     diaDiv.classList.add('sabado', 'disabled');
                     diaDiv.title = 'Sábado - Cerrado';
+                } else if (esTarde) { // <--- AQUÍ ESTÁ EL CAMBIO CLAVE
+                    diaDiv.classList.add('disabled');
+                    diaDiv.title = 'Registro cerrado por hoy (10:00 AM)';
+                    diaDiv.style.backgroundColor = '#e9ecef';
+                    diaDiv.style.pointerEvents = 'none'; // <--- ESTO BLOQUEA EL CLIC FÍSICAMENTE
                 } else if (yaRegistrado) {
                     diaDiv.classList.add('registrado');
                     diaDiv.title = 'Ya registrado';
@@ -361,6 +358,9 @@ function renderizarCalendarioMes() {
                     diaDiv.classList.add('disabled');
                     diaDiv.title = 'Fecha pasada';
                 } else {
+                    // AQUÍ SOLO ENTRA SI NO SE CUMPLIÓ NINGUNA DE LAS ANTERIORES
+                    // (Es decir, solo entra si NO es tarde, NO es feriado, NO es domingo, etc.)
+                    
                     // Verificar si es feriado de forma asíncrona
                     const promesa = esUnDiaFeriado(fechaString).then(esFeriado => {
                         if (esFeriado) {
@@ -373,6 +373,7 @@ function renderizarCalendarioMes() {
                             diaDiv.dataset.fecha = fechaString;
                             diaDiv.style.cursor = 'pointer';
                             diaDiv.addEventListener('click', function() {
+                                // ... lógica de selección ...
                                 if (diasSeleccionadosMes.has(fechaString)) {
                                     diasSeleccionadosMes.delete(fechaString);
                                     this.classList.remove('selected');
@@ -387,6 +388,7 @@ function renderizarCalendarioMes() {
                 }
                 
                 contenedor.appendChild(diaDiv);
+
             }
             
             // Esperar a que todas las verificaciones de feriados terminen
