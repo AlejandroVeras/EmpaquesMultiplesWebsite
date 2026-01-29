@@ -416,11 +416,11 @@ function guardarMiPreferenciaRegistro() {
     btnGuardar.disabled = true;
     btnGuardar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
     
-    guardarPreferenciaRegistro(currentUser.uid, tipo, diasSeleccionados)
+guardarPreferenciaRegistro(currentUser.uid, tipo, diasSeleccionados)
         .then(() => {
             mostrarAlerta('¡Preferencia de registro guardada exitosamente!', 'success');
-            cargarPreferenciaRegistro();
-            actualizarVisibilidadTarjetas(tipo);
+            
+            cargarPreferenciaRegistro(); 
         })
         .catch((error) => {
             console.error('Error al guardar preferencia:', error);
