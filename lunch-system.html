@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Almuerzos - Empaques Múltiples</title>
+    <style>
+        :root {
+            --verde: #116835;
+            --verde-oscuro: #0c4725;
+            --verde-claro: #e9f4ef;
+            --blanco: #fff;
+        }
+        
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: linear-gradient(135deg, var(--verde-claro) 0%, #f7f7f7 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: var(--blanco);
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(17, 104, 53, 0.15);
+            text-align: center;
+            max-width: 500px;
+        }
+        
+        .logo {
+            margin-bottom: 2rem;
+        }
+        
+        .logo img {
+            height: 80px;
+            max-width: 200px;
+        }
+        
+        h1 {
+            color: var(--verde-oscuro);
+            font-size: 2em;
+            margin-bottom: 1rem;
+        }
+        
+        p {
+            color: #666;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        
+        .system-links {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .system-link {
+            padding: 1rem 1.5rem;
+            background: var(--verde);
+            color: var(--blanco);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .system-link:hover {
+            background: var(--verde-oscuro);
+            transform: translateY(-2px);
+        }
+        
+        .system-link.basic {
+            background: #6c757d;
+        }
+        
+        .system-link.basic:hover {
+            background: #5a6268;
+        }
+        
+        .features {
+            margin-top: 2rem;
+            text-align: left;
+            background: var(--verde-claro);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+        
+        .features h3 {
+            color: var(--verde-oscuro);
+            margin-bottom: 1rem;
+        }
+        
+        .features ul {
+            margin: 0;
+            padding-left: 1.5rem;
+        }
+        
+        .features li {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <img src="images/logo.png" alt="Logo Empaques Múltiples">
+        </div>
+        
+        <h1>Sistema de Registro de Almuerzos</h1>
+        <p>Bienvenido al sistema de registro de almuerzos de Empaques Múltiples SRL. Elige el sistema que deseas utilizar:</p>
+        
+        <div class="system-links">
+            <a href="login.html" class="system-link">
+                <i class="fas fa-crown"></i>
+                Sistema Completo (Nuevo)
+            </a>
+            
+            <a href="almuerzo.html" class="system-link basic">
+                <i class="fas fa-utensils"></i>
+                Sistema Básico (Actual)
+            </a>
+        </div>
+        
+        <div class="features">
+            <h3>🚀 Nuevo Sistema Completo Incluye:</h3>
+            <ul>
+                <li>Dashboard con estadísticas y gráficos</li>
+                <li>Sistema de roles y permisos</li>
+                <li>Panel de administración</li>
+                <li>Exportación a CSV/Excel</li>
+                <li>Gestión de usuarios y departamentos</li>
+                <li>Logs de actividad</li>
+                <li>Diseño responsive</li>
+                <li>Autenticación JWT segura</li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Font Awesome for icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</body>
+</html>
